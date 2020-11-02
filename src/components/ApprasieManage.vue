@@ -26,36 +26,7 @@
                     <el-table
                       :data="grade"
                       style="width: 100%"
-                      height="330"
-                    @expand-change="getScore">
-                      <el-table-column type="expand">
-                        <template slot-scope="props">
-                          <el-form label-position="left" inline class="demo-table-expand">
-                            <el-table
-                              :data="score"
-                              style="width: 100%"
-                              height="200"
-                              :show-header="false">
-                              <el-table-column
-                                prop="username">
-                              </el-table-column>
-                              <el-table-column
-                                prop="name">
-                              </el-table-column>
-                              <el-table-column>
-                              <template slot-scope="scope">
-                                <el-button
-                                  @click="scoreDel(scope.row)"
-                                  type="text"
-                                  size="small">
-                                  <i class="el-icon-close"></i>
-                                </el-button>
-                              </template>
-                              </el-table-column>
-                            </el-table>
-                          </el-form>
-                        </template>
-                      </el-table-column>
+                      height="330">
                       <el-table-column
                         label="工号"
                         prop="username">
