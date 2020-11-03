@@ -9,7 +9,7 @@
               {{month}}月评价详细信息表
             </el-col>
           </el-row>
-          <el-table border :data="list" style="width:80%">
+          <el-table border :data="list" style="width:85%">
             <el-table-column prop="gname" label="评价人">
             </el-table-column>
             <el-table-column prop="sname" label="得分人">

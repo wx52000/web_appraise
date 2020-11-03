@@ -12,7 +12,7 @@
             </el-col>
           </el-row>
           <div>
-          <el-table border :data="list" style="width:80%"
+          <el-table border :data="list" style="width:85%"
                     v-loading.lock="loading"  element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading">
 

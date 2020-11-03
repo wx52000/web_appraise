@@ -11,7 +11,7 @@
           </el-col>
         </el-row>
         <!-- 导航 -->
-        <el-row style="margin-top: 20px;">
+        <el-row style="margin-top: 20px; text-align: center">
           <el-menu  default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
           <el-menu-item index="1" @click="toPage('/home/adminProject')">
             <span slot="title">项目管理</span>
@@ -58,11 +58,11 @@
       <!-- 顶 -->
       <el-container>
         <el-header >
-          <el-row style="margin: 17px 0; font-size:20px;color: #999;">
-            <el-dropdown trigger="click" style = "float: right;width:100px;margin-right: 10%">
+          <el-row style="margin: 17px 0; font-size:15px;color: #999;">
+            <el-dropdown trigger="click" style = "float: right;width:100px;margin-right: 6%">
               <el-row >
                 <span style="font-family:'FontAwesome',serif;"></span>
-                <span style="font-family:'微软雅黑',serif;font-size:18px;color: #000000"> {{name}} </span>
+                <span style="font-family:'微软雅黑',serif;font-size:15px;color: #000000"> {{name}} </span>
                 <span style="font-family:'FontAwesome',serif;font-size:12px;"></span>
               </el-row>
               <el-dropdown-menu slot="dropdown">
@@ -73,7 +73,7 @@
           </el-row>
         </el-header>
         <!-- 主 -->
-        <el-main style="padding: 0; height: 100%"  >
+        <el-main style="padding: 0; height: 100%;margin-top: -5%"  >
           <router-view v-if ="isRouterAlive" />
         </el-main>
       </el-container>

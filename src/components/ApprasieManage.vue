@@ -77,6 +77,7 @@
             style="width: 90%;left: 5%"
             :row-key="getRowKeys"
             @select="handleSelectionChange"
+            @select-all = "handleSelectionAll"
             @filter-change="filterMethod">
             <el-table-column
               type="selection"
@@ -206,6 +207,7 @@ export default {
       user : [],
       multipleSelection: [],
       systemState : "",
+      stateAll : 0,
       addAppraise: [],
       delAppraise: [],
       range:{},
@@ -307,7 +309,10 @@ export default {
         .post(this.$baseUrl + 'gradeScore/manage', {
           "gradeId" : this.visibleId,
           "addScoreId" : this.addAppraise,
-          "delScoreId" : this.delAppraise
+          "delScoreId" : this.delAppraise,
+          "tec" : this.queryByt,
+          "dep" : this.queryByd,
+          "stateAll" : this.stateAll
         })
         .then( res => {
           if ( res.data.code === 0)
@@ -350,6 +355,18 @@ export default {
       console.log(this.addAppraise + "addAppraise")
       console.log(this.delAppraise + "delAppraise")
     },
+    handleSelectionAll(){
+      // 状态0 则为单选；状态1全选； 状态2 全不选
+      if (this.stateAll !==1 ){
+        this.stateAll = 2;
+        this.addAppraise = [];
+        this.delAppraise = [];
+      }else{
+        this.stateAll = 1;
+        this.addAppraise = [];
+        this.addAppraise = [];
+      }
+    },
     toggleSelection(data) {
       this.systemState = false;
       if (data.length) {
@@ -359,6 +376,7 @@ export default {
             if (item.selected !== 0) {
               //multipleTable 是这个表格的ref属性 true为选中状态
               this.$refs.multipleTable.toggleRowSelection(item, true);
+
             }
           })
         })
@@ -368,6 +386,7 @@ export default {
     dialogClose(){
       this.$refs.multipleTable.clearSelection();
       this.addAppraise = [];
+      this.stateAll = 0;
     },
 
     getRange() {

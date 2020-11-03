@@ -10,7 +10,7 @@
               <i v-if="pid==1" class="el-icon-document-copy" @click="downExcel"></i>
             </el-col>
           </el-row>
-          <el-table border :data="list" style="width:80%">
+          <el-table border :data="list" style="width:85%">
 
             <el-table-column prop="department" label="部门">
             </el-table-column>
