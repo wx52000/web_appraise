@@ -56,7 +56,8 @@
     <el-dialog
       title="评价管理"
       :visible.sync="visible"
-      width="60%">
+      width="60%"
+      @close="dialogClose">
         <el-form id="user">
           <el-row>
             <el-col :span="8" >姓名<el-input v-model="search1" style="width: 50%" ></el-input></el-col>
@@ -74,7 +75,7 @@
             tooltip-effect="dark"
             style="width: 90%;left: 5%"
             :row-key="getRowKeys"
-            @selection-change="handleSelectionChange"
+            @select="handleSelectionChange"
             @filter-change="filterMethod">
             <el-table-column
               type="selection"
@@ -115,7 +116,6 @@
           </el-row>
           <div style="margin-top: 20px">
             <el-row style="margin-top: 10px">
-              <el-button @click="toggleSelection">取消选择</el-button>
               <el-button @click="visible = false">取 消</el-button>
               <el-button type="primary" @click="scoreAdd">确 定</el-button>
             </el-row>
@@ -292,17 +292,19 @@ export default {
           "dIds" : this.queryByd
 
         })
-        .then(res => {this.user = res.data.data.list,
-          this.totalSize = res.data.data.total
+        .then(res => {this.user = res.data.data.list;
+          this.totalSize = res.data.data.total;
+          this.toggleSelection(this.user);
         })
         .catch(res => (console.log(res)));
       this.visible = true
     },
     scoreAdd() {
-      this.addAppraise = [];
-      this.setAddAppraise();
       this.$axios
-        .post(this.$baseUrl + 'gradeScore/add', this.addAppraise)
+        .post(this.$baseUrl + 'gradeScore/manage', {
+          "gradeId" : this.visibleId,
+          "scoreIds" : this.addAppraise
+        })
         .then( res => {
           if ( res.data.code === 0)
             alert("添加成功");
@@ -312,37 +314,38 @@ export default {
         .catch(res => (console.log(res)));
       this.reload();
     },
-    scoreDel(v) {
-      this.$axios
-        .post(this.$baseUrl + 'gradeScore/del', {
-          "gradeId": v.gradeId,
-          "scoreId": v.scoreId
+    handleSelectionChange(arr,row) {
+        // 判断存数据数组是否为空,进而进行删除和添加的判断
+        if (this.addAppraise.length > 0) {
+          this.addAppraise.forEach((item, index) => {
+            if (item.id == row.id) {
+              this.addAppraise.splice(index,1)
+            } else {
+              this.addAppraise.push(row.id)
+            }
+          })
+        } else {
+          this.addAppraise.push(row.id)
+        }
+    },
+    toggleSelection(data) {
+      if (data.length) {
+        this.$nextTick(function() {
+          data.forEach(item => {
+            //如果数据中的selected !== 0的话 让这一列选中
+            if (item.selected !== 0) {
+              //multipleTable 是这个表格的ref属性 true为选中状态
+              this.$refs.multipleTable.toggleRowSelection(item, true);
+            }
+          })
         })
-        .then( res => {
-          if ( res.data.code === 0)
-            alert("删除成功");
-          else
-            alert("删除失败，请稍后重试或联系管理员")
-        })
-        .catch(res => (console.log(res)));
-      alert("删除成功");
-      this.reload();
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
-    },
-    toggleSelection() {
-        this.$refs.multipleTable.clearSelection();
-    },
-    setAddAppraise(){
-      for (var i=0; i<this.multipleSelection.length; i++){
-        var  add = {gradeId:"" , scoreId : ""}
-        add.gradeId = this.visibleId;
-        add.scoreId = this.multipleSelection[i].id;
-        this.addAppraise.push(add)
-        console.log(this.addAppraise)
       }
     },
+    dialogClose(){
+      this.$refs.multipleTable.clearSelection();
+      this.addAppraise = [];
+    },
+
     getRange() {
       this.$axios
         .post(this.$baseUrl + 'range/query')
@@ -419,12 +422,13 @@ export default {
     )
     },
     changeIndex(v) {
-      this.setAddAppraise();
+
       this.pageIndex = v;
       this.getUser()
     },
     changeSize(v) {
-      this.setAddAppraise();
+      this.addAppraise = [];
+      this.$refs.multipleTable.clearSelection();
       this.pageSize = v;
       this.getUser()
     },
