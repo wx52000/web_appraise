@@ -10,7 +10,8 @@
       <el-button type="primary" style="height: 40px;text-align: center; " @click="getRange" >评价取值范围管理</el-button>
     </el-row>
     <el-row style="text-align: left;height: 100%;padding-left: 10%">
-      <el-tabs tab-position="left" v-model="value" @tab-click="getTec(value)" >
+      <el-tabs tab-position="left" v-model="value" @tab-click="getTec(value)"
+      style="margin-left: -100px">
         <el-tab-pane
           v-for="(item, index) in department"
           :key="item.id"
@@ -26,7 +27,7 @@
                     <el-table
                       :data="grade"
                       style="width: 100%"
-                      height="330">
+                      height="500">
                       <el-table-column
                         label="工号"
                         prop="username">
@@ -41,7 +42,7 @@
                             @click="getUser(scope.row.id)"
                             type="text"
                             size="small">
-                            新增
+                            管理
                           </el-button>
                         </template>
                       </el-table-column>
@@ -204,7 +205,9 @@ export default {
       list: [],
       user : [],
       multipleSelection: [],
+      systemState : "",
       addAppraise: [],
+      delAppraise: [],
       range:{},
       rangeVisible : false,
       min: "",
@@ -303,11 +306,12 @@ export default {
       this.$axios
         .post(this.$baseUrl + 'gradeScore/manage', {
           "gradeId" : this.visibleId,
-          "scoreIds" : this.addAppraise
+          "addScoreId" : this.addAppraise,
+          "delScoreId" : this.delAppraise
         })
         .then( res => {
           if ( res.data.code === 0)
-            alert("添加成功");
+            alert("操作成功");
           else
             alert("添加失败，请稍后重试或联系管理员")
         })
@@ -316,19 +320,38 @@ export default {
     },
     handleSelectionChange(arr,row) {
         // 判断存数据数组是否为空,进而进行删除和添加的判断
+      if (row .selected === 0 ) {
         if (this.addAppraise.length > 0) {
-          this.addAppraise.forEach((item, index) => {
-            if (item.id == row.id) {
-              this.addAppraise.splice(index,1)
-            } else {
-              this.addAppraise.push(row.id)
+          let state = false;
+          for (let i = 0 ; i < this.addAppraise.length ; i++) {
+            if (this.addAppraise[i] === row.id) {
+              this.addAppraise.splice(i, 1)
+              state = true;
             }
-          })
-        } else {
+          }
+          if(state === false)
+            this.addAppraise.push(row.id)
+        }else
           this.addAppraise.push(row.id)
-        }
+      }else if(this.systemState === true) {
+        if (this.delAppraise.length > 0) {
+          let state = false;
+          for (let i = 0; i < this.delAppraise.length; i++) {
+            if (this.delAppraise[i] === row.id) {
+              this.delAppraise.splice(i, 1)
+              state = true;
+            }
+          }
+          if (state === false)
+            this.delAppraise.push(row.id)
+        }else
+          this.delAppraise.push(row.id)
+      }
+      console.log(this.addAppraise + "addAppraise")
+      console.log(this.delAppraise + "delAppraise")
     },
     toggleSelection(data) {
+      this.systemState = false;
       if (data.length) {
         this.$nextTick(function() {
           data.forEach(item => {
@@ -340,6 +363,7 @@ export default {
           })
         })
       }
+      this.systemState = true;
     },
     dialogClose(){
       this.$refs.multipleTable.clearSelection();

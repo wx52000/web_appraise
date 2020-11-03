@@ -2,17 +2,17 @@
   <div id="main" style="height: 100vh">
     <el-container style="height: 100%">
       <!-- 左 -->
-      <el-aside width="20%" heigth="100%" style="background-color: #3a8ee6;">
+      <el-aside width="20%" heigth="100%" >
         <!-- logo名字 -->
         <el-row @click.native="back()" style="padding: 10px 0 0 20px ; text-align: center">
           <el-col :span="22">
-            <el-row style="margin-top: 8px;text-align: center;color: #000000;font-size: 16px;font-weight: bold;">发电工程公司综合管理
+            <el-row style="margin-top: 35px;text-align: center;color: #000000;font-size: 16px;font-weight: bold;">发电工程公司综合管理
             </el-row>
           </el-col>
         </el-row>
         <!-- 导航 -->
-        <el-row>
-          <el-menu  default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"background-color="#3a8ee6" >
+        <el-row style="margin-top: 20px;">
+          <el-menu  default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
           <el-menu-item index="1" @click="toPage('/home/adminProject')">
             <span slot="title">项目管理</span>
           </el-menu-item>

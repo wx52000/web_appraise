@@ -18,7 +18,7 @@
     </el-row>
     <el-row style="text-align: center">
     <el-table v-loading="loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading"
-              border :data="list" style="width:80%;margin-left: 10%"
+              border :data="list" style="width:85%;margin-left: 7.5%"
               :default-sort = "{prop: 'date', order: 'descending'}"
             @filter-change="filterMethod"
             @sort-change="changeSort">
@@ -37,7 +37,7 @@
       :filters="departmentList" column-key="department">
       </el-table-column>
       <el-table-column prop="power" label="权限" min-width="20%">
-      </el-table-column>  
+      </el-table-column>
       <el-table-column
         fixed="right"
         label="操作"
