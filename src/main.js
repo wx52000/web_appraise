@@ -8,10 +8,12 @@ import 'element-ui/lib/theme-chalk/index.css';
 import Axios from 'axios';
 import 'font-awesome/css/font-awesome.min.css';
 import 'babel-polyfill';
+import tableText from '../static/js/tableText'
 
 Vue.config.productionTip = false
 
 Vue.use(ElementUI);
+Vue.use(tableText)
 Vue.prototype.$axios = Axios;
 Vue.prototype.$baseUrl = 'http://localhost:9999/';
 // Vue.prototype.$baseUrl = 'http://10.136.238.22:9999/';

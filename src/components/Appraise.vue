@@ -15,19 +15,23 @@
                 本月取值范围为{{min}}~{{max}}
               </el-col>
             </el-row>
-            <el-table border :data="list" @filter-change="filterMethod" style="margin-top:20px;width: 80% ;horiz-align: center; left: 10%" >
-
-              <el-table-column prop="name" label="姓名">
-              </el-table-column>
+            <el-table border :data="list" @filter-change="filterMethod"
+                      :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
+                      style="margin-top:20px;width: 80% ;horiz-align: center; left: 10% ; "
+                      @sort-change="changeSort">
               <el-table-column prop="department" label="部门"
                                column-key="department"
-                               :filters="departmentList">
+                               :filters="departmentList" min-width="25%">
               </el-table-column>
               <el-table-column prop="technology" label="专业"
                                column-key="technology"
-                               :filters="technologyList">
+                               :filters="technologyList" min-width="10%">
               </el-table-column>
-              <el-table-column prop="scope" label="质量得分" >
+              <el-table-column prop="name" label="姓名" sortable="custom" min-width="10%">
+              </el-table-column>
+              <el-table-column prop="username" label="工号" sortable="custom" min-width="10%">
+              </el-table-column>
+              <el-table-column prop="scope" label="质量得分" min-width="10%">
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'designer' + scope.$index" v-model="scope.row.designer"
@@ -38,7 +42,7 @@
                 </template>
               </el-table-column>
 
-              <el-table-column prop="scope" label="进度得分">
+              <el-table-column prop="scope" label="进度得分" min-width="10%">
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'personal'+scope.$index"
@@ -48,7 +52,7 @@
                 </template>
               </el-table-column>
 
-              <el-table-column prop="scope" label="配合得分" >
+              <el-table-column prop="scope" label="配合得分" min-width="10%" >
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'coordinate'+scope.$index"
@@ -98,6 +102,8 @@ name: "Appraise",
       tableData:[],
       technologyList:[],
       departmentList:[],
+      selectName: "",
+      selectType: "",
       queryByd:null,
       queryByt:null
     }
@@ -133,15 +139,32 @@ name: "Appraise",
       this.getOtherData();
     },
     getData() {
+      //指定人员查询
+      // this.$axios
+      //   .post(this.$baseUrl + 'userScore/queryByGradeId',{
+      //     "id" : this.id ,
+      //     "pageIndex" : this.pageIndex,
+      //     "pageSize" : this.pageSize,
+      //     "queryByd": this.queryByd,
+      //     "queryByt": this.queryByt}
+      //   )
+      //   .then(res => {this.list = res.data.data.list,this.totalSize = res.data.data.total})
+      //   .catch(res => (console.log(res)));
+      // 非指定
       this.$axios
-        .post(this.$baseUrl + 'userScore/queryByGradeId',{
-          "id" : this.id ,
+        .post(this.$baseUrl + 'user/queryNotSelf', {
+          "id" : this.id,
           "pageIndex" : this.pageIndex,
           "pageSize" : this.pageSize,
-          "queryByd": this.queryByd,
-          "queryByt": this.queryByt}
-        )
-        .then(res => {this.list = res.data.data.list,this.totalSize = res.data.data.total})
+          "selectName" : this.selectName,
+          "selectType" : this.selectType,
+          "tIds": this.queryByt,
+          "dIds" : this.queryByd
+        },)
+        .then(res => {this.list = res.data.data.list;this.totalSize = res.data.data.total;
+        this.$nextTick(function() {
+        this.loading = false;})
+        })
         .catch(res => (console.log(res)));
     },
     getOtherData(){
@@ -151,15 +174,20 @@ name: "Appraise",
           this.min = res.data.data.min})
         .catch(res => (console.log(res)));
       this.$axios
-        .post(this.$baseUrl + 'gradeScore/queryTec',{},{headers: {'id': this.id}})
-        .then(res => (this.technologyList = res.data.data ))
+        .post(this.$baseUrl + 'technology/queryNotUser',{},{headers: {'id': this.id}})
+        .then(res => {this.technologyList = res.data.data;
+          this.technologyList = JSON.parse(JSON.stringify(this.technologyList).replace(/id/g,"value").replace(
+            /name/g,"text"));})
         .catch(res => (console.log(res)));
       this.$axios
-        .post(this.$baseUrl + 'gradeScore/queryDep',{},{headers: {'id': this.id}})
-        .then(res => (this.departmentList = res.data.data ))
+        .post(this.$baseUrl + 'department/queryNotUser',{},{headers: {'id': this.id}})
+        .then(res => {this.departmentList = res.data.data;
+          this.departmentList = JSON.parse(JSON.stringify(this.departmentList).replace(/id/g,"value").replace(
+            /name/g,"text"));})
         .catch(res => (console.log(res)));
     },
     appraise() {
+      this.listData = [];
       for (var i = 0; i < this.list.length; i++) {
         if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
           if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
@@ -185,10 +213,12 @@ name: "Appraise",
         data.list.forEach(table =>{
           if (table.designer !=null && table.personal != null && table.coordinate!= null){
             let userScore = {
-              gsId: table.id,
+              gradeId: this.id,
+              scoreId: table.id,
               designer: table.designer,
               personal: table.personal,
-              coordinate: table.coordinate
+              coordinate: table.coordinate,
+              date : new Date().getTime()
             };
             this.listData.push(userScore);
           }
@@ -198,7 +228,6 @@ name: "Appraise",
         .post(this.$baseUrl + 'userScore/appraise', this.listData)
         .then(res => {
           if (0 === res.data.code) {
-            this.getData();
             this.reload();
               alert("操作成功")
             this.tableData = [];
@@ -229,42 +258,52 @@ name: "Appraise",
       for (let i = 0; i < this.list.length; i++) {
         if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
           if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
+
           } else {
             alert("评价应要么三项全评价，要么全不评价");
-            return;
+            return 0;
           }
         }
       }
+      // table中无数据，直接存入
       if (this.tableData.length === 0){
         let tData = {pageIndex:this.pageIndex , list:this.list};
         this.tableData.push(tData);
         this.pageIndex = v;
         this.getData();
       }else {
-        let e = 0;
-      this.tableData.forEach((data) =>{
-        if(data.pageIndex === v){
-          this.tableData.forEach((data1) =>{
-            if (this.pageIndex === data1.pageIndex){
-              data1.list = this.list
-            }
-          })
-          this.list = data.list;
-          this.pageIndex = v;
-          e = 1;
-          return 0;
-        }
-      })
+        let e = 0; //用于判断tableData 中有没有当前页数据
+        let x = 0; //用于判断tableData 中有没有跳转页数据
+        this.tableData.forEach((data) =>{
+          //判断数据中是否有数据
+          if(data.pageIndex === this.pageIndex) {
+            data.list = this.list;
+            e = 1;
+          }
+        })
+        this.tableData.forEach((data) =>{
+          if (data.pageIndex === v) {
+            this.list = data.list;
+            this.pageIndex = v;
+            x = 1;
+            return 0;
+          }
+        })
         if (e === 0) {
           let tData = {pageIndex: this.pageIndex, list: this.list}
           this.tableData.push(tData);
-          this.pageIndex = v;
-          this.getData();
         }
+        if (x === 0){
+            this.pageIndex = v;
+            this.getData();
+          }
       }
+      console.log(this.tableData)
     },
     changeSize(v) {
+      this.tableData = null;
       this.pageSize = v;
+      this.pageIndex = 1;
       this.getData();
     },
     changeState(v){
@@ -274,16 +313,38 @@ name: "Appraise",
       for (let obj in filter){
         if (obj === "technology") {
           this.queryByd = null;
-          this.queryByt = filter.technology
+          if (filter.technology.length !== 0) {
+            this.queryByt = filter.technology
+          }else {
+            this.queryByt = null
+          }
+
         }
         else {
           this.queryByt = null;
-          this.queryByd = filter.department
+          if (filter.department.length !== 0) {
+            this.queryByd = filter.department
+          }else {
+            this.queryByd = null
+          }
         }
       }
       this.getData()
     },
 
+    changeSort(v){
+      if(v.order == null){
+        this.selectName = "";
+        this.selectType = ""
+      }else if(v.order === "ascending"){
+        this.selectName = v.prop
+        this.selectType = ""
+      }else if(v.order === "descending"){
+        this.selectName = v.prop
+        this.selectType = 1
+      }
+      this.getData()
+    },
   }
 
 
@@ -291,5 +352,4 @@ name: "Appraise",
 </script>
 
 <style scoped>
-
 </style>

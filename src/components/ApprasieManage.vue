@@ -27,7 +27,8 @@
                     <el-table
                       :data="grade"
                       style="width: 100%"
-                      height="500">
+                      height="500"
+                      :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
                       <el-table-column
                         label="工号"
                         prop="username">
@@ -78,7 +79,8 @@
             :row-key="getRowKeys"
             @select="handleSelectionChange"
             @select-all = "handleSelectionAll"
-            @filter-change="filterMethod">
+            @filter-change="filterMethod"
+            indeterminate>
             <el-table-column
               type="selection"
               width="55"
@@ -207,7 +209,8 @@ export default {
       user : [],
       multipleSelection: [],
       systemState : "",
-      stateAll : 0,
+      stateAll :[],
+      exAppraise: [],
       addAppraise: [],
       delAppraise: [],
       range:{},
@@ -305,70 +308,95 @@ export default {
       this.visible = true
     },
     scoreAdd() {
-      this.$axios
-        .post(this.$baseUrl + 'gradeScore/manage', {
-          "gradeId" : this.visibleId,
-          "addScoreId" : this.addAppraise,
-          "delScoreId" : this.delAppraise,
-          "tec" : this.queryByt,
-          "dep" : this.queryByd,
-          "stateAll" : this.stateAll
-        })
-        .then( res => {
-          if ( res.data.code === 0)
-            alert("操作成功");
-          else
-            alert("添加失败，请稍后重试或联系管理员")
-        })
-        .catch(res => (console.log(res)));
+      if (this.addAppraise.length > 0 || this.delAppraise.length > 0) {
+        this.$axios
+          .post(this.$baseUrl + 'gradeScore/manage', {
+            "gradeId": this.visibleId,
+            "addScoreId": this.addAppraise,
+            "delScoreId": this.delAppraise,
+          })
+          .then(res => {
+            if (res.data.code === 0)
+              alert("操作成功");
+            else
+              alert("添加失败，请稍后重试或联系管理员")
+          })
+          .catch(res => (console.log(res)));
+      }
       this.reload();
     },
     handleSelectionChange(arr,row) {
         // 判断存数据数组是否为空,进而进行删除和添加的判断
-      if (row .selected === 0 ) {
-        if (this.addAppraise.length > 0) {
-          let state = false;
-          for (let i = 0 ; i < this.addAppraise.length ; i++) {
-            if (this.addAppraise[i] === row.id) {
-              this.addAppraise.splice(i, 1)
-              state = true;
+        if (row.selected === 0) {
+          if (this.addAppraise.length > 0) {
+            let state = false;
+            for (let i = 0; i < this.addAppraise.length; i++) {
+              if (this.addAppraise[i] === row.id) {
+                this.addAppraise.splice(i, 1)
+                state = true;
+                break;
+              }
             }
-          }
-          if(state === false)
+            if (state === false)
+              this.addAppraise.push(row.id)
+          } else
             this.addAppraise.push(row.id)
-        }else
-          this.addAppraise.push(row.id)
-      }else if(this.systemState === true) {
-        if (this.delAppraise.length > 0) {
+        } else if (this.systemState === true) {
+          if (this.delAppraise.length > 0) {
+            let state = false;
+            for (let i = 0; i < this.delAppraise.length; i++) {
+              if (this.delAppraise[i] === row.id) {
+                this.delAppraise.splice(i, 1)
+                state = true;
+                break;
+
+              }
+            }
+            if (state === false)
+              this.delAppraise.push(row.id)
+          } else
+            this.delAppraise.push(row.id)
+        }
+
+      console.log(this.addAppraise + "addAppraise")
+      console.log(this.delAppraise + "delAppraise")
+    },
+    handleSelectionAll(v) {
+      this.addAppraise = [];
+      if (this.stateAll !== 1){
+        this.stateAll = 1;
+        for (let i = 0; i < v.length; i++) {
+          if (v[i].selected === 0)
+            this.addAppraise.push(v[i].id);
           let state = false;
-          for (let i = 0; i < this.delAppraise.length; i++) {
-            if (this.delAppraise[i] === row.id) {
-              this.delAppraise.splice(i, 1)
+          for (let j= 0; j < this.delAppraise.length; j++) {
+            if (this.delAppraise[j] === v[i].id) {
+              this.delAppraise.splice(j,1);
               state = true;
+              break;
             }
           }
-          if (state === false)
-            this.delAppraise.push(row.id)
-        }else
-          this.delAppraise.push(row.id)
+        }
+      }else {
+        this.stateAll = 2;
+        for (let i = 0; i < this.exAppraise.length; i++) {
+          let  state = false;
+            for (let j= 0; j < this.delAppraise.length; j++) {
+              if (this.delAppraise[j] === this.exAppraise[i]) {
+                state = true;
+                break;
+              }
+            }
+            if (state === false)
+          this.delAppraise.push(this.exAppraise[i]);
+        }
       }
       console.log(this.addAppraise + "addAppraise")
       console.log(this.delAppraise + "delAppraise")
     },
-    handleSelectionAll(){
-      // 状态0 则为单选；状态1全选； 状态2 全不选
-      if (this.stateAll !==1 ){
-        this.stateAll = 2;
-        this.addAppraise = [];
-        this.delAppraise = [];
-      }else{
-        this.stateAll = 1;
-        this.addAppraise = [];
-        this.addAppraise = [];
-      }
-    },
     toggleSelection(data) {
       this.systemState = false;
+      this.exAppraise = [];
       if (data.length) {
         this.$nextTick(function() {
           data.forEach(item => {
@@ -376,7 +404,7 @@ export default {
             if (item.selected !== 0) {
               //multipleTable 是这个表格的ref属性 true为选中状态
               this.$refs.multipleTable.toggleRowSelection(item, true);
-
+              this.exAppraise.push(item.id)
             }
           })
         })
@@ -387,6 +415,11 @@ export default {
       this.$refs.multipleTable.clearSelection();
       this.addAppraise = [];
       this.stateAll = 0;
+      this.delAppraise = [];
+      this.exAppraise = [];
+      this.queryByd = null;
+      this.queryByt = null;
+      this.pageIndex = 1;
     },
 
     getRange() {
@@ -467,12 +500,14 @@ export default {
     changeIndex(v) {
 
       this.pageIndex = v;
+      this.stateAll = 0;
       this.getUser()
     },
     changeSize(v) {
       this.addAppraise = [];
       this.$refs.multipleTable.clearSelection();
       this.pageSize = v;
+      this.stateAll = 0;
       this.getUser()
     },
     filterMethod(filter){

@@ -15,13 +15,13 @@
                 本月取值范围为{{min}}~{{max}}
               </el-col>
             </el-row>
-            <el-table border :data="list" style="margin-top:20px;width: 80% ;horiz-align: center; left: 10%" >
-
-              <el-table-column prop="technology" label="专业">
+            <el-table border :data="list" style="margin-top:20px;width: 80% ;horiz-align: center; left: 10%"
+                      :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
+              <el-table-column prop="department" label="部门" min-width="30%">
               </el-table-column>
-              <el-table-column prop="department" label="部门">
+              <el-table-column prop="technology" label="专业" min-width="15%">
               </el-table-column>
-              <el-table-column prop="scope" label="质量得分">
+              <el-table-column prop="scope" label="质量得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'designer' + scope.$index" v-model="scope.row.designer"
@@ -30,7 +30,7 @@
                             ></el-input>
                 </template>
               </el-table-column>
-              <el-table-column prop="scope" label="进度得分">
+              <el-table-column prop="scope" label="进度得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'personal' + scope.$index" v-model="scope.row.personal"
@@ -39,7 +39,7 @@
                             ></el-input>
                 </template>
               </el-table-column>
-              <el-table-column prop="scope" label="配合得分">
+              <el-table-column prop="scope" label="配合得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'coordinate' + scope.$index" v-model="scope.row.coordinate"
@@ -104,8 +104,6 @@ name: "TecAppraise",
       this.search1 = "";
       this.search2 = "";
       this.search3 = "";
-
-
       this.getData();
     },
     getLogIn() {
@@ -115,17 +113,19 @@ name: "TecAppraise",
     },
     getData() {
       this.$axios
-        .post(this.$baseUrl + 'tecScore/queryByGradeId',{},{headers: {'id': this.id}})
+        .post(this.$baseUrl + 'technology/evaluate',{},{headers: {'id': this.id}})
         .then(res => (this.list = res.data.data))
         .catch(res => (console.log(res)));
       this.$axios
         .post(this.$baseUrl + 'range/query',{},{headers: {'id': this.id}})
-        .then(res => (this.max = res.data.data.max , this.min = res.data.data.min))
+        .then(res => {this.max = res.data.data.max ; this.min = res.data.data.min})
         .catch(res => (console.log(res)));
 
     },
     appraise() {
-      for (var i = this.list.length-1; i >= 0; i--) {
+      for (let i = this.list.length-1; i >= 0; i--) {
+        this.list[i].gradeId = this.id;
+        this.list[i].date = new Date().getTime()
         if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
           if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
             this.list.splice(i ,1 )
@@ -136,26 +136,28 @@ name: "TecAppraise",
         }
       }
         this.$axios
-          .post(this.$baseUrl + 'tecScore/appraise', this.list)
+          .post(this.$baseUrl + 'tecScore/appraise',this.list)
           .then(res => {
-            if (0 == res.data.code) {
+            if (0 === res.data.code) {
               alert("操作成功")
-              this.getData()
             } else {
               alert(("操作失败，请重试"))
             }
+            this.getData()
           })
-          .cache(res => (console.log(res)));
+          .catch(res => (console.log(res)));
     },
     judge(v,w,n) {
-      if (v<this.min || v>this.max) {
+      console.log(v)
+      if (v !== null && v !== "") {
+      if (v < this.min || v > this.max) {
 
         // this.$nextTick(() => {
         // })
         this.$refs[w + n].focus();
         this.$message.error("输入的值不在范围内，请重新输入");
       }
-
+    }
     },
     reload(){
       this.isRouterAlive = false

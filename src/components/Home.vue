@@ -11,7 +11,7 @@
           </el-col>
         </el-row>
         <!-- 导航 -->
-        <el-row style="margin-top: 20px; text-align: center">
+        <el-row style="margin-top: 20px; ">
           <el-menu  default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
           <el-menu-item index="1" @click="toPage('/home/adminProject')">
             <span slot="title">项目管理</span>
@@ -47,8 +47,6 @@
                 <el-menu-item class="nav2" index="4-1" @click="toPage('/home/personal')">人员管理
                 </el-menu-item>
                 <el-menu-item class="nav2" index="4-2" @click="toPage('/home/department')">部门管理
-                </el-menu-item>
-                <el-menu-item class="nav2" index="4-3" @click="toPage('/home/appraiseManage')">评价管理
                 </el-menu-item>
               </el-menu-item-group>
             </el-submenu>

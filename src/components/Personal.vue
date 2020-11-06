@@ -21,22 +21,23 @@
               border :data="list" style="width:85%;margin-left: 7.5%"
               :default-sort = "{prop: 'date', order: 'descending'}"
             @filter-change="filterMethod"
-            @sort-change="changeSort">
+            @sort-change="changeSort"
+              :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
 
-      <el-table-column prop="name" label="姓名" min-width="10%"
+      <el-table-column prop="name" label="姓名" min-width="12%"
       sortable="custom">
       </el-table-column>
-      <el-table-column prop="username" label="工号" min-width="10%"
+      <el-table-column prop="username" label="工号" min-width="12%"
       sortable="custom">
       </el-table-column>
-      <el-table-column prop="technology" label="专业" min-width="20%"
+      <el-table-column prop="technology" label="专业" min-width="16%"
               :filters="technologyList"
               column-key="technology">
       </el-table-column>
-      <el-table-column prop="department" label="部门" min-width="40 %"
+      <el-table-column prop="department" label="部门" min-width="45 %"
       :filters="departmentList" column-key="department">
       </el-table-column>
-      <el-table-column prop="power" label="权限" min-width="20%">
+      <el-table-column prop="power" label="权限" min-width="15%">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -341,22 +342,28 @@ export default {
       this.getUser(v);
     },
     filterMethod(filter){
-      if(filter != null){
       for (let obj in filter){
         if (obj === "technology") {
           this.queryByd = null;
-          this.queryByt = filter.technology
-          this.selectName = t.name
+          if (filter.technology.length !== 0) {
+            this.queryByt = filter.technology
+            this.selectName = 't.name'
+          }else {
+            this.queryByt = null
+            this.selectName = ""
+          }
+
         }
         else {
           this.queryByt = null;
-          this.queryByd = filter.department
-          this.selectName = d.name
+          if (filter.department.length !== 0) {
+            this.queryByd = filter.department
+            this.selectName = 'd.name'
+          }else {
+            this.queryByd = null
+            this.selectName = ""
+          }
         }
-      }
-      }else{
-          this.queryByt = null;
-          this.queryByd = null
       }
       this.getUser(filter)
     },
