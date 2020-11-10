@@ -10,19 +10,20 @@
               {{month}}月评价详细信息表
             </el-col>
           </el-row>
-          <el-table border :data="list" style="width:85%">
-            <el-table-column prop="name" label="评价人">
+          <el-table border :data="list" style="width:85%"
+                    :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
+            <el-table-column prop="name" label="评价人" min-width="10%">
             </el-table-column>
 
-            <el-table-column prop="technology" label="专业">
+            <el-table-column prop="technology" label="专业" min-width="15%">
             </el-table-column>
-            <el-table-column prop="department" label="部门">
+            <el-table-column prop="department" label="部门" min-width="35%">
             </el-table-column>
-            <el-table-column prop="designer" label="质量得分">
+            <el-table-column prop="designer" label="质量得分" min-width="10%">
             </el-table-column>
-            <el-table-column prop="personal" label="进度得分">
+            <el-table-column prop="personal" label="进度得分" min-width="10%">
             </el-table-column>
-            <el-table-column prop="coordinate" label="配合得分">
+            <el-table-column prop="coordinate" label="配合得分" min-width="10%">
             </el-table-column>
 
 

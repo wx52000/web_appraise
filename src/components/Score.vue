@@ -14,7 +14,8 @@
           <div>
           <el-table border :data="list" style="width:85%"
                     v-loading.lock="loading"  element-loading-text="拼命加载中"
-                    element-loading-spinner="el-icon-loading">
+                    element-loading-spinner="el-icon-loading"
+                    :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
 
             <el-table-column prop="name" label="姓名">
             </el-table-column>
@@ -65,9 +66,6 @@ name: "Score",
     reset() {
       this.search1 = "";
       this.search2 = "";
-      this.search3 = "";
-      this.search4 = "";
-      this.search5 = "";
       this.pageIndex = 1;
       this.getData();
     },

@@ -55,8 +55,8 @@
       </el-aside>
       <!-- 顶 -->
       <el-container>
-        <el-header >
-          <el-row style="margin: 17px 0; font-size:15px;color: #999;">
+        <el-header height="40px" >
+          <el-row style="margin: 15px 0; font-size:15px;color: #999;">
             <el-dropdown trigger="click" style = "float: right;width:100px;margin-right: 6%">
               <el-row >
                 <span style="font-family:'FontAwesome',serif;"></span>
@@ -71,7 +71,7 @@
           </el-row>
         </el-header>
         <!-- 主 -->
-        <el-main style="padding: 0; height: 100%;margin-top: -5%"  >
+        <el-main style="padding: 0; height: 100%;"  >
           <router-view v-if ="isRouterAlive" />
         </el-main>
       </el-container>

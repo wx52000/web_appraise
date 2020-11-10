@@ -6,14 +6,28 @@
       </el-col>
     </el-row>
     <el-row style="text-align: right" >
-        <el-col :span="6" >姓名<el-input v-model="search1" style="width: 50%" ></el-input></el-col>
-        <el-col :span="6" >工号<el-input v-model="search2" style="width: 50%" ></el-input></el-col>
-        <el-col :span="6" style="text-align: right;">
+        <el-col :span="5" >姓名<el-input v-model="search1" style="width: 50%" ></el-input></el-col>
+        <el-col :span="5" >工号<el-input v-model="search2" style="width: 50%" ></el-input></el-col>
+        <el-col :span="5" style="text-align: right;">
           <el-button type="primary" @click="search()">查询</el-button>
           <el-button @click="reset()">重置</el-button>
         </el-col>
-      <el-col :span="6" style="text-align: left;%">
-      <el-button style="width: 100px;height: 40px;text-align: center; margin-left: 20%" @click="handleOpenAdd" >人员添加</el-button>
+      <el-col :span="4" style="text-align: left;%">
+      <el-button style="width: 100px;height: 40px;text-align: center; margin-left: 80px"
+                 @click="handleOpenAdd" >人员添加</el-button>
+      </el-col>
+      <el-col :span="5" >
+        <el-upload
+          class="upload-demo"
+          ref="upload"
+          :action="this.$baseUrl + 'excel/userExcel'"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :file-list="fileList">
+          <el-button size="small" type="primary"
+                     style="width: 100px;height: 40px;text-align: center;margin-right: 80px">
+            人员上传</el-button>
+        </el-upload>
       </el-col>
     </el-row>
     <el-row style="text-align: center">
@@ -37,7 +51,17 @@
       <el-table-column prop="department" label="部门" min-width="45 %"
       :filters="departmentList" column-key="department">
       </el-table-column>
-      <el-table-column prop="power" label="权限" min-width="15%">
+      <el-table-column prop="power" label="管理权限" min-width="12.5%">
+      </el-table-column>
+      <el-table-column  label="评价权限" min-width="12.5%">
+        <template slot-scope="scope">
+          <span v-if="scope.row.grade === 0">
+            <i class="el-icon-close"/>
+          </span>
+          <span v-else>
+            <i class="el-icon-check"></i>
+          </span>
+        </template>
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -75,23 +99,11 @@
       width="50%"
       :before-close="handleClose">
       <el-form id="upd">
-        <el-row>
-          <el-col :span="8">姓&nbsp;名&nbsp;<el-input v-model="upd.name" style="width: 50%" readonly = "true"></el-input></el-col>
-          <el-col :span="8">工&nbsp;号&nbsp;<el-input v-model="upd.username" style="width: 50%" readonly = "true"></el-input></el-col>
-          <el-col :span="8">权&nbsp;限&nbsp;
-            <template>
-              <el-select v-model="upd.power" placeholder="请选择" style="width: 60%"  @change="upd.pid = upd.power">
-                <el-option
-                  v-for="item in power"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </template>
-          </el-col>
+        <el-row style="text-align: left">
+          <el-col :span="12">姓&nbsp;名&nbsp;<el-input v-model="upd.name" style="width: 50%" :readonly = "true"></el-input></el-col>
+          <el-col :span="12">工&nbsp;号&nbsp;<el-input v-model="upd.username" style="width: 50%" :readonly= "true"></el-input></el-col>
         </el-row>
-        <el-row style="margin-top: 10px">
+        <el-row style="margin-top: 10px; text-align: left">
           <el-col :span="12">部&nbsp;门&nbsp;
             <template>
               <el-select v-model="upd.department" placeholder="请选择" @change="depSelect(upd.department)">
@@ -106,7 +118,7 @@
           </el-col>
           <el-col :span="12">专&nbsp;业&nbsp;
           <template>
-            <el-select v-model="upd.technology" placeholder="请选择" @change="tecSelect(upd.technology)" >
+            <el-select v-model="upd.technology" placeholder="请选择" @change="tecSelect(upd.technology)">
               <el-option
                 v-for="item in technology"
                 :key="item.id"
@@ -115,6 +127,29 @@
               </el-option>
             </el-select>
           </template>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px; text-align: left">
+            <el-col :span="12">管理权限
+              <template>
+                <el-select v-model="upd.power" placeholder="请选择" style="width: 60%"  @change="upd.pid = upd.power">
+                  <el-option
+                    v-for="item in power"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </template>
+            </el-col>
+          <el-col :span="12" style="margin-top: 8px">评价权限
+            <el-switch
+              v-model="upd.grade"
+              active-color="#112ddf"
+              inactive-color="#737791"
+              :active-value = 1
+              :inactive-value = 0>
+            </el-switch>
           </el-col>
         </el-row>
       </el-form>
@@ -128,22 +163,10 @@
       :visible.sync="addVisible"
       width="50%"
       :before-close="handleClose">
-      <el-form id="add">
+      <el-form id="add" style="text-align: left">
         <el-row>
-          <el-col :span="8">姓&nbsp;名&nbsp;<el-input v-model="add.name" style="width: 50%" ></el-input></el-col>
-          <el-col :span="8">工&nbsp;号&nbsp;<el-input v-model="add.username" style="width: 50%" ></el-input></el-col>
-          <el-col :span="8">权&nbsp;限&nbsp;
-            <template>
-              <el-select v-model="add.pid" placeholder="请选择" style="width: 60%" >
-                <el-option
-                  v-for="item in power"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </template>
-          </el-col>
+          <el-col :span="12">姓&nbsp;名&nbsp;<el-input v-model="add.name" style="width: 50%" ></el-input></el-col>
+          <el-col :span="12">工&nbsp;号&nbsp;<el-input v-model="add.username" style="width: 50%" ></el-input></el-col>
         </el-row>
         <el-row style="margin-top: 10px">
           <el-col :span="12">部&nbsp;门&nbsp;
@@ -171,11 +194,34 @@
             </template>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="12">管理权限&nbsp;
+            <template>
+              <el-select v-model="add.pid" placeholder="请选择" style="width: 60%" >
+                <el-option
+                  v-for="item in power"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </template>
+          </el-col>
+          <el-col :span="12" style="margin-top: 8px">评价权限
+            <el-switch
+              v-model="add.grade"
+              active-color="#112ddf"
+              inactive-color="#737791"
+              :active-value = "1"
+              :inactive-value = "0">
+            </el-switch>
+          </el-col>
+        </el-row>
       </el-form>
       <el-row style="margin-top: 10px">
         <el-button @click="addVisible = false">取 消</el-button>
         <el-button type="primary" @click="addPer">确 定</el-button>
-      </el-row>
+      </el-row>x
     </el-dialog>
   </div>
 
@@ -202,6 +248,7 @@ export default {
       add:{},
       power: [],
       department:[],
+      fileList : [],
       technology:[],
       technologyList:[],
       departmentList:[],
@@ -269,7 +316,7 @@ export default {
       this.reload();
     },
     updRow(){
-      // alert(this.upd.pid)
+      console.log(this.upd)
       this.$axios
         .post(this.$baseUrl + 'user/upd', this.upd)
         .then()
@@ -293,10 +340,16 @@ export default {
           done();
         })
         .catch(_ => {});
+      this.upd = [];
     },
     handleOpenUpd(v) {
-      this.visible = true;
-      this.upd = this.list[v];
+      this.$axios
+        .post(this.$baseUrl + 'user/queryToupd', {}, {headers:{"id" : this.list[v].id}})
+        .then(res => {this.upd = res.data.data;
+        console.table(res.data+ "data");
+          this.visible = true;})
+        .catch(res => (console.log(res)));
+      console.log(this.upd);
       this.getSelect();
     },
     handleOpenAdd() {
@@ -397,7 +450,26 @@ export default {
         },)
         .then(res => (this.list = res.data.data.list,this.totalSize = res.data.data.total))
         .catch(res => (console.log(res)));
-    }
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    getFile(file , fl) {
+      var excelName = file.name;
+      var idx = excelName.lastIndexOf(".");
+      if (idx !== -1){
+        var ext = excelName.substr(idx+1).toUpperCase();
+        ext = ext.toLowerCase( );
+        if (ext!== 'xlsx'){
+
+        }else {
+          this.files.push(file)
+        }
+      }
+    },
   }
 }
 </script>
