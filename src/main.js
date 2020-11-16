@@ -15,8 +15,8 @@ Vue.config.productionTip = false
 Vue.use(ElementUI);
 Vue.use(tableText)
 Vue.prototype.$axios = Axios;
-// Vue.prototype.$baseUrl = 'http://localhost:9999/';
-Vue.prototype.$baseUrl = 'http://10.136.238.22:9999/';
+Vue.prototype.$baseUrl = 'http://localhost:9999/';
+// Vue.prototype.$baseUrl = 'http://10.136.238.22:9999/';
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
