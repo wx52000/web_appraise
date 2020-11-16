@@ -10,23 +10,29 @@
             </el-col>
           </el-row>
           <el-table border :data="list" style="width:85%"
-                    :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
-            <el-table-column prop="gname" label="评价人" min-width="10%">
+                    :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
+                    @filter-change="filterMethod"
+                    @sort-change="changeSort">
+            <el-table-column prop="gname" label="评价人"
+                             sortable="custom" min-width="10%">
             </el-table-column>
-            <el-table-column prop="sname" label="得分人" min-width="10%">
+            <el-table-column prop="sname" label="得分人"
+                             sortable="custom" min-width="10%">
             </el-table-column>
-            <el-table-column prop="technology" label="专业" min-width="15%">
+            <el-table-column prop="technology" label="得分人专业" min-width="15%"
+                             column-key="technology"
+                             :filters="technologyList">
             </el-table-column>
-            <el-table-column prop="department" label="部门" min-width="30%">
+            <el-table-column prop="department" label="得分人部门" min-width="30%"
+                             column-key="department"
+                             :filters="departmentList">
             </el-table-column>
-            <el-table-column prop="designer" label="质量得分" min-width="10%">
+            <el-table-column prop="designer" label="质量得分" min-width="9%">
             </el-table-column>
-            <el-table-column prop="personal" label="进度得分" min-width="10%">
+            <el-table-column prop="personal" label="进度得分" min-width="9%">
             </el-table-column>
-            <el-table-column prop="coordinate" label="配合得分" min-width="10%">
+            <el-table-column prop="coordinate" label="配合得分" min-width="9%">
             </el-table-column>
-
-
           </el-table>
         </el-row>
       </el-row>
@@ -48,7 +54,13 @@ name: "Details",
       search5: "",
       pageIndex: 1,
       pageSize: 10,
-      list: []
+      list: [],
+      technologyList:[],
+      departmentList:[],
+      selectName: "",
+      selectType: "",
+      queryByd:null,
+      queryByt:null
     }
   },
   mounted() {
@@ -72,13 +84,71 @@ name: "Details",
       let i = JSON.parse(sessionStorage.getItem("appraise"));
       this.id = i.id;
       this.getData();
+      this.getOtherData();
     },
     getData() {
       this.$axios
-        .post(this.$baseUrl + 'userScore/query', {},{headers: {'id': this.id}})
+        .post(this.$baseUrl + 'userScore/query', {
+          "id": this.id,
+          "selectName" : this.selectName,
+          "selectType" : this.selectType,
+          "tIds": this.queryByt,
+          "dIds" : this.queryByd
+        })
         .then(res => (this.list = res.data.data))
         .catch(res => (console.log(res)));
-    }
+    },
+    getOtherData(){
+      this.$axios
+        .post(this.$baseUrl + 'technology/queryNotUser',{},{headers: {'id': this.id}})
+        .then(res => {this.technologyList = res.data.data;
+          this.technologyList = JSON.parse(JSON.stringify(this.technologyList).replace(/id/g,"value").replace(
+            /name/g,"text"));})
+        .catch(res => (console.log(res)));
+      this.$axios
+        .post(this.$baseUrl + 'department/queryNotUser',{},{headers: {'id': this.id}})
+        .then(res => {this.departmentList = res.data.data;
+          this.departmentList = JSON.parse(JSON.stringify(this.departmentList).replace(/id/g,"value").replace(
+            /name/g,"text"));})
+        .catch(res => (console.log(res)));
+    },
+    filterMethod(filter){
+      for (let obj in filter){
+        if (obj === "technology") {
+          this.queryByd = null;
+          if (filter.technology.length !== 0) {
+            this.queryByt = filter.technology
+          }else {
+            this.queryByt = null
+          }
+
+        }
+        else {
+          this.queryByt = null;
+          if (filter.department.length !== 0) {
+            this.queryByd = filter.department
+          }else {
+            this.queryByd = null
+          }
+        }
+      }
+      this.getData()
+    },
+
+    changeSort(v){
+      console.log(v.prop)
+      if(v.order == null){
+        this.selectName = "";
+        this.selectType = ""
+      }else if(v.order === "ascending"){
+        this.selectName = v.prop
+        this.selectType = ""
+      }else if(v.order === "descending"){
+        this.selectName = v.prop
+        this.selectType = 1
+      }
+      this.getData()
+    },
   }
 }
 </script>

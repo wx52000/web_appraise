@@ -128,7 +128,7 @@ name: "Home",
       this.getLogIn();
     },
     back() {
-      this.$router.push('/home');
+      this.$router.push('/home/main');
     },
     toPage(path){
       this.$router.replace(path);

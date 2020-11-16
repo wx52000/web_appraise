@@ -20,7 +20,7 @@
       <el-menu-item index="/appraiseMain/tecScore" @click="toPage('/appraiseMain/tecScore')">专业得分</el-menu-item>
     </el-submenu>
       <el-menu-item v-if="position !== null && position.indexOf(`11`) != -1" index="/appraiseMain/headmanProject" @click="toPage('/appraiseMain/headmanProject')">组长管理</el-menu-item>
-    <el-menu-item index="/home" @click="toPage('/home')"
+    <el-menu-item index="/home/main" @click="toPage('/home/main')"
                   style="float: right" v-if="pid == 1">系统管理</el-menu-item>
   </el-menu>
     </div>

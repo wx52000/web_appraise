@@ -19,6 +19,7 @@ import PrincipalProject from "../components/PrincipalProject";
 import CheckerProject from "../components/CheckerProject";
 import HeadmanProject from "../components/HeadmanProject";
 import AdminProject from "../components/AdminProject";
+import Main from "../components/Main";
 Vue.use(Router)
 
 
@@ -45,9 +46,9 @@ export default new Router({
       component: Home,
       children:[
         {
-          path: '',
-          name: 'home',
-          component: Score
+          path: 'main',
+          name: 'main',
+          component: Main
         },
         {
           path: 'perScore',
