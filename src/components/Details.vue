@@ -7,6 +7,7 @@
           <el-row style="margin:0 auto;text-align: center; align-content: center">
             <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
               {{month}}月评价详细信息表
+              <i class="el-icon-document-copy" @click="downExcel"></i>
             </el-col>
           </el-row>
           <el-table border :data="list" style="width:85%"
@@ -148,6 +149,10 @@ name: "Details",
         this.selectType = 1
       }
       this.getData()
+    },
+    downExcel() {
+      this.$message.success("即将开始下载");
+      window.location.href = this.$baseUrl + 'userScore/detail';
     },
   }
 }
