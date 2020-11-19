@@ -319,9 +319,10 @@ export default {
       console.log(this.upd)
       this.$axios
         .post(this.$baseUrl + 'user/upd', this.upd)
-        .then()
+        .then(res => {this.visible = false;
+        this.getUser(1)
+        })
         .catch(res => (console.log(res)));
-      this.reload();
     },
     addPer(){
       // alert(this.upd.pid)
