@@ -44,10 +44,10 @@
       <el-container>
         <el-header>
           <el-row>
-            <el-col :span="12">
-              <span>下载月份选择</span>
+            <el-col :span="10">
               <template>
-                <el-select v-model="value" placeholder="请选择">
+                下载月份
+                <el-select v-model="value" placeholder="请选择" size="mini">
                   <el-option
                     v-for="item in options"
                     :key="item.value"
@@ -57,11 +57,22 @@
                 </el-select>
               </template>
             </el-col>
-            <el-col :span="6">
-              <el-button type="primary" plain @click="downExcel">整体数据导出</el-button>
+            <el-col :span="4">
+              <el-button type="primary" size="small " plain @click="downExcel">整体数据导出</el-button>
+            </el-col>
+            <el-col :span="4">
+              <el-button type="primary" size="small " plain @click="openTransfer">指定人员导出</el-button>
             </el-col>
             <el-col :span="6">
-              <el-button type="primary" plain @click="openTransfer">指定人员导出</el-button>
+              <el-switch
+                v-model="mode"
+                active-text="被打分人"
+                inactive-text="打分人"
+                active-value="1"
+                inactive-value="0"
+                @change="openTransfer"
+              style="margin-top: 5%">
+              </el-switch>
             </el-col>
           </el-row>
         </el-header>
@@ -79,9 +90,9 @@
               @removeBtn='remove'
               >
             </tree-transfer>
-              <el-button type="primary" style="margin-right: 10%" @click="closeDialog">取消</el-button>
+              <el-button  size="small " style="margin-right: 10%" @click="closeDialog">取消</el-button>
 
-              <el-button type="primary" style="margin-left: 10%" @click="">确定</el-button>
+              <el-button type="primary" size="small " style="margin-left: 10%" @click="downExcelPart">确定</el-button>
         </el-main>
       </el-container>
     </el-dialog>
@@ -120,6 +131,7 @@ export default {
       title:["人员选择","已选中"],
       section : false,
       toData : [],
+      mode : 0, //0代表根据打分人下载，1代表根据被打分人下载
     }
   },
   components:{
@@ -215,12 +227,32 @@ export default {
       this.$message.success("即将开始下载");
       window.location.href = this.$baseUrl + 'userScore/detail';
     },
+    downExcelPart(){
+      let users = [];
+      this.toData.forEach((item,index) => {
+        item.children.forEach((it,ind) =>{
+          it.children.forEach((i,n) => {
+            users.push(i)
+          })
+        })
+      })
+      console.log(users)
+      this.$message.success("即将开始下载");
+      this.$axios.post(this.$baseUrl + 'userScore/part', {
+          list: users,
+          mode: this.mode})
+          .then(res => {
+            window.location.href = this.$baseUrl + 'userScore/partDownload?fileName=' + res.data.data;
+          })
+          .catch(res => console.log(res)
+      )
+    },
     openDialog(){
       this.visible = true;
     },
     openTransfer(){
       this.$axios
-        .post(this.$baseUrl + 'user/userAll')
+        .post(this.$baseUrl + 'user/userAll',{},{headers:{mode : this.mode}})
         .then(res => {this.userAll = res.data.data;})
         .catch(res => (console.log(res)));
       this.section = true;
@@ -259,6 +291,7 @@ export default {
     remove(fromData,toData,obj){
       this.toData = toData;
     },
+
 
   }
 }
