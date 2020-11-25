@@ -1,5 +1,5 @@
 <template id="main" style="margin: 0 auto;width: 100%">
-  <div>
+  <div v-if="nowDay>=25 || nowDay <=10">
     <el-form :model="form">
       <el-row>
         <!-- 列表 -->
@@ -77,6 +77,16 @@
       </el-row>
     </el-form>
   </div>
+
+  <div v-else>
+    <el-card class="box-card" shadow="hover"
+    style="position:absolute;top:45%;
+    width: 24.72%;height: 15.28%;margin-left: 37.64%;background-color:#acb2b9">
+      <div>
+        系统暂时不可打分，请于每月25日到次月10日进行打分。
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script>
@@ -86,6 +96,7 @@ name: "Appraise",
     return {
       id: "",
       pid: "",
+      nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
       search1: "",
       search2: "",
@@ -114,6 +125,8 @@ name: "Appraise",
     }
   },
   mounted() {
+    if (this.nowDay < this.endDay)
+      this.month= --this.month;
     this.getLogIn();
     // this.getData();
     // this.getOtherData();
@@ -126,9 +139,6 @@ name: "Appraise",
       this.getData();
     },
     reset() {
-      this.search1 = "";
-      this.search2 = "";
-      this.search3 = "";
       this.getData();
     },
     getLogIn() {
@@ -229,7 +239,7 @@ name: "Appraise",
         .then(res => {
           if (0 === res.data.code) {
             this.reload();
-              alert("操作成功")
+              this.$message.success("操作成功")
             this.tableData = [];
             this.getData();
           } else {
@@ -310,6 +320,7 @@ name: "Appraise",
       this.list[v].state = false;
     },
     filterMethod(filter){
+      this.appraise()
       for (let obj in filter){
         if (obj === "technology") {
           this.queryByd = null;
@@ -333,6 +344,7 @@ name: "Appraise",
     },
 
     changeSort(v){
+      this.appraise()
       if(v.order == null){
         this.selectName = "";
         this.selectType = ""

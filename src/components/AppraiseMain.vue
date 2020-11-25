@@ -9,8 +9,8 @@
       <el-menu-item index="/appraiseMain/designerProject" @click="toPage('/appraiseMain/designerProject')">设计人管理</el-menu-item>
       <el-menu-item index="/appraiseMain/checkerProject" @click="toPage('/appraiseMain/checkerProject')">互校人管理</el-menu-item>
     </el-submenu>
-    <el-submenu index="2">
-    <template slot="title">我的评价</template>
+    <el-submenu index="2" >
+    <template slot="title" >我的评价</template>
     <el-menu-item index="/appraiseMain/appraise" @click="toPage('/appraiseMain/appraise')">个人评价</el-menu-item>
     <el-menu-item index="/appraiseMain/tecAppraise" @click="toPage('/appraiseMain/tecAppraise')">专业评价</el-menu-item>
     </el-submenu>
@@ -88,6 +88,7 @@ export default {
       name : "",
       pid : "",
       position : "",
+      grade : "",
       paw : {
         paw1 :"",
         paw2 :""
@@ -120,6 +121,7 @@ export default {
         this.id = i.id;
         this.name = i.name;
         this.pid = i.pid;
+        this.grade = i.grade;
         if (i.position != null){
           this.position = i.position;
         }

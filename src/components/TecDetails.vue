@@ -5,12 +5,26 @@
       <!-- 列表 -->
       <el-row style="margin: 0px 20px 20px 20px;background-color: #FFF;">
         <el-row>
-          <el-row style="margin:0 auto;text-align: center; align-content: center">
-            <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-              {{month}}月评价详细信息表
-              <i class="el-icon-document-copy" @click="downExcel"></i>
-            </el-col>
-          </el-row>
+            <el-row style="margin:0 auto;text-align: center; align-content: center">
+              <el-col :span="18" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
+                <span style="margin-left: 33%">{{month}}月专业评价详情表</span>
+                <i class="el-icon-document-copy" @click="openDialog"></i>
+              </el-col>
+              <el-col :span="6">
+                <template>
+                  <el-select v-model="month" placeholder="请选择" style="width: 40%;margin-top: 10px" size="mini">
+                    <el-option
+                      v-for="item in listMonth"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                      <span style="float: left">{{ item.label }}</span>
+                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}月</span>
+                    </el-option>
+                  </el-select>
+                </template>
+              </el-col>
+            </el-row>
           <el-table border :data="list" style="width:85%"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                     @filter-change="filterMethod"
@@ -34,29 +48,59 @@
             <el-table-column prop="coordinate" label="配合得分" min-width="10%">
             </el-table-column>
 
-
-
-
-
           </el-table>
         </el-row>
       </el-row>
     </el-row>
+    <el-dialog :visible.sync="visible"
+               width="60%"
+               :before-close="closeDialog">
+      <el-container>
+        <el-header>
+          <el-row>
+            <el-col :span="12" >
+              <el-button type="primary" size="small " plain @click="downExcel">整体数据导出</el-button>
+            </el-col>
+            <el-col :span="12">
+              <el-button type="primary" size="small " plain @click="openTransfer">指定人员导出</el-button>
+            </el-col>
+          </el-row>
+        </el-header>
+        <el-main v-if="section">
+          <tree-transfer
+            :title="['人员选择','已选部门，人员']"
+            placeholder="请输入人员名字"
+            height='320px'
+            :from_data="userAll"
+            :to_data='toData'
+            filter
+            mode='transfer'
+
+            @addBtn='add'
+            @removeBtn='remove'
+          >
+          </tree-transfer>
+          <el-button  size="small " style="margin-right: 10%" @click="closeDialog">取消</el-button>
+
+          <el-button type="primary" size="small " style="margin-left: 10%" @click="downExcelPart">确定</el-button>
+        </el-main>
+      </el-container>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import treeTransfer from "el-tree-transfer";
+
 export default {
   name: "tecDetails",
   data() {
     return {
       id: "",
+      nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
-      search1: "",
-      search2: "",
-      search3: "",
-      search4: "",
-      search5: "",
+      listMonth : [],
+      visible : false,
       pageIndex: 1,
       pageSize: 10,
       list: [],
@@ -65,12 +109,21 @@ export default {
       selectName: "",
       selectType: "",
       queryByd:null,
-      queryByt:null
+      queryByt:null,
+      userAll : [],
+      title:["人员选择","已选中"],
+      section : false,
+      toData : [],
     }
   },
+  components:{
+    treeTransfer
+  },
   mounted() {
+    if (this.nowDay < this.startDay)
+      this.month= --this.month;
+    this.setListMonth();
     this.getLogIn();
-    // this.getData();
   },
   methods: {
     search() {
@@ -156,8 +209,71 @@ export default {
     },
     downExcel() {
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'tec Score/detail';
+      window.location.href = this.$baseUrl + 'tecScore/detail';
     },
+    downExcelPart(){
+      let users = [];
+      this.toData.forEach((item,index) => {
+        item.children.forEach((it,ind) =>{
+          it.children.forEach((i,n) => {
+            users.push(i)
+          })
+        })
+      })
+      console.log(users)
+      this.$message.success("即将开始下载");
+      this.$axios.post(this.$baseUrl + 'tecScore/part', {
+        list: users,
+        mode: this.mode})
+        .then(res => {
+          window.location.href = this.$baseUrl + 'userScore/partDownload?fileName=' + res.data.data;
+        })
+        .catch(res => console.log(res)
+        )
+    },
+    openDialog(){
+      this.visible = true;
+    },
+    openTransfer(){
+      this.$axios
+        .post(this.$baseUrl + 'user/userAll',{},{headers:{mode : 0}})
+        .then(res => {this.userAll = res.data.data;})
+        .catch(res => (console.log(res)));
+      this.section = true;
+    },
+    closeDialog(){
+      this.toData = [];
+      this.section = false;
+      this.visible = false;
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    add(formData,toData,obj){
+      this.toData = toData;
+    },
+    remove(fromData,toData,obj){
+      this.toData = toData;
+    },
+    setListMonth(){
+      let MonthData1 = { value : this.month , label : "本月"};
+      let MonthData2 = {};
+      let MonthData3 = {};
+      if (this.month === 1){
+        MonthData2 = {value : 12 , label : "上月"}
+        MonthData3 = {value : 11 , label : "上上月"}
+      }else if (this.month === 2){
+        MonthData2 = {value : 1 , label : "上月"}
+        MonthData3 = {value : 12 , label : "上上月"}
+      }else {
+        MonthData2 = {value : this.month-1 , label : "上月"}
+        MonthData3 = {value : this.month-2 , label : "上上月"}
+      }
+      this.listMonth.push(MonthData1);
+      this.listMonth.push(MonthData2);
+      this.listMonth.push(MonthData3);
+    }
+
   }
 }
 </script>

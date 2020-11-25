@@ -5,9 +5,23 @@
       <el-row style="margin: 0px 20px 20px 20px;background-color: #FFF;">
         <el-row>
           <el-row style="margin:0 auto;text-align: center; align-content: center">
-            <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-              {{month}}月评价详细信息表
+            <el-col :span="18" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
+              <span style="margin-left: 33%">{{month}}月个人评价详情表</span>
               <i class="el-icon-document-copy" @click="openDialog"></i>
+            </el-col>
+            <el-col :span="6">
+              <template>
+                <el-select v-model="month" placeholder="请选择" style="width: 40%;margin-top: 10px" size="mini">
+                  <el-option
+                    v-for="item in listMonth"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    <span style="float: left">{{ item.label }}</span>
+                    <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}月</span>
+                  </el-option>
+                </el-select>
+              </template>
             </el-col>
           </el-row>
           <el-table border :data="list" style="width:85%"
@@ -44,26 +58,13 @@
       <el-container>
         <el-header>
           <el-row>
-            <el-col :span="10">
-              <template>
-                下载月份
-                <el-select v-model="value" placeholder="请选择" size="mini">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </template>
-            </el-col>
-            <el-col :span="4">
+            <el-col :span="8">
               <el-button type="primary" size="small " plain @click="downExcel">整体数据导出</el-button>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="8">
               <el-button type="primary" size="small " plain @click="openTransfer">指定人员导出</el-button>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="8">
               <el-switch
                 v-model="mode"
                 active-text="被打分人"
@@ -106,12 +107,9 @@ export default {
   data() {
     return {
       id: "",
+      nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
-      search1: "",
-      search2: "",
-      search3: "",
-      search4: "",
-      search5: "",
+      listMonth : [],
       pageIndex: 1,
       pageSize: 10,
       list: [],
@@ -138,19 +136,16 @@ export default {
     treeTransfer
   },
   mounted() {
+    if (this.nowDay < this.startDay)
+      this.month = --this.month;
+    this.setListMonth();
     this.getLogIn();
-    // this.getData();
   },
   methods: {
     search() {
       this.getData();
     },
     reset() {
-      this.search1 = "";
-      this.search2 = "";
-      this.search3 = "";
-      this.search4 = "";
-      this.search5 = "";
       this.pageIndex = 1;
       this.getData();
     },
@@ -291,6 +286,25 @@ export default {
     remove(fromData,toData,obj){
       this.toData = toData;
     },
+    setListMonth(){
+      let MonthData1 = { value : this.month , label : "本月"};
+      let MonthData2 = {};
+      let MonthData3 = {};
+      if (this.month === 1){
+        MonthData2 = {value : 12 , label : "上月"}
+        MonthData3 = {value : 11 , label : "上上月"}
+      }else if (this.month === 2){
+        MonthData2 = {value : 1 , label : "上月"}
+        MonthData3 = {value : 12 , label : "上上月"}
+      }else {
+        MonthData2 = {value : this.month-1 , label : "上月"}
+        MonthData3 = {value : this.month-2 , label : "上上月"}
+      }
+      this.listMonth.push(MonthData1);
+      this.listMonth.push(MonthData2);
+      this.listMonth.push(MonthData3);
+    }
+
 
 
   }

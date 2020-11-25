@@ -5,10 +5,24 @@
       <el-row style="margin: 0 20px 20px 20px;background-color: #FFF;">
         <el-row>
           <el-row style="margin:0 auto;text-align: center; align-content: center">
-            <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-              {{month}}月个人评价汇总表
-
+            <el-col :span="18" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
+              <span style="margin-left: 33%">{{month}}月个人评价汇总表</span>
               <i v-if="pid==1" class="el-icon-document-copy" @click="downExcel"></i>
+            </el-col>
+            <el-col :span="6">
+              <template>
+                <el-select v-model="month" placeholder="请选择" @change="getData"
+                           style="width: 60%;margin-top: 10px" size="mini">
+                  <el-option
+                    v-for="item in listMonth"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    <span style="float: left">{{ item.label }}</span>
+                    <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}月</span>
+                  </el-option>
+                </el-select>
+              </template>
             </el-col>
           </el-row>
           <div>
@@ -48,12 +62,9 @@ name: "Score",
     return {
       id: "",
       pid: "",
+      nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
-      search1: "",
-      search2: "",
-      search3: "",
-      search4: "",
-      search5: "",
+      listMonth : [],
       pageIndex: 1,
       pageSize: 10,
       list: [],
@@ -68,8 +79,10 @@ name: "Score",
     }
   },
   mounted() {
+    if (this.nowDay < this.startDay)
+      this.month = --this.month;
+    this.setListMonth();
     this.getLogIn();
-    // this.getData();
   },
   methods: {
     search() {
@@ -95,7 +108,8 @@ name: "Score",
           "selectName" : this.selectName,
           "selectType" : this.selectType,
           "tIds": this.queryByt,
-          "dIds" : this.queryByd
+          "dIds" : this.queryByd,
+          "thisMonth"  : this.month
         })
         .then(res => (this.list = res.data.data))
         .catch(res => (console.log(res)));
@@ -117,7 +131,7 @@ name: "Score",
     },
     downExcel() {
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'userScore/personExcel?id=' + this.id;
+      window.location.href = this.$baseUrl + 'userScore/personExcel?id=' + this.id + "&month=" + this.month;
     },
     filterMethod(filter){
       for (let obj in filter){
@@ -155,10 +169,24 @@ name: "Score",
       }
       this.getData()
     },
-
-
-
-
+    setListMonth(){
+      let MonthData1 = { value : this.month , label : "本月"};
+      let MonthData2 = {};
+      let MonthData3 = {};
+      if (this.month === 1){
+        MonthData2 = {value : 12 , label : "上月"}
+        MonthData3 = {value : 11 , label : "上上月"}
+      }else if (this.month === 2){
+        MonthData2 = {value : 1 , label : "上月"}
+        MonthData3 = {value : 12 , label : "上上月"}
+      }else {
+        MonthData2 = {value : this.month-1 , label : "上月"}
+        MonthData3 = {value : this.month-2 , label : "上上月"}
+      }
+      this.listMonth.push(MonthData1);
+      this.listMonth.push(MonthData2);
+      this.listMonth.push(MonthData3);
+    }
 
   }
 }

@@ -6,17 +6,17 @@
       </el-col>
     </el-row>
     <el-row style="text-align: right" >
-        <el-col :span="5" >姓名<el-input v-model="search1" style="width: 50%" ></el-input></el-col>
-        <el-col :span="5" >工号<el-input v-model="search2" style="width: 50%" ></el-input></el-col>
-        <el-col :span="5" style="text-align: right;">
+        <el-col :span="4" >姓名<el-input v-model="search1" style="width: 50%" ></el-input></el-col>
+        <el-col :span="4" >工号<el-input v-model="search2" style="width: 50%" ></el-input></el-col>
+        <el-col :span="4" style="text-align: right;">
           <el-button type="primary" @click="search()">查询</el-button>
           <el-button @click="reset()">重置</el-button>
         </el-col>
-      <el-col :span="4" style="text-align: left;%">
+      <el-col :span="3" style="text-align: left;%">
       <el-button style="width: 100px;height: 40px;text-align: center; margin-left: 80px"
-                 @click="handleOpenAdd" >人员添加</el-button>
+                 @click="handleOpenAdd" size="mini">人员添加</el-button>
       </el-col>
-      <el-col :span="5" >
+      <el-col :span="4" >
         <el-upload
           class="upload-demo"
           ref="upload"
@@ -24,11 +24,12 @@
           :on-preview="handlePreview"
           :on-remove="handleRemove"
           :file-list="fileList">
-          <el-button size="small" type="primary"
-                     style="width: 100px;height: 40px;text-align: center;margin-right: 80px">
+          <el-button size="mini" type="primary"
+                     style="width: 100px;height: 40px;text-align: center; ">
             人员上传</el-button>
         </el-upload>
       </el-col>
+      <el-button type="primary" style="height: 40px;text-align: center; " @click="getRange" >评价取值范围管理</el-button>
     </el-row>
     <el-row style="text-align: center">
     <el-table v-loading="loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading"
@@ -223,6 +224,21 @@
         <el-button type="primary" @click="addPer">确 定</el-button>
       </el-row>x
     </el-dialog>
+    <el-dialog
+      title="评价取值范围管理"
+      :visible.sync="rangeVisible"
+      width="60%">
+      <el-form id="range">
+        <el-row>
+          <el-col :span="8" >最小值<el-input v-model="min" style="width: 50%" ></el-input></el-col>
+          <el-col :span="8" >最大值<el-input v-model="max" style="width: 50%" ></el-input></el-col>
+          <el-col :span="8" style="text-align: right;">
+            <el-button type="primary" @click="rangeUpd">确定</el-button>
+            <el-button @click="rangeReset">重置</el-button>
+          </el-col>
+        </el-row >
+      </el-form>
+    </el-dialog>
   </div>
 
 </template>
@@ -256,6 +272,9 @@ export default {
       selectType: "",
       queryByd : null,
       queryByt : null,
+      min: "",
+      max : "",
+      rangeVisible : false,
     }
   },
   mounted() {
@@ -470,6 +489,34 @@ export default {
           this.files.push(file)
         }
       }
+    },
+    getRange() {
+      this.$axios
+        .post(this.$baseUrl + 'range/query')
+        .then(res => (this.min = res.data.data.min,
+          this.max = res.data.data.max))
+        .catch(res => (console.log(res)));
+      this.rangeVisible = true
+    },
+    rangeReset(){
+      this.$axios
+        .post(this.$baseUrl + 'range/query')
+        .then(res => (this.min = res.data.data.min,
+          this.max = res.data.data.max))
+        .catch(res => (console.log(res)));
+    },
+    rangeUpd(){
+      this.$axios
+        .post(this.$baseUrl + 'range/update',{
+          "id" : 1,
+          "min" : this.min,
+          "max" : this.max
+        })
+        .then(res => (this.min = res.data.data.min,
+          this.max = res.data.data.max))
+        .catch(res => (console.log(res)));
+      this.$message("修改成功");
+      this.rangeVisible = false;
     },
   }
 }

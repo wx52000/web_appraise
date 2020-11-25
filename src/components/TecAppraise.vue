@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="nowDay>=25 || nowDay <=10">
     <el-form :model="form">
       <el-row>
         <!-- 列表 -->
@@ -58,6 +58,15 @@
       </el-row>
     </el-form>
   </div>
+  <div v-else>
+    <el-card class="box-card" shadow="hover"
+             style="position:absolute;top:45%;
+    width: 24.72%;height: 15.28%;margin-left: 37.64%;background-color:#acb2b9">
+      <div>
+        系统暂时不可打分，请于每月25日到次月10日进行打分。
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script>
@@ -66,12 +75,8 @@ name: "TecAppraise",
   data() {
     return {
       id: "",
+      nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
-      search1: "",
-      search2: "",
-      search3: "",
-      search4: "",
-      search5: "",
       min: "",
       max: "",
       list: [],
@@ -90,8 +95,9 @@ name: "TecAppraise",
     }
   },
   mounted() {
+    if (this.nowDay < this.endDay)
+      this.month= --this.month;
     this.getLogIn();
-    // this.getData();
   },
   methods: {
     update(e) {

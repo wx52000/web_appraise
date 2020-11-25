@@ -20,8 +20,8 @@
   </div>
 </template>
 
-
 <script>
+
 export default{
   name: 'Login',
   data() {
@@ -54,8 +54,8 @@ export default{
                 pawState : res.data.data.pawState,
                 tid : res.data.data.tid,
                 name : res.data.data.name,
-                position : res.data.data.position}));
-              // alert(res.data.data.pid)
+                position : res.data.data.position,
+                grade : res.data.data.grade}));
                 this.$router.push('/appraiseMain')
             }
           })
