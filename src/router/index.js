@@ -20,6 +20,7 @@ import CheckerProject from "../components/CheckerProject";
 import HeadmanProject from "../components/HeadmanProject";
 import AdminProject from "../components/AdminProject";
 import Main from "../components/Main";
+import UserScore from "../components/UserScore";
 Vue.use(Router)
 
 
@@ -100,7 +101,7 @@ export default new Router({
         {
           path: '',
           name: 'Main',
-          component: Appraise,
+          component: UserScore,
       },
         {
           path: 'appraise',
@@ -113,14 +114,9 @@ export default new Router({
           component: TecAppraise,
         },
         {
-          path: 'perScore',
-          name: 'score',
-          component: Score,
-        },
-        {
-          path: 'tecScore',
-          name: 'tecScore',
-          component: TecScore,
+          path: 'userScore',
+          name: 'userScore',
+          component: UserScore
         },
         {
           path: 'emptyPage',

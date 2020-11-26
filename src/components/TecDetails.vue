@@ -12,7 +12,8 @@
               </el-col>
               <el-col :span="6">
                 <template>
-                  <el-select v-model="month" placeholder="请选择" style="width: 40%;margin-top: 10px" size="mini">
+                  <el-select v-model="month" placeholder="请选择" @change="selectData"
+                             style="width: 40%;margin-top: 10px" size="mini">
                     <el-option
                       v-for="item in listMonth"
                       :key="item.value"
@@ -25,7 +26,7 @@
                 </template>
               </el-col>
             </el-row>
-          <el-table border :data="list" style="width:85%"
+          <el-table border ref="table1" :data="list" style="width:85%"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                     @filter-change="filterMethod"
                     @sort-change="changeSort">
@@ -130,11 +131,6 @@ export default {
       this.getData();
     },
     reset() {
-      this.search1 = "";
-      this.search2 = "";
-      this.search3 = "";
-      this.search4 = "";
-      this.search5 = "";
       this.pageIndex = 1;
       this.getData();
     },
@@ -151,7 +147,8 @@ export default {
           "selectName" : this.selectName,
           "selectType" : this.selectType,
           "tIds": this.queryByt,
-          "dIds" : this.queryByd
+          "dIds" : this.queryByd,
+          "thisMonth" : this.month
         })
         .then(res => (this.list = res.data.data))
         .catch(res => (console.log(res)));
@@ -179,9 +176,8 @@ export default {
           }else {
             this.queryByt = null
           }
-
         }
-        else {
+        else if (obj === "department") {
           this.queryByt = null;
           if (filter.department.length !== 0) {
             this.queryByd = filter.department
@@ -209,7 +205,7 @@ export default {
     },
     downExcel() {
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'tecScore/detail';
+      window.location.href = this.$baseUrl + 'tecScore/detail?month=' + this.month;
     },
     downExcelPart(){
       let users = [];
@@ -224,7 +220,9 @@ export default {
       this.$message.success("即将开始下载");
       this.$axios.post(this.$baseUrl + 'tecScore/part', {
         list: users,
-        mode: this.mode})
+        mode: this.mode,
+        month : this.month
+        })
         .then(res => {
           window.location.href = this.$baseUrl + 'userScore/partDownload?fileName=' + res.data.data;
         })
@@ -235,6 +233,7 @@ export default {
       this.visible = true;
     },
     openTransfer(){
+      this.toData=[];
       this.$axios
         .post(this.$baseUrl + 'user/userAll',{},{headers:{mode : 0}})
         .then(res => {this.userAll = res.data.data;})
@@ -272,6 +271,14 @@ export default {
       this.listMonth.push(MonthData1);
       this.listMonth.push(MonthData2);
       this.listMonth.push(MonthData3);
+    },
+    selectData(){
+      this.selectName = "";
+      this.selectType =  "";
+      this.queryByd = null;
+      this.queryByt = null;
+      this.$refs.table1.clearFilter()
+      this.getData()
     }
 
   }
