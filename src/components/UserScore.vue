@@ -2,12 +2,12 @@
 <div>
   <el-row style="margin-top: 3%">
     <el-col :span="12">
-  <el-card class="box-card" style="width: 80%;margin-left: 10%">
+  <el-card class="box-card" style="width: 90%;margin-left: 5%">
     <div slot="header" class="clearfix">
     <span>个人得分</span>
   </div>
 
-  <el-table border ref="table1" :data="listUser" style="width:80%;margin-left: 10%"
+  <el-table border ref="table1" :data="listUser" style="width:90%;margin-left: 5%"
             v-loading.lock="loading"  element-loading-text="拼命加载中"
             element-loading-spinner="el-icon-loading"
             :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
@@ -18,17 +18,23 @@
         <span style="margin-left: 10px">{{ scope.row.month }} 月</span>
       </template>
     </el-table-column>
-    <el-table-column prop="score" label="平均评分">
+    <el-table-column prop="designer" label="质量得分">
+    </el-table-column>
+    <el-table-column prop="personal" label="进度得分">
+    </el-table-column>
+    <el-table-column prop="coordinate" label="配合得分">
+    </el-table-column>
+    <el-table-column prop="score" label="平均得分">
     </el-table-column>
   </el-table>
   </el-card>
     </el-col>
     <el-col :span="12">
-  <el-card class="box-card" style="width: 80%;margin-left: 10%">
+  <el-card class="box-card" style="width: 90%;margin-left: 5%">
     <div slot="header" class="clearfix">
       <span>专业得分</span>
     </div>
-    <el-table border ref="table1" :data="listTec" style="width:80%;margin-left: 10%"
+    <el-table border ref="table1" :data="listTec" style="width:90%;margin-left: 5%"
               v-loading.lock="loading"  element-loading-text="拼命加载中"
               element-loading-spinner="el-icon-loading"
               :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
@@ -38,7 +44,13 @@
           <span style="margin-left: 10px">{{ scope.row.month }} 月</span>
         </template>
       </el-table-column>
-      <el-table-column prop="score" label="平均评分">
+      <el-table-column prop="designer" label="质量得分">
+      </el-table-column>
+      <el-table-column prop="personal" label="进度得分">
+      </el-table-column>
+      <el-table-column prop="coordinate" label="配合得分">
+      </el-table-column>
+      <el-table-column prop="score" label="平均得分">
       </el-table-column>
     </el-table>
   </el-card>
