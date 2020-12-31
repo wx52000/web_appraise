@@ -1,5 +1,6 @@
 <template>
   <div v-if="nowDay>=25 || nowDay <=10">
+<!--    <div v-if="nowDay>=25&&nowDay<=29">-->
     <el-form :model="form">
       <el-row>
         <!-- 列表 -->
@@ -132,14 +133,15 @@ name: "TecAppraise",
       for (let i = this.list.length-1; i >= 0; i--) {
         this.list[i].gradeId = this.id;
         this.list[i].date = new Date().getTime()
-        if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
+        // if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
           if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
             this.list.splice(i ,1 )
-          } else {
-            alert("评价应要么三项全评价，要么全不评价");
-            return;
           }
-        }
+      // else {
+            // alert("评价应要么三项全评价，要么全不评价");
+            // return;
+          // }
+        // }
       }
         this.$axios
           .post(this.$baseUrl + 'tecScore/appraise',this.list)

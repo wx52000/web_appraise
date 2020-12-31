@@ -10,7 +10,8 @@
                 每周汇报
               </el-col>
             </el-row>
-            <el-table border :data="list" class="el-table" :header-cell-style="{background:'#F5F5F5'}">
+            <el-table border :data="list" class="el-table" :header-cell-style="{background:'#F5F5F5'}"
+                      :default-sort = "{prop: 'date', order: 'descending'}">
               <el-table-column type="expand">
                 <template  slot-scope="scope">
                   <el-form label-position="left" inline class="demo-table-expand">
@@ -20,20 +21,32 @@
                     <el-form-item label="主设人">
                       <span>{{scope.row.principal}}</span>
                     </el-form-item>
+                    <el-form-item label="互校人">
+                      <span>{{scope.row.checker}}</span>
+                    </el-form-item>
+                    <el-form-item label="卷册状态">
+                      <span>{{scope.row.state}}</span>
+                    </el-form-item>
                   </el-form>
                 </template>
               </el-table-column>
-              <el-table-column prop="number" min-width="23%"  label="卷册号">
+              <el-table-column prop="number" min-width="13%"  label="卷册号" sortable>
               </el-table-column>
-              <el-table-column prop="volumeName" min-width="20%" label="卷册名称">
+              <el-table-column prop="volumeName" min-width="20%" label="卷册名称" sortable>
               </el-table-column>
-              <el-table-column prop="projectName" min-width="20%" label="项目名称">
+              <el-table-column prop="projectName" min-width="20%" label="项目名称" sortable>
               </el-table-column>
-              <el-table-column prop="checker" min-width="7%" label="互校人">
-              </el-table-column>
-              <el-table-column  min-width="11%" label="计划完成时间">
+              <el-table-column  min-width="11%" label="计划完成时间" sortable >
                 <template slot-scope="scope">
                 <span> {{timeConversion(scope.row.planned_publication_date)}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                align="center"  min-width="9%" >
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    @click="openVolume(formId = scope.row.rollId)">卷册详情页面</el-button>
                 </template>
               </el-table-column>
               <el-table-column
@@ -51,9 +64,14 @@
     </el-form>
     <el-dialog
       id="report"
-      title="每周汇报"
       :visible.sync="visible"
       width="40%">
+      <div slot="title" >
+        <span>每周汇报</span>
+        <el-tooltip content="仅当状态为正在设计时需要填入，正在校审状态默认为100%" placement="top" @click.stop.prevent>
+          <i class="el-icon-question" style="color: #d3d4d6"/>
+        </el-tooltip>
+      </div>
       <div style="width:100%;text-align:center">
         <el-form id="paw" :model="proportion" :rules="ruleValidate" label-width="100px" >
           <el-row>
@@ -210,6 +228,10 @@ export default {
           .catch(res => (console.log(res)));
       }
     },
+    openVolume(f){
+      // window.open('http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=' + f +
+      window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/ContentMange.aspx?actionType=1&RollID=' + f)
+    }
   }
 }
 </script>
@@ -229,9 +251,9 @@ export default {
 }
 .el-table {
   margin-top:20px;
-  width: 80% ;
+  width: 90% ;
   horiz-align: center;
-  left: 10%;
+  left: 5%;
   font-size: 12px;
   word-wrap: break-word;
 }

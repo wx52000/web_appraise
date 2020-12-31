@@ -1,5 +1,6 @@
 <template id="main" style="margin: 0 auto;width: 100%">
-  <div v-if="nowDay>=25 || nowDay <=10">
+  <div v-if="nowDay>=25 || nowDay <=6">
+<!--  <div v-if="nowDay>=25&&nowDay<=29">-->
     <el-form :model="form">
       <el-row>
         <!-- 列表 -->
@@ -15,6 +16,13 @@
                 本月取值范围为{{min}}~{{max}}
               </el-col>
             </el-row>
+            <el-row style="text-align: right" >
+              <el-col :span="24" style="text-align: right;">
+                姓名/工号<el-input v-model="search1" size="mini" style="width: 130px" ></el-input>
+                <el-button type="primary" @click="search()"  size="mini">查询</el-button>
+                <el-button size="mini" @click="reset()" style="margin-right: 10%">重置</el-button>
+              </el-col>
+              </el-row>
             <el-table border :data="list" @filter-change="filterMethod"
                       :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                       style="margin-top:20px;width: 80% ;horiz-align: center; left: 10% ; "
@@ -99,7 +107,6 @@ name: "Appraise",
       nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
       search1: "",
-      search2: "",
       min: "",
       max: "",
       isRouterAlive : true,
@@ -139,6 +146,7 @@ name: "Appraise",
       this.getData();
     },
     reset() {
+      this.search1 = null;
       this.getData();
     },
     getLogIn() {
@@ -169,7 +177,8 @@ name: "Appraise",
           "selectName" : this.selectName,
           "selectType" : this.selectType,
           "tIds": this.queryByt,
-          "dIds" : this.queryByd
+          "dIds" : this.queryByd,
+          "name" : this.search1
         },)
         .then(res => {this.list = res.data.data.list;this.totalSize = res.data.data.total;
         this.$nextTick(function() {
@@ -198,15 +207,15 @@ name: "Appraise",
     },
     appraise() {
       this.listData = [];
-      for (var i = 0; i < this.list.length; i++) {
-        if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
-          if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
-          } else {
-            alert("评价应要么三项全评价，要么全不评价");
-            return;
-          }
-        }
-      }
+      // for (var i = 0; i < this.list.length; i++) {
+      //   if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
+      //     if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
+      //     } else {
+      //       alert("评价应要么三项全评价，要么全不评价");
+      //       return;
+      //     }
+      //   }
+      // }
       let e = 0;
       this.tableData.forEach((data)=>{
         if (data.pageIndex === this.pageIndex){
@@ -221,7 +230,7 @@ name: "Appraise",
       }
       this.tableData.forEach(data =>{
         data.list.forEach(table =>{
-          if (table.designer !=null && table.personal != null && table.coordinate!= null){
+          if (table.designer !=null || table.personal != null || table.coordinate!= null){
             let userScore = {
               gradeId: this.id,
               scoreId: table.id,
@@ -265,16 +274,16 @@ name: "Appraise",
       })
     },
     changeIndex(v) {
-      for (let i = 0; i < this.list.length; i++) {
-        if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
-          if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
-
-          } else {
-            alert("评价应要么三项全评价，要么全不评价");
-            return 0;
-          }
-        }
-      }
+      // for (let i = 0; i < this.list.length; i++) {
+      //   if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
+      //     if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
+      //
+      //     } else {
+      //       alert("评价应要么三项全评价，要么全不评价");
+      //       return 0;
+      //     }
+      //   }
+      // }
       // table中无数据，直接存入
       if (this.tableData.length === 0){
         let tData = {pageIndex:this.pageIndex , list:this.list};
@@ -320,6 +329,7 @@ name: "Appraise",
       this.list[v].state = false;
     },
     filterMethod(filter){
+      this.search1 = null;
       this.appraise()
       for (let obj in filter){
         if (obj === "technology") {
@@ -344,6 +354,7 @@ name: "Appraise",
     },
 
     changeSort(v){
+      this.search1 = null
       this.appraise()
       if(v.order == null){
         this.selectName = "";

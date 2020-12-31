@@ -267,7 +267,7 @@ export default {
       fileList : [],
       technology:[],
       technologyList:[],
-      departmentList:[],
+        xdepartmentList:[],
       selectName: "",
       selectType: "",
       queryByd : null,

@@ -10,7 +10,8 @@
                 卷册校验
               </el-col>
             </el-row>
-            <el-table border :data="list" class="el-table" :header-cell-style="{background:'#F5F5F5'}">
+            <el-table border :data="list" class="el-table" :header-cell-style="{background:'#F5F5F5'}"
+                      :default-sort = "{prop: 'date', order: 'descending'}">
               <el-table-column type="expand">
                 <template  slot-scope="scope">
                   <el-form label-position="left" inline class="demo-table-expand">
@@ -23,17 +24,25 @@
                   </el-form>
                 </template>
               </el-table-column>
-              <el-table-column prop="number" min-width="23%"  label="卷册号">
+              <el-table-column prop="number" min-width="13%"  label="卷册号" sortable>
               </el-table-column>
-              <el-table-column prop="volumeName" min-width="20%" label="卷册名称">
+              <el-table-column prop="volumeName" min-width="20%" label="卷册名称" sortable>
               </el-table-column>
-              <el-table-column prop="projectName" min-width="20%" label="项目名称">
+              <el-table-column prop="projectName" min-width="20%" label="项目名称" sortable>
               </el-table-column>
-              <el-table-column prop="designer" min-width="7%" label="设计人">
+              <el-table-column prop="designer" min-width="7%" label="设计人" sortable>
               </el-table-column>
               <el-table-column  min-width="11%" label="计划完成时间">
                 <template slot-scope="scope">
                   <span> {{timeConversion(scope.row.planned_publication_date)}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                align="center"  min-width="9%" >
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    @click="openVolume(scope.row.formId,scope.row.wfInstId)">校验详情页面</el-button>
                 </template>
               </el-table-column>
               <el-table-column
@@ -59,7 +68,7 @@
           <el-row>
             <el-col>
             <span >
-              上周完成比例:{{lastReport.proportion}}%
+              已完成比例:{{lastReport.proportion}}%
             </span></el-col>
           </el-row>
           <el-row>
@@ -209,6 +218,10 @@ export default {
           .catch(res => (console.log(res)));
       }
     },
+    openVolume(f,w){
+      window.open('http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=' + f +
+        '&wfInstId=' + w)
+    }
   }
 }
 </script>
@@ -227,10 +240,9 @@ export default {
   width: 50%;
 }
 .el-table {
-  margin-top:20px;
-  width: 80% ;
+  width: 90% ;
   horiz-align: center;
-  left: 10%;
+  left: 5%;
   font-size: 12px;
   word-wrap: break-word;
 }

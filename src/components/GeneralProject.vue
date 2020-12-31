@@ -12,96 +12,32 @@
             </el-row>
             <el-table border :data="list" class="el-table" :row-class-name="tableRowClassName"
             :header-cell-style="{background:'#F5F5F5'}">
-              <el-table-column type="expand">
-              <template  slot-scope="scope">
-                <el-form label-position="left" inline class="demo-table-expand">
-                  <el-form-item label="主设人：">
-                    <span>{{scope.row.principal}}</span>
-                  </el-form-item>
-                  <el-form-item label="互校人：">
-                    <span>{{scope.row.checker}}</span>
-                  </el-form-item>
-                  <el-form-item label="计划出版时间：">
-                    <span>{{timeConversion(scope.row.planned_publication_date)}}</span>
-                  </el-form-item>
-                  <el-form-item label="实际最终出版时间：">
-                    <span>{{timeConversion(scope.row.actual_publication_date)}}</span>
-                  </el-form-item>
-                  <el-form-item label="接收外专业时间：">
-                    <span>{{timeConversion(scope.row.professional_date)}}</span>
-                  </el-form-item>
-                  <el-form-item label="对外提资时间：">
-                    <span>{{timeConversion(scope.row.withdrawal_date)}}</span>
-                  </el-form-item>
-                  <el-form-item label="出手日期：">
-                    <span>{{timeConversion(scope.row.shot_date)}}</span>
-                  </el-form-item>
-                  <el-form-item label="完成日期：">
-                    <span>{{timeConversion(scope.row.complete_time)}}</span>
-                  </el-form-item>
-                  <el-form-item label="组长完成时间：">
-                    <span>{{timeConversion(scope.row.headman_date)}}</span>
-                  </el-form-item>
-                  <el-form-item label="互校人完成时间：">
-                    <span>{{timeConversion(scope.row.checker_date)}}</span>
-                  </el-form-item>
-                  <el-form-item label="设计人本周完成比例：" >
-                    <span>{{recordConversion(scope.row.designerList,0,0)}}%</span>
-                  </el-form-item>
-                  <el-form-item label="备注：" >
-                    <span>{{recordConversion(scope.row.designerList,0,1)}}</span>
-                  </el-form-item>
-                  <el-form-item label="设计人上周完成比例：">
-                    <span>{{recordConversion(scope.row.designerList,1,0)}}%</span>
-                  </el-form-item>
-                  <el-form-item label="备注：">
-                    <span>{{recordConversion(scope.row.designerList,1,1)}}</span>
-                  </el-form-item>
-                  <el-form-item label="互校人本周完成比例：">
-                    <span>{{recordConversion(scope.row.checkerList,0,0)}}%</span>
-                  </el-form-item>
-                  <el-form-item label="备注：">
-                    <span>{{recordConversion(scope.row.checkerList,0,1)}}</span>
-                  </el-form-item>
-                  <el-form-item label="互校人上周完成比例：">
-                    <span>{{recordConversion(scope.row.checkerList,1,0)}}%</span>
-                  </el-form-item>
-                  <el-form-item label="备注：">
-                    <span>{{recordConversion(scope.row.checkerList,1,1)}}</span>
-                  </el-form-item>
-                  <el-form-item label="主设人本周完成比例：">
-                    <span>{{recordConversion(scope.row.principalList,0,0)}}%</span>
-                  </el-form-item>
-                  <el-form-item label="备注：">
-                    <span>{{recordConversion(scope.row.principalList,0,1)}}</span>
-                  </el-form-item>
-                  <el-form-item label="主设人上周完成比例：">
-                    <span>{{recordConversion(scope.row.principalList,1,0)}}%</span>
-                  </el-form-item>
-                  <el-form-item label="备注：">
-                    <span>{{recordConversion(scope.row.principalList,1,1)}}</span>
-                  </el-form-item>
-                </el-form>
-              </template>
-            </el-table-column>
+                <el-table-column prop="number" min-width="24%" label="项目编号" align="center"  >
+                </el-table-column>
               <el-table-column prop="projectName" min-width="28%" label="项目名称" align="center">
               </el-table-column>
-              <el-table-column prop="number" min-width="24%" label="卷册号" align="center"  >
+              <el-table-column prop="director" min-width="8%" label="主管设总" align="center"  >
               </el-table-column>
-              <el-table-column prop="volumeName" min-width="24" label="卷册名称" align="center" style="word-break: break-all;">
+              <el-table-column prop="general" min-width="8" label="设总" align="center" style="word-break: break-all;">
               </el-table-column>
-              <el-table-column prop="tecName" min-width="8%" label="专业" align="center">
+              <el-table-column prop="state" min-width="8%" label="项目状态" align="center">
               </el-table-column>
-              <el-table-column prop="grade"  min-width="10%" label="卷册等级"  align="center">
-              </el-table-column>
-              <el-table-column prop="designer" min-width="8%"  label="设计人" align="center">
+              <el-table-column prop="amount"  min-width="8%" label="卷册总数"  align="center">
               </el-table-column>
               <el-table-column
-                align="center"  min-width="8%" >
+                align="center"  min-width="10%" >
                 <template slot-scope="scope">
                   <el-button
                     size="mini"
-                    @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+                    @click="openVolumeList(scope.row.id)">卷册详情</el-button>
+                </template>
+              </el-table-column>
+              <el-table-column
+                align="center"  min-width="10%" >
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    @click="openVolume(scope.row.projectPhaseID)">卷册目录</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -277,6 +213,93 @@
         </el-form>
       </el-container>
     </el-dialog>
+    <el-dialog
+      title="卷册详情"
+      :visible.sync="volumeVisible"
+      width="90%"
+      >
+      <el-table border :data="volumeList" class="el-table"
+                :header-cell-style="{background:'#F5F5F5' } "
+                :row-class-name="tableRowClassName"
+                :default-sort = "{prop: 'date', order: 'descending'}">
+        <el-table-column type="expand" >
+          <template  slot-scope="scope">
+            <el-form label-position="left" inline class="demo-table-expand">
+              <el-form-item label="设总：">
+                <span>{{scope.row.general}}</span>
+              </el-form-item>
+              <el-form-item label="互校人：">
+                <span>{{scope.row.designer}}</span>
+              </el-form-item>
+              <el-form-item label="互校人：">
+                <span>{{scope.row.checker}}</span>
+              </el-form-item>
+              <el-form-item label="计划出手日期：">
+                <span>{{timeConversion(scope.row.planned_shot_date)}}</span>
+              </el-form-item>
+              <el-form-item label="出手日期：">
+                <span>{{timeConversion(scope.row.shot_date)}}</span>
+              </el-form-item>
+              <el-form-item label="互校人完成时间：">
+                <span>{{timeConversion(scope.row.proofreading_date)}}</span>
+              </el-form-item>
+              <el-form-item label="计划出版时间：">
+                <span>{{timeConversion(scope.row.planned_publication_date)}}</span>
+              </el-form-item>
+              <el-form-item label="实际最终出版时间：">
+                <span>{{timeConversion(scope.row.actual_publication_date)}}</span>
+              </el-form-item>
+              <el-form-item label="完成日期">
+                <span>{{timeConversion(scope.row.complete_time)}}</span>
+              </el-form-item>
+              <el-form-item label="设计人本周完成比例：" >
+                <span>{{recordConversion(scope.row.designerList,0,0)}}%</span>
+              </el-form-item>
+              <el-form-item label="备注：" >
+                <span>{{recordConversion(scope.row.designerList,0,1)}}</span>
+              </el-form-item>
+              <el-form-item label="设计人上周完成比例：">
+                <span>{{recordConversion(scope.row.designerList,1,0)}}%</span>
+              </el-form-item>
+              <el-form-item label="备注：">
+                <span>{{recordConversion(scope.row.designerList,1,1)}}</span>
+              </el-form-item>
+              <el-form-item label="互校人本周完成比例：">
+                <span>{{recordConversion(scope.row.checkerList,0,0)}}%</span>
+              </el-form-item>
+              <el-form-item label="备注：">
+                <span>{{recordConversion(scope.row.checkerList,0,1)}}</span>
+              </el-form-item>
+              <el-form-item label="互校人上周完成比例：">
+                <span>{{recordConversion(scope.row.checkerList,1,0)}}%</span>
+              </el-form-item>
+              <el-form-item label="备注：">
+                <span>{{(scope.row.checkerList,1,1)}}</span>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
+        <el-table-column prop="number" min-width="13  %" label="卷册号" sortable align="center"  >
+        </el-table-column>
+        <el-table-column prop="name" min-width="24" label="卷册名称" sortable align="center" style="word-break: break-all;">
+        </el-table-column>
+        <el-table-column prop="state" min-width="9%"  label="状态" align="center"
+                         :filters="[{text:'尚未开展',value:'尚未开展'},{text:'正在设计',value:'正在设计'},
+                          {text:'正在校审',value:'正在校审'},{text:'代送出版',value:'代送出版'},
+                          {text:'正在出版',value:'正在出版'},{text:'代送业主',value:'代送业主'},
+                          {text:'已完成交付设总',value:'已完成交付设总'},{text:'已完成交付业主',value:'已完成交付业主'}]"
+                         :filter-method="filterHandler1">
+        </el-table-column>
+        <el-table-column
+          align="center"  min-width="10%" style="text-align: center">
+          <template slot-scope="scope" style="text-align: center">
+            <el-button
+              size="mini"
+              @click="openVolume1(formId = scope.row.rollId)">卷册详情页面</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -290,6 +313,7 @@ export default {
       list: [],
       project: {},
       volume: {},
+      volumeList : [],
       tecList: [],
       userList: [],
       listIndex: 0,
@@ -312,7 +336,9 @@ export default {
           value: 1,
           label: "已完成"
         }
-      ]
+      ],
+      volumeVisible:false,
+
     }
   },
   "mounted"() {
@@ -470,6 +496,33 @@ export default {
           this.$forceUpdate();
         })
         .catch(res => (console.log(res)));
+    },
+    openVolume(p){
+      window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/RollEntityBill.aspx?' +
+        'OrganizationId=' + p + '&secid=00000000-0000-0000-0000-000000000000&IsPortal=True')
+    },
+    openVolumeList(id){
+      this.$axios
+        .post(this.$baseUrl + 'volume/queryByProjectId', {},{headers:{'id' : id}}
+        )
+        .then(res => {
+          this.volumeList = res.data.data;
+        })
+        .catch(res => (console.log(res)));
+      this.volumeVisible = true
+    },
+    filterHandler(value, row, column) {
+      // console.log(column)
+      // const property = column['property'];
+      return row['pid'] === value;
+    },
+    filterHandler1(value, row, column){
+      const property = column['property'];
+      return row[property] === value;
+    },
+    openVolume1(f){
+      // window.open('http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=' + f +
+      window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/ContentMange.aspx?actionType=1&RollID=' + f)
     }
 }
 }
@@ -490,9 +543,9 @@ export default {
 }
 .el-table {
   margin-top:20px;
-  width: 80% ;
+  width: 90% ;
   horiz-align: center;
-  left: 10%;
+  left: 5%;
   font-size: 12px;
   word-wrap: break-word;
 }
