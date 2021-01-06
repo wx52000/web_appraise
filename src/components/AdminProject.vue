@@ -33,20 +33,30 @@
               </el-table-column>
               <el-table-column prop="amount"  min-width="8%" label="卷册总数"  align="center">
               </el-table-column>
-              <el-table-column
-                align="center"  min-width="10%" >
+              <el-table-column  min-width="20%" align="center">
+                <template slot="header">
+                  <el-select v-model="volumeMonth" placeholder="请选择" size="mini">
+                    <el-option
+                      v-for="item in excelMonth"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </template>
                 <template slot-scope="scope">
+                  <el-row>
+                    <el-col :span="12">
                   <el-button
                     size="mini"
                     @click="openVolumeList(scope.row.id)">卷册详情</el-button>
-                </template>
-              </el-table-column>
-              <el-table-column
-                align="center"  min-width="10%" >
-                <template slot-scope="scope">
+                    </el-col>
+                    <el-col :span="12">
                   <el-button
                     size="mini"
                     @click="openVolume(scope.row.projectPhaseID)">卷册目录</el-button>
+                    </el-col>
+                  </el-row>
                 </template>
               </el-table-column>
             </el-table>
@@ -565,7 +575,9 @@
       <el-table border :data="volumeList" class="el-table"
                 :header-cell-style="{background:'#F5F5F5' } "
                 :row-class-name="tableRowClassName"
-                :default-sort = "{prop: 'date', order: 'descending'}">
+                :default-sort = "{prop: 'date', order: 'descending'}"
+                v-loading="volumeLoading"
+                :before-close="handleClose">
         <el-table-column type="expand" >
           <template  slot-scope="scope">
             <el-form label-position="left" inline class="demo-table-expand">
@@ -623,9 +635,9 @@
             </el-form>
           </template>
         </el-table-column>
-        <el-table-column prop="number" min-width="13  %" label="卷册号" sortable align="center"  >
+        <el-table-column prop="number" min-width="13%" label="卷册号" sortable align="center"  >
         </el-table-column>
-        <el-table-column prop="name" min-width="24" label="卷册名称" sortable align="center" style="word-break: break-all;">
+        <el-table-column prop="name" min-width="20" label="卷册名称" sortable align="center" style="word-break: break-all;">
         </el-table-column>
         <el-table-column prop="state" min-width="9%"  label="状态" align="center"
                          :filters="[{text:'尚未开展',value:'尚未开展'},{text:'正在设计',value:'正在设计'},
@@ -635,7 +647,22 @@
                          :filter-method="filterHandler1">
         </el-table-column>
         <el-table-column
-          align="center"  min-width="10%" style="text-align: center">
+          align="center"  min-width="24%" style="text-align: center">
+          <template slot="header" slot-scope="scope">
+            <el-date-picker
+              v-model="pickerValue"
+              type="daterange"
+              align="right"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :picker-options="pickerOptions"
+              @change="pickerEvent">
+            </el-date-picker>
+          </template>
           <template slot-scope="scope" style="text-align: center">
             <el-button
               size="mini"
@@ -706,6 +733,7 @@ export default {
       options: [],
       fileList : [],
       proNum:'',
+      volumeLoading: true,
       props: {
         checkStrictly: true,
         multiple: true,
@@ -745,14 +773,42 @@ export default {
           label: "上月数据"
         },
         {
-          value: new Date().getMonth()-1,
-          label: new Date().getMonth()-1 + "月数据"
+          value: new Date().getMonth()-1 +"月数据",
+          label: "前月数据"
         },],
       downMonth : new Date().getMonth()+1,
+      volumeMonth:new Date().getMonth()+1,
       filterMethod(query, item) {
         return item.pinyin.indexOf(query) > -1;
       },
-      test:1
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
+      pickerValue:"",
     }
   },
   mounted() {
@@ -1113,10 +1169,13 @@ export default {
     },
     openVolumeList(id){
       this.$axios
-        .post(this.$baseUrl + 'volume/queryByProjectId', {},{headers:{'id' : id}}
+        .post(this.$baseUrl + 'volume/queryByProjectId', {
+
+          },{headers:{'id' : id}}
         )
         .then(res => {
           this.volumeList = res.data.data;
+          this.volumeLoading = false;
         })
         .catch(res => (console.log(res)));
       this.volumeVisible = true
@@ -1133,6 +1192,13 @@ export default {
     openVolume1(f){
       // window.open('http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=' + f +
       window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/ContentMange.aspx?actionType=1&RollID=' + f)
+    },
+    handleClose(down){
+      this.volumeLoading = true;
+      down;
+    },
+    pickerEvent(){
+      console.log(this.pickerValue)
     }
 
   }

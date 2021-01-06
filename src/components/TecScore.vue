@@ -60,8 +60,13 @@ export default {
     }
   },
   mounted() {
-      if (this.nowDay < this.startDay)
-        this.month= --this.month;
+    if (this.nowDay < this.startDay) {
+      if (this.month === 1) {
+        this.month = 12
+      } else {
+        this.month = --this.month;
+      }
+    }
     this.setListMonth();
     this.getLogIn();
   },

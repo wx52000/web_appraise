@@ -12,7 +12,7 @@
             element-loading-spinner="el-icon-loading"
             :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
 
-    <el-table-column  label="月份">
+    <el-table-column  label="月份" v-if="month != null || month != 0">
       <template slot-scope="scope">
         <i class="el-icon-time"></i>
         <span style="margin-left: 10px">{{ scope.row.month }} 月</span>
@@ -38,7 +38,7 @@
               v-loading.lock="loading"  element-loading-text="拼命加载中"
               element-loading-spinner="el-icon-loading"
               :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
-      <el-table-column prop="month" label="月份" sortable="custom">
+      <el-table-column prop="month" label="月份" sortable="custom" v-if="month != null || month != 0">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
           <span style="margin-left: 10px">{{ scope.row.month }} 月</span>
