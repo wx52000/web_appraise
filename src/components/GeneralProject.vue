@@ -217,18 +217,20 @@
       title="卷册详情"
       :visible.sync="volumeVisible"
       width="90%"
+      @close="closeDialog()"
       >
       <el-table border :data="volumeList" class="el-table"
                 :header-cell-style="{background:'#F5F5F5' } "
                 :row-class-name="tableRowClassName"
-                :default-sort = "{prop: 'date', order: 'descending'}">
+                :row-key="getRowKeys"
+                :expand-row-keys="expands"
+                @row-click="clickRowHandle"
+                :default-sort = "{prop: 'date', order: 'descending'}"
+                v-loading="volumeLoading">
         <el-table-column type="expand" >
           <template  slot-scope="scope">
             <el-form label-position="left" inline class="demo-table-expand">
-              <el-form-item label="设总：">
-                <span>{{scope.row.general}}</span>
-              </el-form-item>
-              <el-form-item label="互校人：">
+              <el-form-item label="设计人：">
                 <span>{{scope.row.designer}}</span>
               </el-form-item>
               <el-form-item label="互校人：">
@@ -258,7 +260,7 @@
               <el-form-item label="备注：" >
                 <span>{{recordConversion(scope.row.designerList,0,1)}}</span>
               </el-form-item>
-              <el-form-item label="设计人上周完成比例：">
+              <el-form-item label="设计人上次完成比例：">
                 <span>{{recordConversion(scope.row.designerList,1,0)}}%</span>
               </el-form-item>
               <el-form-item label="备注：">
@@ -270,18 +272,36 @@
               <el-form-item label="备注：">
                 <span>{{recordConversion(scope.row.checkerList,0,1)}}</span>
               </el-form-item>
-              <el-form-item label="互校人上周完成比例：">
+              <el-form-item label="互校人上次完成比例：">
                 <span>{{recordConversion(scope.row.checkerList,1,0)}}%</span>
               </el-form-item>
               <el-form-item label="备注：">
-                <span>{{(scope.row.checkerList,1,1)}}</span>
+                <span>{{recordConversion(scope.row.checkerList,1,1)}}</span>
+              </el-form-item>
+              <el-form-item label="主设人本周完成比例：">
+                <span>{{recordConversion(scope.row.principalList,0,0)}}%</span>
+              </el-form-item>
+              <el-form-item label="备注：">
+                <span>{{recordConversion(scope.row.principalList,0,1)}}</span>
+              </el-form-item>
+              <el-form-item label="主设人上次完成比例：">
+                <span>{{recordConversion(scope.row.principalList,1,0)}}%</span>
+              </el-form-item>
+              <el-form-item label="备注：">
+                <span>{{recordConversion(scope.row.principalList,1,1)}}</span>
               </el-form-item>
             </el-form>
           </template>
         </el-table-column>
         <el-table-column prop="number" min-width="13  %" label="卷册号" sortable align="center"  >
         </el-table-column>
-        <el-table-column prop="name" min-width="24" label="卷册名称" sortable align="center" style="word-break: break-all;">
+        <el-table-column prop="name" min-width="20" label="卷册名称" sortable align="center" style="word-break: break-all;">
+        </el-table-column>
+        <el-table-column prop="principal" label="主设人" min-width="6%" align="center"
+                         :filters="principalList" :filter-method="filterHandler1">
+        </el-table-column>
+        <el-table-column prop="designer" label="设计人" min-width="6%" align="center"
+                         :filters="designerList" :filter-method="filterHandler1">
         </el-table-column>
         <el-table-column prop="state" min-width="9%"  label="状态" align="center"
                          :filters="[{text:'尚未开展',value:'尚未开展'},{text:'正在设计',value:'正在设计'},
@@ -291,11 +311,42 @@
                          :filter-method="filterHandler1">
         </el-table-column>
         <el-table-column
-          align="center"  min-width="10%" style="text-align: center">
-          <template slot-scope="scope" style="text-align: center">
-            <el-button
+          align="center"  min-width="24%" style="text-align: center">
+          <template slot="header" slot-scope="scope">
+            <el-date-picker
+              v-model="pickerValue"
+              type="daterange"
+              align="right"
               size="mini"
-              @click="openVolume1(formId = scope.row.rollId)">卷册详情页面</el-button>
+              value-format="yyyy-MM-dd"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :picker-options="pickerOptions"
+              @change="pickerEvent">
+            </el-date-picker>
+          </template>
+          <template slot-scope="scope" style="text-align: center">
+            <el-row>
+              <el-col :span="12">
+                <el-popover
+                  placement="top-start"
+                  width="300"
+                  trigger="hover"
+                  content="蓝色为设计人进度，红色为互校人进度，黄色为主设人进度。互校人填写进度后显示的为互校人进度，主设人填写后显示的为主设人进度">
+                  <i slot="reference" class="el-icon-question"></i>
+                </el-popover>
+                <span
+                  :style="displayColor(scope.row)" style="margin-right: 50%">
+                {{displayProgress(scope.row)}}</span>
+              </el-col>
+              <el-col :span="12">
+                <el-button
+                  size="mini"
+                  @click="openVolume1(formId = scope.row.rollId)">卷册详情页面</el-button>
+              </el-col>
+            </el-row>
           </template>
         </el-table-column>
       </el-table>
@@ -308,6 +359,11 @@ export default {
   "name": "GeneralProject",
   "data"() {
     return {
+      getRowKeys(row) {
+        return row.id;
+      },
+      // 要展开的行，数值的元素是row的key值
+      expands: [],
       id: "",
       pid: "",
       list: [],
@@ -337,12 +393,45 @@ export default {
           label: "已完成"
         }
       ],
+      volumeLoading : true,
       volumeVisible:false,
-
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
+      openId : '',
+      pickerValue:null,
+      principalList:[],
+      designerList:[],
+      nowWeek : "",
     }
   },
   "mounted"() {
     this.getLogIn();
+    this.nowWeek = this.getWeek()
   },
   "methods": {
     "getLogIn"() {
@@ -375,15 +464,55 @@ export default {
       } else
         return "";
     },
+    clickRowHandle(row, column, event) {
+      if (column.property !== undefined) {
+        if (this.expands.includes(row.id)) {
+          this.expands = this.expands.filter(val => val !== row.id);
+        } else {
+          this.expands.push(row.id);
+        }
+      }
+    },
     recordConversion(v,i,n) {
       if (v != null && v!== "") {
         let recordOne = v.split("##")
-        if ( recordOne[i] != null && recordOne[i] != "") {
-          return recordOne[i].split("$")[n]
+        if ( recordOne.length !== 0) {
+          if(i === 0 ){
+            if (Number(recordOne[0].split("$")[2]) === Number(this.nowWeek)){
+              return recordOne[i].split("$")[n]
+            }else
+              return null
+          }else{
+            if (Number(recordOne[0].split("$")[2]) === Number(this.nowWeek))
+              if ( recordOne.length > 1)
+                return recordOne[i].split("$")[n]
+              else return null
+            else return recordOne[0].split("$")[n]
+          }
         }else {
           return null
         }
       }
+    },
+    displayProgress(v){
+      if (v.principalList !== undefined){
+        return v.principalList.split("##")[0].split("$")[0]
+      }else if (v.checkerList !== undefined){
+        return v.checkerList.split("##")[0].split("$")[0]
+      }else if (v.designerList !== undefined){
+        return v.designerList.split("##")[0].split("$")[0]
+      }else
+        return  null
+    },
+    displayColor(v){
+      if (v.principalList !== undefined){
+        return "color:#e3f42a"
+      }else if (v.checkerList !== undefined){
+        return "color:#e70821"
+      }else if (v.designerList !== undefined){
+        return "color:#1b08e7"
+      }else
+        return  null
     },
     tableRowClassName({row, rowIndex}) {
       //把每一行的索引放进row
@@ -502,11 +631,19 @@ export default {
         'OrganizationId=' + p + '&secid=00000000-0000-0000-0000-000000000000&IsPortal=True')
     },
     openVolumeList(id){
+      this.openId = id;
       this.$axios
-        .post(this.$baseUrl + 'volume/queryByProjectId', {},{headers:{'id' : id}}
-        )
+        .post(this.$baseUrl + 'volume/queryByProjectId', {
+          "id": id,
+          "month" : new Date().getMonth()+1
+        })
         .then(res => {
           this.volumeList = res.data.data;
+          this.volumeLoading = false;
+          this.volumeList.forEach((item,index)=>{
+            this.principalList.push2({value:item.principal,text:item.principal});
+            this.designerList.push2({value:item.designer,text:item.designer})
+          })
         })
         .catch(res => (console.log(res)));
       this.volumeVisible = true
@@ -523,7 +660,47 @@ export default {
     openVolume1(f){
       // window.open('http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=' + f +
       window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/ContentMange.aspx?actionType=1&RollID=' + f)
-    }
+    },
+    pickerEvent(){
+      this.$axios
+        .post(this.$baseUrl + 'volume/queryByProjectId', {
+            "id" : this.openId,
+            "month": new Date().getMonth()+1,
+            "pickerDate" : this.pickerValue
+          },
+        )
+        .then(res => {
+          this.volumeList = res.data.data;
+          this.volumeLoading = false;
+        })
+        .catch(res => (console.log(res)));
+      this.volumeVisible = true
+    },
+    closeDialog(){
+      this.volumeLoading =true;
+      this.pickerValue = null;
+      this.openId = '';
+      console.log("close"+ this.pickerValue)
+    },
+    getWeek(){
+      // date = formatTimebytype(date, 'yyyy-MM-dd');//将日期转换成yyyy-mm-dd格式
+      // let YY = date.getFullYear() + '-';
+      // let MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+      // let DD = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
+      let date = new Date()
+
+      let date2 = new Date(date.getFullYear(), 0, 1);
+      let day1 = date.getDay();
+      if (day1 === 0) day1 = 7;
+      let day2 = date2.getDay();
+      if (day2 === 0) day2 = 7;
+      let d = Math.round((date.getTime() - date2.getTime() + (day2 - day1) * (24 * 60 * 60 * 1000)) / 86400000);
+      //当周数大于52则为下一年的第一周
+      if((Math.ceil(d / 7)) === 52){
+        return 52
+      }
+      else return (Math.ceil(d / 7))
+    },
 }
 }
 </script>
@@ -543,9 +720,9 @@ export default {
 }
 .el-table {
   margin-top:20px;
-  width: 90% ;
+  width: 95% ;
   horiz-align: center;
-  left: 5%;
+  left: 2.5%;
   font-size: 12px;
   word-wrap: break-word;
 }

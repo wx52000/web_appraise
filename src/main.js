@@ -21,6 +21,14 @@ Vue.prototype.$baseUrl = 'http://10.136.238.22:9999/';
 Vue.prototype.startDay = 25;
 // 每月评价结束日期
 Vue.prototype.endDay = 10;
+Array.prototype.push2 =function(){
+  for(let i=0; i<arguments.length; i++){
+    let ele =  arguments[i];
+    if(JSON.stringify(this).indexOf(JSON.stringify(ele)) == -1){
+      this.push(ele);
+    }
+  }
+};
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -29,3 +37,4 @@ new Vue({
   template: '<App/>',
   render: h => h(App),
 })
+

@@ -260,10 +260,12 @@ export default {
       theMonth : new Date().getMonth() + 1,
       visible : false,
       proportion: {},
+      nowWeek : "",
     }
   },
   "mounted"() {
     this.getLogIn();
+    this.nowWeek = this.getWeek()
   },
   "methods": {
     "getLogIn"() {
@@ -295,8 +297,19 @@ export default {
     recordConversion(v,i,n) {
       if (v != null && v!== "") {
         let recordOne = v.split("##")
-        if ( recordOne[i] != null && recordOne[i] != "") {
-          return recordOne[i].split("$")[n]
+        if ( recordOne.length !== 0) {
+          if(i === 0 ){
+            if (Number(recordOne[0].split("$")[2]) === Number(this.nowWeek)){
+              return recordOne[i].split("$")[n]
+            }else
+              return null
+          }else{
+            if (Number(recordOne[0].split("$")[2]) === Number(this.nowWeek))
+              if ( recordOne.length > 1)
+                return recordOne[i].split("$")[n]
+              else return null
+            else return recordOne[0].split("$")[n]
+          }
         }else {
           return null
         }
@@ -391,59 +404,78 @@ export default {
         })
         .catch(res => (console.log(res)));
     },
-getMonthByLong(v){
-  if (v !== undefined && v !== "") {
-    let date = new Date(v);
-    return  date.getMonth()+1;
-  }
-},
-getWeekByLong(v) {
-  if (v !== undefined && v !== "") {
-    let date = new Date(v);
-    return date.get + 1;
-  }
-},
-handleReport(v,w){
-  this.proportion = {};
-  this.reportVid = w.vid;
-  this.$axios
-    .post(this.$baseUrl + 'proportion/queryLastTime',{
-        "volumeId" : w.vid,
-        "userId" : this.id,
+    getMonthByLong(v){
+      if (v !== undefined && v !== "") {
+        let date = new Date(v);
+        return  date.getMonth()+1;
       }
-    )
-    .then(res => {this.lastReport = res.data.data
-      if (this.lastReport.state === 1){
-        this.proportion.report = this.lastReport.proportion;
-        this.proportion.remarks = this.lastReport.remarks;
+    },
+    getWeekByLong(v) {
+      if (v !== undefined && v !== "") {
+        let date = new Date(v);
+        return date.get + 1;
       }
-    })
-    .catch(res => (console.log(res)));
-  this.$nextTick(() =>{
-    this.$forceUpdate();
-    this.visible = true;
-  })
-},
-reporting(){
-  if (this.reportCheck === 0){
-    this.$axios
-      .post(this.$baseUrl + 'proportion/add',{
-          "volumeId" : this.reportVid,
-          "userId" : this.id,
-          "proportion" : this.proportion.report,
-          "remarks" : this.proportion.remarks,
-          "type" : 3,
-        }
-      )
-      .then(res => {
-        if (res.data.code === 0){
-          this.$message("操作成功")
-          this.visible = false;
-        }
+    },
+    handleReport(v,w){
+      this.proportion = {};
+      this.reportVid = w.vid;
+      this.$axios
+        .post(this.$baseUrl + 'proportion/queryLastTime',{
+            "volumeId" : w.vid,
+            "userId" : this.id,
+          }
+        )
+        .then(res => {this.lastReport = res.data.data
+          if (this.lastReport.state === 1){
+            this.proportion.report = this.lastReport.proportion;
+            this.proportion.remarks = this.lastReport.remarks;
+          }
+        })
+        .catch(res => (console.log(res)));
+      this.$nextTick(() =>{
+        this.$forceUpdate();
+        this.visible = true;
       })
-      .catch(res => (console.log(res)));
-  }
-},
+    },
+    reporting(){
+      if (this.reportCheck === 0){
+        this.$axios
+          .post(this.$baseUrl + 'proportion/add',{
+              "volumeId" : this.reportVid,
+              "userId" : this.id,
+              "proportion" : this.proportion.report,
+              "remarks" : this.proportion.remarks,
+              "type" : 3,
+            }
+          )
+          .then(res => {
+            if (res.data.code === 0){
+              this.$message("操作成功")
+              this.visible = false;
+            }
+          })
+          .catch(res => (console.log(res)));
+      }
+    },
+    getWeek(){
+      // date = formatTimebytype(date, 'yyyy-MM-dd');//将日期转换成yyyy-mm-dd格式
+      // let YY = date.getFullYear() + '-';
+      // let MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+      // let DD = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
+      let date = new Date()
+
+      let date2 = new Date(date.getFullYear(), 0, 1);
+      let day1 = date.getDay();
+      if (day1 === 0) day1 = 7;
+      let day2 = date2.getDay();
+      if (day2 === 0) day2 = 7;
+      let d = Math.round((date.getTime() - date2.getTime() + (day2 - day1) * (24 * 60 * 60 * 1000)) / 86400000);
+      //当周数大于52则为下一年的第一周
+      if((Math.ceil(d / 7)) === 52){
+        return 52
+      }
+      else return (Math.ceil(d / 7))
+    },
   }
 }
 </script>

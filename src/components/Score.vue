@@ -179,13 +179,13 @@ name: "Score",
       let MonthData3 = {};
       if (this.month === 1){
         MonthData2 = {value : 12 , label : "上月"}
-        MonthData3 = {value : 11 , label : "上上月"}
+        MonthData3 = {value : 11 , label : "前月"}
       }else if (this.month === 2){
         MonthData2 = {value : 1 , label : "上月"}
-        MonthData3 = {value : 12 , label : "上上月"}
+        MonthData3 = {value : 12 , label : "前月"}
       }else {
         MonthData2 = {value : this.month-1 , label : "上月"}
-        MonthData3 = {value : this.month-2 , label : "上上月"}
+        MonthData3 = {value : this.month-2 , label : "前月"}
       }
       this.listMonth.push(MonthData1);
       this.listMonth.push(MonthData2);

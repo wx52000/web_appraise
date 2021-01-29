@@ -21,6 +21,7 @@ import HeadmanProject from "../components/HeadmanProject";
 import AdminProject from "../components/AdminProject";
 import Main from "../components/Main";
 import UserScore from "../components/UserScore";
+import ShowProject from "../components/ShowProject";
 Vue.use(Router)
 
 
@@ -147,6 +148,11 @@ export default new Router({
           path: 'headmanProject',
           name: 'headmanProject',
           component: HeadmanProject
+        },
+        {
+          path: 'showProject',
+          name: 'showProject',
+          component: ShowProject
         }]
     },
   ]

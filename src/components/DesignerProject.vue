@@ -11,7 +11,11 @@
               </el-col>
             </el-row>
             <el-table border :data="list" class="el-table" :header-cell-style="{background:'#F5F5F5'}"
-                      :default-sort = "{prop: 'date', order: 'descending'}">
+                      :default-sort = "{prop: 'date', order: 'descending'}"
+                      :row-key="getRowKeys"
+                      :expand-row-keys="expands"
+                      @row-click="clickRowHandle"
+            >
               <el-table-column type="expand">
                 <template  slot-scope="scope">
                   <el-form label-position="left" inline class="demo-table-expand">
@@ -54,7 +58,7 @@
                 <template slot-scope="scope">
                   <el-button
                     size="mini"
-                    @click="handleEdit(scope.$index, scope.row)">每周汇报</el-button>
+                    @click="handleReport(scope.$index, scope.row)">每周汇报</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -83,16 +87,24 @@
           </el-row>
           <el-row>
           <el-form-item prop="report" label="完成比例" >
-            <el-input pro v-model="proportion.report" type="number"  autocomplete="off"
+            <el-input v-model="proportion.report" type="number"  autocomplete="off"
                       placeholder="本周完成比例" max="100">
             <template slot="append">%</template>
             </el-input>
           </el-form-item>
           </el-row>
+          <el-row>
           <el-form-item prop="remark" label="备注" >
-            <el-input v-model="proportion.remarks"  type="textarea"  autocomplete="off"
-                      placeholder="存在问题、延期原因等" maxlength="100" show-word-limit></el-input>
+            <el-autocomplete
+              class="inline-input"
+              v-model="proportion.remarks"
+              :fetch-suggestions="querySearch"
+              placeholder="存在问题、延期原因等"
+              autosize
+              style="width: 100%"
+            ></el-autocomplete>
           </el-form-item>
+          </el-row>
           <el-button type="primary" @click="reporting" v-if="lastReport.state === 0" >确定</el-button>
         </el-form>
       </div>
@@ -126,6 +138,11 @@ export default {
       }
     }
     return{
+      getRowKeys(row) {
+        return row.vid;
+      },
+      // 要展开的行，数值的元素是row的key值
+      expands: [],
       id: "",
       pid: "",
       list: [],
@@ -143,6 +160,7 @@ export default {
       lastReport : {},
       reportVid : "",
       theMonth : new Date().getMonth() + 1,
+      reasons : [],
     }
   },
   mounted() {
@@ -162,6 +180,15 @@ export default {
         )
         .then(res => {this.list = res.data.data})
         .catch(res => (console.log(res)));
+    },
+    clickRowHandle(row, column, event) {
+      if (column.property !== undefined) {
+        if (this.expands.includes(row.vid)) {
+          this.expands = this.expands.filter(val => val !== row.vid);
+        } else {
+          this.expands.push(row.vid);
+        }
+      }
     },
     timeConversion(v){
       if (v !== undefined && v !== "") {
@@ -188,7 +215,8 @@ export default {
         return date.get + 1;
       }
     },
-    handleEdit(v,w){
+    handleReport(v,w){
+      this.proportion = {}
       this.reportVid = w.vid;
       this.$axios
         .post(this.$baseUrl + 'proportion/queryLastTime',{
@@ -231,7 +259,20 @@ export default {
     openVolume(f){
       // window.open('http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=' + f +
       window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/ContentMange.aspx?actionType=1&RollID=' + f)
-    }
+    },
+    querySearch(queryString, cb) {
+      if (this.reasons.length === 0) {
+        this.$axios
+          .post(this.$baseUrl + 'reason/queryByType',{},{headers:{"type":0}}
+          )
+          .then(res => {
+            this.reasons = res.data.data
+            cb(this.reasons)
+          })
+          .catch(res => (console.log(res)));
+      }else
+        cb(this.reasons)
+    },
   }
 }
 </script>
