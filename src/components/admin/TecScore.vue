@@ -6,12 +6,12 @@
         <el-row>
             <el-row style="margin:0 auto;text-align: center; align-content: center">
               <el-col :span="18" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-                <span style="margin-left: 33%">{{month}}月专业评价汇总表</span>
+                <span style="margin-left: 33%">第{{quarter}}季度专业评价汇总表</span>
                 <i v-if="pid==1" class="el-icon-document-copy" @click="downExcel"></i>
               </el-col>
               <el-col :span="6">
                 <template>
-                  <el-select v-model="month" placeholder="请选择" @change="getData"
+                  <el-select v-model="quarterNumber" placeholder="请选择" @change="getData"
                              style="width: 40%;margin-top: 10px" size="mini">
                     <el-option
                       v-for="item in listMonth"
@@ -40,6 +40,8 @@
         </el-row>
       </el-row>
     </el-row>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 </template>
 
@@ -50,6 +52,9 @@ export default {
     return {
       id: "",
       pid: "",
+      quarter:"",
+      isShow : false,
+      quarterNumber : "",
       nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
       listMonth : [],
@@ -60,12 +65,28 @@ export default {
     }
   },
   mounted() {
-    if (this.nowDay < this.startDay) {
-      if (this.month === 1) {
-        this.month = 12
-      } else {
-        this.month = --this.month;
+    let quarter = ["一","二","三","四"]
+    let quarterNumber = [3, 6, 9, 12 ]
+    if (this.month%3 === 0){
+      if (this.nowDay>=25){
+        this.quarter = quarter[Math.floor(this.month/3)]
+        this.quarterNumber = quarterNumber[Math.floor(this.month/3)]
+      }else{
+        if (this.month === 3){
+          this.quarter = "四"
+          this.quarterNumber = 12
+        }else {
+          this.quarter = quarter[Math.floor(this.month / 3) - 1]
+          this.quarterNumber = quarterNumber[Math.floor(this.month / 3) - 1]
+        }
       }
+    }else{
+      if (this.month<3){
+        this.quarter = "四"
+        this.quarterNumber = 12
+      }
+      this.quarter = quarter[Math.floor(this.month/3)-1]
+      this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
     }
     this.setListMonth();
     this.getLogIn();
@@ -88,33 +109,33 @@ export default {
       this.$axios
         .post(this.$baseUrl + 'tecScore/queryScore', {
           "id" : this.id,
-          "thisMonth"  : this.month
+          "thisMonth"  : this.quarterNumber
         },)
         .then(res => (this.list = res.data.data))
         .catch(res => (console.log(res)));
     },
     downExcel() {
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'tecScore/excel?id=' + this.id +"&month=" + this.month;
+      window.location.href = this.$baseUrl + 'tecScore/excel?id=' + this.id +"&month=" + this.quarterNumber;
     },
     setListMonth(){
-      let MonthData1 = { value : this.month , label : "本月"};
+      let MonthData1 = { value : this.quarterNumber, label : "本季度"};
       let MonthData2 = {};
       let MonthData3 = {};
-      if (this.month === 1){
-        MonthData2 = {value : 12 , label : "上月"}
-        MonthData3 = {value : 11 , label : "上上月"}
-      }else if (this.month === 2){
-        MonthData2 = {value : 1 , label : "上月"}
-        MonthData3 = {value : 12 , label : "上上月"}
-      }else {
-        MonthData2 = {value : this.month-1 , label : "上月"}
-        MonthData3 = {value : this.month-2 , label : "上上月"}
+      if (this.quarterNumber >= 9){
+        MonthData2 = {value : this.quarterNumber-3 , label : "上季度"}
+        MonthData3 = {value : this.quarterNumber-6 , label : "上上季度"}
+      }else if (this.quarterNumber === 6){
+        MonthData2 = {value : 3 , label : "上季度"}
+        MonthData3 = {value : 12 , label : "上上季度"}
+      }else if (this.quarterNumber === 3){
+        MonthData2 = {value : 12 , label : "上季度"}
+        MonthData3 = {value : 9 , label : "上上季度"}
       }
       this.listMonth.push(MonthData1);
       this.listMonth.push(MonthData2);
       this.listMonth.push(MonthData3);
-    }
+    },
 
 
   }

@@ -12,10 +12,20 @@
         </el-row>
         <!-- 导航 -->
         <el-row style="margin-top: 20px; ">
-          <el-menu  default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
-          <el-menu-item index="1" @click="toPage('/home/adminProject')">
-            <span slot="title">项目管理</span>
-          </el-menu-item>
+          <el-menu  default-active="1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
+            <el-submenu index="1">
+              <template slot="title">
+                <el-row >项目管理</el-row>
+              </template>
+            <el-menu-item-group>
+              <el-menu-item class="nav2" index="1-1" @click="toPage(toPage('/home/adminProject'))">施工图项目进度管理
+              </el-menu-item>
+              <el-menu-item class="nav2" index="1-2" @click="toPage('/home/virtual')">初设前期进度管理
+              </el-menu-item>
+              <el-menu-item class="nav2" index="1-3" @click="toPage('/home/business')">业务建设工时管理
+              </el-menu-item>
+            </el-menu-item-group>
+            </el-submenu>
             <el-submenu index="2">
               <template slot="title">
                 <el-row >个人评价</el-row>
@@ -47,6 +57,8 @@
                 <el-menu-item class="nav2" index="4-1" @click="toPage('/home/personal')">人员管理
                 </el-menu-item>
                 <el-menu-item class="nav2" index="4-2" @click="toPage('/home/department')">部门管理
+                </el-menu-item>
+                <el-menu-item class="nav2" index="4-3" @click="toPage('/home/appraiseManage')">评价管理
                 </el-menu-item>
               </el-menu-item-group>
             </el-submenu>

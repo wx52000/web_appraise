@@ -53,6 +53,7 @@ export default{
                 pid: res.data.data.pid,
                 pawState : res.data.data.pawState,
                 tid : res.data.data.tid,
+                did : res.data.data.did,
                 name : res.data.data.name,
                 position : res.data.data.position,
                 grade : res.data.data.grade}));

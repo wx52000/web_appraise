@@ -212,6 +212,8 @@
         </el-form>
       </div>
     </el-dialog>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 </template>
 
@@ -235,6 +237,7 @@ export default {
     return {
       id: "",
       pid: "",
+      isShow : false,
       list: [],
       project: {},
       volume: {},

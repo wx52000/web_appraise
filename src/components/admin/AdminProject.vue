@@ -7,7 +7,7 @@
           <el-row>
             <el-row style="margin-left:-10px;text-align: center; align-content: center;">
               <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-                项目管理
+                施工图工时管理
                 <i class="el-icon-document-copy" @click="excelDialog = true"></i>
               </el-col>
             </el-row>
@@ -21,9 +21,9 @@
 
             <el-table border :data="list" class="el-table" :row-class-name="tableRowClassName"
                       :header-cell-style="{background:'#F5F5F5'}">
-              <el-table-column prop="number" min-width="24%" label="项目编号" align="center"  >
+              <el-table-column prop="number" min-width="18%" label="项目编号" align="center"  >
               </el-table-column>
-              <el-table-column prop="projectName" min-width="28%" label="项目名称" align="center">
+              <el-table-column prop="projectName" min-width="30%" label="项目名称" align="center">
               </el-table-column>
               <el-table-column prop="director" min-width="8%" label="主管设总" align="center"  >
               </el-table-column>
@@ -34,31 +34,12 @@
               <el-table-column prop="amount"  min-width="8%" label="卷册总数"  align="center">
               </el-table-column>
               <el-table-column  min-width="20%" align="center">
-<!--                <template slot="header">-->
-<!--                  <el-row>-->
-<!--                    <el-col :span="20">-->
-<!--                  <el-select v-model="volumeMonth" placeholder="请选择" size="mini">-->
-<!--                    <el-option-->
-<!--                      v-for="item in excelMonth"-->
-<!--                      :key="item.value"-->
-<!--                      :label="item.label"-->
-<!--                      :value="item.value">-->
-<!--                    </el-option>-->
-<!--                  </el-select>-->
-<!--                    </el-col>-->
-<!--                    <el-col :span="4" style="text-align: center">-->
-<!--                  <el-tooltip content="此处仅用来选择每周汇报数据的月份" placement="top" @click.stop.prevent>-->
-<!--                    <i class="el-icon-question" style="color: #d3d4d6;margin-top: 30%"/>-->
-<!--                  </el-tooltip>-->
-<!--                    </el-col>-->
-<!--                  </el-row>-->
-<!--                </template>-->
                 <template slot-scope="scope">
                   <el-row>
                     <el-col :span="12">
                   <el-button
                     size="mini"
-                    @click="openVolumeList(scope.row.id)">卷册详情</el-button>
+                    @click="openVolumeList(scope.row)">卷册详情</el-button>
                     </el-col>
                     <el-col :span="12">
                   <el-button
@@ -577,145 +558,6 @@
       </el-row>
     </el-dialog>
     <el-dialog
-      title="卷册详情"
-      :visible.sync="volumeVisible"
-      width="90%"
-      @close="handleClose"
-    >
-      <el-table border :data="volumeList" class="el-table"
-                :header-cell-style="{background:'#F5F5F5' } "
-                :row-class-name="tableRowClassName"
-                :row-key="getRowKeys"
-                :expand-row-keys="expands"
-                @row-click="clickRowHandle"
-                :default-sort = "{prop: 'date', order: 'descending'}"
-                v-loading="volumeLoading"
-                >
-        <el-table-column type="expand" >
-          <template  slot-scope="scope">
-            <el-form label-position="left" inline class="demo-table-expand">
-
-              <el-form-item label="设计人：">
-                <span>{{scope.row.designer}}</span>
-              </el-form-item>
-              <el-form-item label="互校人：">
-                <span>{{scope.row.checker}}</span>
-              </el-form-item>
-              <el-form-item label="计划出手日期：">
-                <span>{{timeConversion(scope.row.planned_shot_date)}}</span>
-              </el-form-item>
-              <el-form-item label="出手日期：">
-                <span>{{timeConversion(scope.row.shot_date)}}</span>
-              </el-form-item>
-              <el-form-item label="互校人完成时间：">
-                <span>{{timeConversion(scope.row.proofreading_date)}}</span>
-              </el-form-item>
-              <el-form-item label="计划出版时间：">
-                <span>{{timeConversion(scope.row.planned_publication_date)}}</span>
-              </el-form-item>
-              <el-form-item label="实际最终出版时间：">
-                <span>{{timeConversion(scope.row.actual_publication_date)}}</span>
-              </el-form-item>
-              <el-form-item label="完成日期">
-                <span>{{timeConversion(scope.row.complete_time)}}</span>
-              </el-form-item>
-              <el-form-item label="设计人本周完成比例：" >
-                <span>{{recordConversion(scope.row.designerList,0,0)}}%</span>
-              </el-form-item>
-              <el-form-item label="备注：" >
-                <span>{{recordConversion(scope.row.designerList,0,1)}}</span>
-              </el-form-item>
-              <el-form-item label="设计人上次完成比例：">
-                <span>{{recordConversion(scope.row.designerList,1,0)}}%</span>
-              </el-form-item>
-              <el-form-item label="备注：">
-                <span>{{recordConversion(scope.row.designerList,1,1)}}</span>
-              </el-form-item>
-              <el-form-item label="互校人本周完成比例：">
-                <span>{{recordConversion(scope.row.checkerList,0,0)}}%</span>
-              </el-form-item>
-              <el-form-item label="备注：">
-                <span>{{recordConversion(scope.row.checkerList,0,1)}}</span>
-              </el-form-item>
-              <el-form-item label="互校人上次完成比例：">
-                <span>{{recordConversion(scope.row.checkerList,1,0)}}%</span>
-              </el-form-item>
-              <el-form-item label="备注：">
-                <span>{{recordConversion(scope.row.checkerList,1,1)}}</span>
-              </el-form-item>
-              <el-form-item label="主设人本周完成比例：">
-                <span>{{recordConversion(scope.row.principalList,0,0)}}%</span>
-              </el-form-item>
-              <el-form-item label="备注：">
-                <span>{{recordConversion(scope.row.principalList,0,1)}}</span>
-              </el-form-item>
-              <el-form-item label="主设人上次完成比例：">
-                <span>{{recordConversion(scope.row.principalList,1,0)}}%</span>
-              </el-form-item>
-              <el-form-item label="备注：">
-                <span>{{recordConversion(scope.row.principalList,1,1)}}</span>
-              </el-form-item>
-            </el-form>
-          </template>
-        </el-table-column>
-        <el-table-column prop="number" min-width="13%" label="卷册号" sortable align="center"  >
-        </el-table-column>
-        <el-table-column prop="name" min-width="14%" label="卷册名称" sortable align="center" style="word-break: break-all;">
-        </el-table-column>
-        <el-table-column prop="principal" label="主设人" min-width="6%" align="center"
-        :filters="principalList" :filter-method="filterHandler1"/>
-        <el-table-column prop="designer" label="设计人" min-width="6%" align="center"
-                           :filters="designerList" :filter-method="filterHandler1">
-        </el-table-column>
-        <el-table-column prop="state" min-width="9%"  label="状态" align="center"
-                         :filters="[{text:'尚未开展',value:'尚未开展'},{text:'正在设计',value:'正在设计'},
-                          {text:'正在校审',value:'正在校审'},{text:'代送出版',value:'代送出版'},
-                          {text:'正在出版',value:'正在出版'},{text:'代送业主',value:'代送业主'},
-                          {text:'已完成交付设总',value:'已完成交付设总'},{text:'已完成交付业主',value:'已完成交付业主'}]"
-                         :filter-method="filterHandler1">
-        </el-table-column>
-        <el-table-column
-          align="center"  min-width="24%" style="text-align: center">
-          <template slot="header" slot-scope="scope">
-            <el-date-picker
-              v-model="pickerValue"
-              type="daterange"
-              align="right"
-              size="mini"
-              value-format="yyyy-MM-dd"
-              unlink-panels
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              :picker-options="pickerOptions"
-              @change="pickerEvent">
-            </el-date-picker>
-          </template>
-          <template slot-scope="scope" style="text-align: center">
-            <el-row>
-              <el-col :span="12">
-                <el-popover
-                  placement="top-start"
-                  width="300"
-                  trigger="hover"
-                  content="蓝色为设计人进度，红色为互校人进度，黄色为主设人进度。互校人填写进度后显示的为互校人进度，主设人填写后显示的为主设人进度">
-                  <i slot="reference" class="el-icon-question"></i>
-                </el-popover>
-              <span
-                :style="displayColor(scope.row)" style="margin-right: 50%">
-                {{displayProgress(scope.row)}}</span>
-              </el-col>
-              <el-col :span="12">
-            <el-button
-              size="mini"
-              @click="openVolume1(formId = scope.row.rollId)">卷册详情页面</el-button>
-              </el-col>
-            </el-row>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
-    <el-dialog
       title="项目管理"
       :visible.sync="projectVisible"
       width="90%"
@@ -749,7 +591,9 @@
           </template>
         </el-table-column>
       </el-table>
-    </el-dialog>
+    </el-dialog >
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 </template>
 
@@ -766,6 +610,7 @@ export default {
       id: "",
       pid: "",
       tid : "",
+      isShow : false,
       list: [],
       project: {
       },
@@ -774,7 +619,6 @@ export default {
       userList: [],
       listIndex: 0,
       meshRow: 0,
-      volumeList : [],
       dialogVisible: false,
       projectVisible:false,
       volumeVisible: false,
@@ -869,6 +713,7 @@ export default {
     this.nowWeek = this.getWeek()
   },
   methods: {
+
     "getLogIn"() {
       let i = JSON.parse(sessionStorage.getItem("appraise"));
       this.id = i.id;
@@ -1259,24 +1104,35 @@ export default {
       window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/RollEntityBill.aspx?' +
         'OrganizationId=' + p + '&secid=00000000-0000-0000-0000-000000000000&IsPortal=True')
     },
-    openVolumeList(id){
-      this.openId = id;
-      this.$axios
-        .post(this.$baseUrl + 'volume/queryByProjectId', {
-          "id" : id,
-          "month" : this.volumeMonth
-          },
-        )
-        .then(res => {
-          this.volumeList = res.data.data;
-          this.volumeLoading = false;
-          this.volumeList.forEach((item,index)=>{
-            this.principalList.push2({value:item.principal,text:item.principal});
-            this.designerList.push2({value:item.designer,text:item.designer})
-          })
-        })
-        .catch(res => (console.log(res)));
-      this.volumeVisible = true
+    openVolumeList(project){
+      // this.openId = id;
+      // this.$axios
+      //   .post(this.$baseUrl + 'volume/queryByProjectId', {
+      //     "id" : id,
+      //     "month" : this.volumeMonth
+      //     },
+      //   )
+      //   .then(res => {
+      //     this.volumeList = res.data.data;
+      //     this.volumeLoading = false;
+      //     this.volumeList.forEach((item,index)=>{
+      //       this.principalList.push2({value:item.principal,text:item.principal});
+      //       this.designerList.push2({value:item.designer,text:item.designer})
+      //     })
+      //   })
+      //   .catch(res => (console.log(res)));
+      // this.volumeVisible = true
+      console.log(project)
+      const href = this.$router.resolve(
+        {
+          path: "/projectMain",
+          name: "projectMain",
+          query:{
+            "project_id" : project.id
+          }
+        }
+      )
+      window.open( href.href,project.id)
     },
     filterHandler(value, row, column) {
       // console.log(column)
@@ -1325,10 +1181,10 @@ export default {
       if (day2 === 0) day2 = 7;
       let d = Math.round((date.getTime() - date2.getTime() + (day2 - day1) * (24 * 60 * 60 * 1000)) / 86400000);
       //当周数大于52则为下一年的第一周
-      if((Math.ceil(d / 7)) === 52){
+      if((Math.floor(d / 7)) === 52){
         return 52
       }
-      else return (Math.ceil(d / 7))
+      else return (Math.floor(d / 7))
     },
 
   }

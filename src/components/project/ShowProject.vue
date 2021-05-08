@@ -31,9 +31,15 @@
         </el-table-column>
         <el-table-column prop="name" min-width="20%" label="卷册名称" sortable>
         </el-table-column>
-        <el-table-column prop="projectName" min-width="20%" label="项目名称" sortable>
+        <el-table-column prop="projectName" min-width="20%" label="项目名称"
+                         :filters="queryProjectList" :filter-method="filterHandler1">
         </el-table-column>
-        <el-table-column prop="state" min-width="11%" label="卷册状态" sortable >
+        <el-table-column prop="state" min-width="9%"  label="状态" align="center"
+                         :filters="[{text:'尚未开展',value:'尚未开展'},{text:'正在设计',value:'正在设计'},
+                          {text:'正在校审',value:'正在校审'},{text:'代送出版',value:'代送出版'},
+                          {text:'正在出版',value:'正在出版'},{text:'代送业主',value:'代送业主'},
+                          {text:'已完成交付设总',value:'已完成交付设总'},{text:'已完成交付业主',value:'已完成交付业主'}]"
+                         :filter-method="filterHandler1">
         </el-table-column>
         <el-table-column prop="general" min-width="11%" label="设总" sortable>
         </el-table-column>
@@ -69,6 +75,8 @@
         </el-table-column>
       </el-table>
     </el-dialog>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 </template>
 
@@ -77,6 +85,7 @@ export default {
 name: "ShowProject",
   data(){
   return{
+    isShow : false,
     list: [],
     projectVisible:false,
     name:"",
@@ -84,6 +93,7 @@ name: "ShowProject",
     nameList:[],
     projectList:[],
     nameLoading:true,
+    queryProjectList : [],
     }
   },
   mounted() {
@@ -97,6 +107,9 @@ name: "ShowProject",
         )
         .then(res => {
           this.list = res.data.data
+          this.list.forEach((item,index) =>{
+            this.queryProjectList.push2({value:item.projectName,text:item.projectName})
+          })
         })
         .catch(res => (console.log(res)));
     },
@@ -120,7 +133,6 @@ name: "ShowProject",
       this.getProject();
     },
     remoteMethod(query) {
-      console.log(query)
       if (query !== '') {
         this.nameLoading = true;
         setTimeout(() => {
@@ -143,6 +155,10 @@ name: "ShowProject",
     openVolume(f){
       // window.open('http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=' + f +
       window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/ContentMange.aspx?actionType=1&RollID=' + f)
+    },
+    filterHandler1(value, row, column){
+      const property = column['property'];
+      return row[property] === value;
     },
   }
 }

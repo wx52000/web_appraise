@@ -56,6 +56,8 @@
   </el-card>
     </el-col>
   </el-row>
+  <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+  </news-dialog>
 </div>
 </template>
 
@@ -66,6 +68,7 @@ name: "UserScore",
   return{
     id: "",
     pid: "",
+    isShow : false,
     nowDay: new Date().getDate(),
     month: new Date().getMonth() + 1,
     listMonth : [],
@@ -98,13 +101,18 @@ name: "UserScore",
         .post(this.$baseUrl + 'userScore/queryByScoreId', {
           "id": this.id,
         })
-        .then(res => (this.listUser = res.data.data))
+        .then(res => {
+          if (res.data.data[0] !== null)
+            this.listUser = res.data.data
+        })
         .catch(res => (console.log(res)));
     this.$axios
       .post(this.$baseUrl + 'tecScore/queryByScoreId', {
         "id": this.id,
       })
-      .then(res => (this.listTec = res.data.data))
+      .then(res => {
+        if (res.data.data[0] !== null)
+        this.listTec = res.data.data})
       .catch(res => (console.log(res)));
     this.loading = false;
   },

@@ -118,6 +118,8 @@
         </el-table>
       </template>
     </el-dialog>
+    <news-dialog class="news">
+    </news-dialog>
   </div>
 </template>
 
@@ -164,7 +166,6 @@ name: "Main.vue",
       this.getData2()
       this.getData3()
       this.getData4()
-      this.getOtherData()
     },
     getData1() {
       this.$axios
@@ -232,25 +233,29 @@ name: "Main.vue",
         })
         .catch(res => {console.error(res)})
     },
-    getOtherData(){
-      this.$axios
-        .post(this.$baseUrl + 'technology/queryNotUser',{},{headers: {'id': this.id}})
-        .then(res => {this.technologyList = res.data.data;
-          this.technologyList = JSON.parse(JSON.stringify(this.technologyList).replace(/id/g,"value").replace(
-            /name/g,"text"));})
-        .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'department/queryNotUser',{},{headers: {'id': this.id}})
-        .then(res => {this.departmentList = res.data.data;
-          this.departmentList = JSON.parse(JSON.stringify(this.departmentList).replace(/id/g,"value").replace(
-            /name/g,"text"));})
-        .catch(res => (console.log(res)));
-    },
+    // getOtherData(){
+    //   this.$axios
+    //     .post(this.$baseUrl + 'technology/queryNotUser',{},{headers: {'id': this.id}})
+    //     .then(res => {this.technologyList = res.data.data;
+    //       this.technologyList = JSON.parse(JSON.stringify(this.technologyList).replace(/id/g,"value").replace(
+    //         /name/g,"text"));})
+    //     .catch(res => (console.log(res)));
+    //   this.$axios
+    //     .post(this.$baseUrl + 'department/queryNotUser',{},{headers: {'id': this.id}})
+    //     .then(res => {this.departmentList = res.data.data;
+    //       this.departmentList = JSON.parse(JSON.stringify(this.departmentList).replace(/id/g,"value").replace(
+    //         /name/g,"text"));})
+    //     .catch(res => (console.log(res)));
+    // },
     openDialog(v,w,x){
       this.user = v;
       this.dialogTitle = w;
       this.visible = true;
       this.dialogIndex = x;
+      this.user.forEach((item,index)=>{
+        this.departmentList.push2({value:item.department,text:item.department})
+        this.technologyList.push2({value:item.technology,text:item.technology})
+      })
     },
     closeDialog(){
       this.user = [];
@@ -265,6 +270,8 @@ name: "Main.vue",
       }else if (this.dialogIndex === 4){
         this.getData4()
       }
+      this.technologyList = [];
+      this.technologyList = [];
       this.dialogIndex = "";
     },
     filterMethod(filter){

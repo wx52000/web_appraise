@@ -6,17 +6,17 @@
       </el-col>
     </el-row>
     <el-row style="text-align: right" >
-        <el-col :span="4" >姓名<el-input v-model="search1" style="width: 50%" ></el-input></el-col>
-        <el-col :span="4" >工号<el-input v-model="search2" style="width: 50%" ></el-input></el-col>
+        <el-col :span="4" >姓名<el-input v-model="search1" @keyup.enter.native="search" size="mini" style="width: 50%" ></el-input></el-col>
+        <el-col :span="4" >工号<el-input v-model="search2" @keyup.enter.native="search" size="mini"   style="width: 50%" ></el-input></el-col>
         <el-col :span="4" style="text-align: right;">
-          <el-button type="primary" @click="search()">查询</el-button>
-          <el-button @click="reset()">重置</el-button>
+          <el-button type="primary" size="mini" @click="search()">查询</el-button>
+          <el-button  size="mini"  @click="reset()">重置</el-button>
         </el-col>
-      <el-col :span="3" style="text-align: left;%">
-      <el-button style="width: 100px;height: 40px;text-align: center; margin-left: 80px"
+      <el-col :span="3" style="text-align: left;">
+      <el-button style="text-align: center; margin-left: 30px"
                  @click="handleOpenAdd" size="mini">人员添加</el-button>
       </el-col>
-      <el-col :span="4" >
+      <el-col :span="2" >
         <el-upload
           class="upload-demo"
           ref="upload"
@@ -25,18 +25,19 @@
           :on-remove="handleRemove"
           :file-list="fileList">
           <el-button size="mini" type="primary"
-                     style="width: 100px;height: 40px;text-align: center; ">
+                     style="text-align: center; ">
             人员上传</el-button>
         </el-upload>
       </el-col>
-      <el-button type="primary" style="height: 40px;text-align: center; " @click="getRange" >评价取值范围管理</el-button>
+      <el-button type="primary" size="mini" style="text-align: center; " @click="getWeight" >权重管理</el-button>
+      <el-button type="primary" size="mini" style="text-align: center; " @click="getRange" >评价取值范围管理</el-button>
     </el-row>
     <el-row style="text-align: center">
     <el-table v-loading="loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading"
               border :data="list" style="width:85%;margin-left: 7.5%"
               :default-sort = "{prop: 'date', order: 'descending'}"
-            @filter-change="filterMethod"
-            @sort-change="changeSort"
+              @filter-change="filterMethod"
+              @sort-change="changeSort"
               :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
 
       <el-table-column prop="name" label="姓名" min-width="12%"
@@ -54,16 +55,25 @@
       </el-table-column>
       <el-table-column prop="power" label="管理权限" min-width="12.5%">
       </el-table-column>
-      <el-table-column  label="评价权限" min-width="12.5%">
+      <el-table-column label="职位" min-width="12.5%"
+                       :filters="position"
+                       column-key="position">
         <template slot-scope="scope">
-          <span v-if="scope.row.grade === 0">
-            <i class="el-icon-close"/>
-          </span>
-          <span v-else>
-            <i class="el-icon-check"></i>
-          </span>
+          <el-tooltip class="hidden" effect="dark" :content=scope.row.position placement="top">
+            <span>{{scope.row.position}}</span>
+          </el-tooltip>
         </template>
       </el-table-column>
+<!--      <el-table-column  label="评价权限" min-width="12.5%">-->
+<!--        <template slot-scope="scope">-->
+<!--          <span v-if="scope.row.grade === 0">-->
+<!--            <i class="el-icon-close"/>-->
+<!--          </span>-->
+<!--          <span v-else>-->
+<!--            <i class="el-icon-check"></i>-->
+<!--          </span>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
       <el-table-column
         fixed="right"
         label="操作"
@@ -143,14 +153,39 @@
                 </el-select>
               </template>
             </el-col>
-          <el-col :span="12" style="margin-top: 8px">评价权限
-            <el-switch
-              v-model="upd.grade"
-              active-color="#112ddf"
-              inactive-color="#737791"
-              :active-value = 1
-              :inactive-value = 0>
-            </el-switch>
+        </el-row>
+        <el-row>
+          <el-col :span="20"><el-divider>职位</el-divider></el-col>
+          <el-col :span="4" style="margin-top: 10px">
+            <el-button size="mini" icon="el-icon-circle-plus-outline" circle
+                    @click="addDomain"></el-button> </el-col>
+        </el-row>
+        <el-row v-for="(item,index) in upd.position" :key="index" style="margin-top: 10px; text-align: left">
+          <el-col :span="12">职位管理&nbsp;
+            <template>
+              <el-select v-model="item.name" placeholder="请选择" style="width: 60%" @change="item.position = item.name">
+                <el-option
+                  v-for="item in position"
+                  :key="item.value"
+                  :label="item.text"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </template>
+          </el-col>
+          <el-col :span="12">职位部门
+            <template>
+              <el-select v-model="item.dep" placeholder="请选择" style="width: 60%" @change="item.depId = item.dep">
+                <el-option
+                  v-for="item in departmentList"
+                  :key="item.value"
+                  :label="item.text"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </template>
+            <el-button size="mini" icon="el-icon-remove-outline" circle
+                       @click.prevent="removeDomain(item)"></el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -208,15 +243,38 @@
               </el-select>
             </template>
           </el-col>
-          <el-col :span="12" style="margin-top: 8px">评价权限
-            <el-switch
-              v-model="add.grade"
-              active-color="#112ddf"
-              inactive-color="#737791"
-              :active-value = "1"
-              :inactive-value = "0">
-            </el-switch>
+<!--          <el-col :span="12" style="margin-top: 8px">评价权限-->
+<!--            <el-switch-->
+<!--              v-model="add.grade"-->
+<!--              active-color="#112ddf"-->
+<!--              inactive-color="#737791"-->
+<!--              :active-value = "1"-->
+<!--              :inactive-value = "0">-->
+<!--            </el-switch>-->
+<!--          </el-col>-->
+        </el-row>
+        <el-row>
+          <el-col :span="12">职位管理&nbsp;
+            <template>
+              <el-select v-model="add.pid" placeholder="请选择" style="width: 60%" >
+                <el-option
+                  v-for="item in power"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </template>
           </el-col>
+          <!--          <el-col :span="12" style="margin-top: 8px">评价权限-->
+          <!--            <el-switch-->
+          <!--              v-model="add.grade"-->
+          <!--              active-color="#112ddf"-->
+          <!--              inactive-color="#737791"-->
+          <!--              :active-value = "1"-->
+          <!--              :inactive-value = "0">-->
+          <!--            </el-switch>-->
+          <!--          </el-col>-->
         </el-row>
       </el-form>
       <el-row style="margin-top: 10px">
@@ -239,6 +297,44 @@
         </el-row >
       </el-form>
     </el-dialog>
+    <el-drawer
+      title="评价权重管理"
+      :visible.sync="weightVisible"
+      direction="rtl"
+      width="60%">
+      <el-form id="weight">
+        <template>
+          <el-tabs v-model="weightPage" @tab-click="weightTabClick" style="margin-left: 10px">
+            <el-tab-pane
+              :key="item.id"
+              v-for="(item, index) in weightTabs"
+              :label="item.name"
+              :name="item.name"
+            >
+              <el-table
+                :data="weightList"
+                style="width: 100%">
+                <el-table-column
+                  prop="name"
+                  label="职位名称"
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  label="权重"
+                  width="180">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.weight" width="100%" style="text-align: center"></el-input>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-button type="primary" @click="setWeight">确认</el-button>
+            </el-tab-pane>
+          </el-tabs>
+        </template>
+      </el-form>
+    </el-drawer>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 
 </template>
@@ -250,6 +346,7 @@ export default {
   data() {
     return {
       id: "",
+      isShow : false,
       month: new Date().getMonth() + 1,
       search1: "",
       search2: "",
@@ -259,27 +356,39 @@ export default {
       totalSize: 0,
       visible : false,
       addVisible: false,
+      rangeVisible : false,
+      weightVisible: false,
       list: [],
       upd :{},
       add:{},
       power: [],
       department:[],
+      position : [],
+      positionupd : [],
       fileList : [],
       technology:[],
       technologyList:[],
-        xdepartmentList:[],
+      departmentList:[],
       selectName: "",
       selectType: "",
       queryByd : null,
       queryByt : null,
+      queryByP : null,
       min: "",
       max : "",
-      rangeVisible : false,
+      weightPage: "主任",
+      weightTabs :[
+        {id:2, name : "主任"},
+        {id:3, name : "经理"},
+        {id:4, name : "设总"},
+        {id:5, name : "主设人"},
+        {id:6, name : "设计人"},
+      ],
+      weightList : [],
     }
   },
   mounted() {
     this.getLogIn();
-    // this.getData();
   },
   methods: {
     search() {
@@ -307,9 +416,11 @@ export default {
           "selectName" : this.selectName,
           "selectType" : this.selectType,
           "tIds": this.queryByt,
-          "dIds" : this.queryByd
+          "dIds" : this.queryByd,
+          "pIds" : this.queryByP
         },)
-        .then(res => (this.list = res.data.data.list,this.totalSize = res.data.data.total))
+        .then(res => {this.list = res.data.data.list;
+        this.totalSize = res.data.data.total})
         .catch(res => (console.log(res)));
       this.$nextTick(function() {
         this.loading = false;
@@ -326,6 +437,11 @@ export default {
         .then(res => {this.technologyList = res.data.data;
           this.technologyList = JSON.parse(JSON.stringify(this.technologyList).replace(/id/g,"value").replace(
             /name/g,"text"));})
+      this.$axios
+        .post(this.$baseUrl + 'position/query',{},{headers: {"id": ""}})
+        .then(res => {this.position = res.data.data;
+          this.position = JSON.parse(JSON.stringify(this.position).replace(/id/g,"value").replace(
+            /name/g,"text"));})
     },
     deleteRow(v){
       this.$axios
@@ -335,13 +451,40 @@ export default {
       this.reload();
     },
     updRow(){
-      console.log(this.upd)
       this.$axios
         .post(this.$baseUrl + 'user/upd', this.upd)
         .then(res => {this.visible = false;
         this.getUser(1)
         })
         .catch(res => (console.log(res)));
+      if (this.upd.position !== this.positionupd){
+        this.$axios
+          .post(this.$baseUrl + 'userPosition/add',
+            {
+              "id" : this.upd.id,
+              "userPosition" : this.upd.position
+            })
+          .then()
+          .catch(res => (console.log(res)));
+      }
+    },
+    removeDomain(item) {
+      var index = this.upd.position.indexOf(item)
+      if (index !== -1) {
+        this.upd.position.splice(index, 1)
+      }
+      this.$axios.post(this.$baseUrl + 'userPosition/del',{},
+        {headers:{"id" : item.id}})
+      .then()
+      .catch(res => (console.log(res)))
+    },
+    addDomain() {
+      this.upd.position.push({
+        id: '',
+        name: '',
+        department_id: null,
+        dep: null
+      });
     },
     addPer(){
       // alert(this.upd.pid)
@@ -366,10 +509,10 @@ export default {
       this.$axios
         .post(this.$baseUrl + 'user/queryToupd', {}, {headers:{"id" : this.list[v].id}})
         .then(res => {this.upd = res.data.data;
+        this.positionupd.push(this.upd.position);
         console.table(res.data+ "data");
           this.visible = true;})
         .catch(res => (console.log(res)));
-      console.log(this.upd);
       this.getSelect();
     },
     handleOpenAdd() {
@@ -380,10 +523,6 @@ export default {
       this.$axios
         .post(this.$baseUrl + 'power/query', {},)
         .then(res => (this.power = res.data.data))
-        .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'department/query', {},)
-        .then(res => (this.department = res.data.data))
         .catch(res => (console.log(res)));
     },
     getTecSelect(){
@@ -415,6 +554,7 @@ export default {
       this.getUser(v);
     },
     filterMethod(filter){
+      console.log(filter)
       for (let obj in filter){
         if (obj === "technology") {
           this.queryByd = null;
@@ -425,7 +565,16 @@ export default {
             this.queryByt = null
             this.selectName = ""
           }
-
+        }
+        else if (obj === "position"){
+          this.queryByt = null;
+          if (filter.position.length !== 0) {
+            this.queryByP = filter.position
+            this.selectName = 'pt.id'
+          }else {
+            this.queryByP = null
+            this.selectName = ""
+          }
         }
         else {
           this.queryByt = null;
@@ -466,7 +615,8 @@ export default {
           "selectName" : this.selectName,
           "selectType" : this.selectType,
           "tIds": this.queryByt,
-          "dIds" : this.queryByd
+          "dIds" : this.queryByd,
+          "pIds" : this.queryByP
         },)
         .then(res => (this.list = res.data.data.list,this.totalSize = res.data.data.total))
         .catch(res => (console.log(res)));
@@ -518,10 +668,38 @@ export default {
       this.$message("修改成功");
       this.rangeVisible = false;
     },
+    weightTabClick(tab,event){
+      this.$axios
+        .post(this.$baseUrl + 'position/queryByWeight',{},
+          {headers : {"id" :this.weightTabs[tab.index].id}})
+        .then(res => (this.weightList = res.data.data))
+        .catch(res => (console.log(res)));
+    },
+    getWeight() {
+      this.weightVisible = true
+      this.$axios
+        .post(this.$baseUrl + 'position/queryByWeight',{},
+          {headers : {"id" : 2}})
+        .then(res => (this.weightList = res.data.data))
+        .catch(res => (console.log(res)));
+    },
+    setWeight() {
+      this.$axios
+        .post(this.$baseUrl + 'position/update', this.weightList
+      )
+        .then(res => (this.weightVisible = false))
+        .catch(res => (console.log(res)));
+      this.weightVisible = true
+    },
   }
 }
 </script>
 
 <style scoped>
-
+.hidden {
+  width: 30px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>

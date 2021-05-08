@@ -1,5 +1,5 @@
 <template id="main" style="margin: 0 auto;width: 100%">
-  <div v-if="nowDay>=25 || nowDay <=6">
+  <div v-if="show && code !== 1001">
 <!--  <div v-if="nowDay>=25&&nowDay<=29">-->
     <el-form :model="form">
       <el-row>
@@ -16,67 +16,75 @@
                 本月取值范围为{{min}}~{{max}}
               </el-col>
             </el-row>
-            <el-row style="text-align: right" >
+            <el-row style="text-align: right" v-if="">
               <el-col :span="24" style="text-align: right;">
                 姓名/工号<el-input v-model="search1" size="mini" style="width: 130px" ></el-input>
                 <el-button type="primary" @click="search()"  size="mini">查询</el-button>
                 <el-button size="mini" @click="reset()" style="margin-right: 10%">重置</el-button>
               </el-col>
               </el-row>
-            <el-table border :data="list" @filter-change="filterMethod"
+            <el-table border :data="list"
                       :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                       style="margin-top:20px;width: 80% ;horiz-align: center; left: 10% ; "
-                      @sort-change="changeSort">
+                      :default-sort = "{prop: 'date', order: 'descending'}">
               <el-table-column prop="department" label="部门"
                                column-key="department"
-                               :filters="departmentList" min-width="25%">
+                               :filters="departmentList" :filter-method="filterMethod" min-width="25%">
               </el-table-column>
               <el-table-column prop="technology" label="专业"
                                column-key="technology"
-                               :filters="technologyList" min-width="10%">
+                               :filters="technologyList" :filter-method="filterMethod" min-width="10%">
               </el-table-column>
-              <el-table-column prop="name" label="姓名" sortable="custom" min-width="10%">
+              <el-table-column prop="name" label="姓名" sortable min-width="10%">
               </el-table-column>
-              <el-table-column prop="username" label="工号" sortable="custom" min-width="10%">
+              <el-table-column prop="username" label="工号" sortable min-width="10%">
               </el-table-column>
               <el-table-column prop="scope" label="质量得分" min-width="10%">
                 <template slot-scope="scope">
-                  <el-input
-                            type="text" :ref = "'designer' + scope.$index" v-model="scope.row.designer"
-                            oninput="value=value.replace(/[^\d.]/g,'')"
-
-                            @blur="judge(scope.row.designer,'designer',scope.$index)"
-                            ></el-input>
+                  <el-autocomplete
+                    :ref = "'designer' + scope.$index"
+                    v-model="scope.row.designer"
+                    type="text"
+                    @blur="judge(scope.row.designer,'designer',scope.$index)"
+                    oninput="value=value.replace(/[^\d.]/g,'')"
+                    :fetch-suggestions="querySearch"
+                  ></el-autocomplete>
                 </template>
               </el-table-column>
 
               <el-table-column prop="scope" label="进度得分" min-width="10%">
                 <template slot-scope="scope">
-                  <el-input
-                            type="text" :ref = "'personal'+scope.$index"
-                            oninput="value=value.replace(/[^\d.]/g,'')" v-model="scope.row.personal"
-                             @blur="judge(scope.row.personal,'personal',scope.$index)"
-                            ></el-input>
+                  <el-autocomplete
+                    :ref = "'personal' + scope.$index"
+                    v-model="scope.row.personal"
+                    type="text"
+                    @blur="judge(scope.row.personal,'personal',scope.$index)"
+                    oninput="value=value.replace(/[^\d.]/g,'')"
+                    :fetch-suggestions="querySearch"
+                  ></el-autocomplete>
                 </template>
               </el-table-column>
 
               <el-table-column prop="scope" label="配合得分" min-width="10%" >
                 <template slot-scope="scope">
-                  <el-input
-                            type="text" :ref = "'coordinate'+scope.$index"
-                            oninput="value=value.replace(/[^\d.]/g,'')" v-model="scope.row.coordinate"
-                            @blur="judge(scope.row.coordinate,'coordinate',scope.$index)"
-                            ></el-input>
+                  <el-autocomplete
+                    :ref = "'coordinate' + scope.$index"
+                    v-model="scope.row.coordinate"
+                    type="text"
+                    @blur="judge(scope.row.coordinate,'coordinate',scope.$index)"
+                    oninput="value=value.replace(/[^\d.]/g,'')"
+                    :fetch-suggestions="querySearch"
+                  ></el-autocomplete>
                 </template>
               </el-table-column>
 
             </el-table>
-            <el-row style="padding: 5px 0;text-align: right;">
-              <el-pagination @current-change="changeIndex" @size-change="changeSize" :current-page="pageIndex"
-                             :page-sizes="[20,50,100]"
-                             layout="total, prev, sizes, pager, next, jumper" :total="totalSize" :page-size="pageSize">
-              </el-pagination>
-            </el-row>
+<!--            <el-row style="padding: 5px 0;text-align: right;">-->
+<!--              <el-pagination @current-change="changeIndex" @size-change="changeSize" :current-page="pageIndex"-->
+<!--                             :page-sizes="[20,50,100]"-->
+<!--                             layout="total, prev, sizes, pager, next, jumper" :total="totalSize" :page-size="pageSize">-->
+<!--              </el-pagination>-->
+<!--            </el-row>-->
           </el-row>
         </el-row>
         <el-row style="padding: 20px 0 0 0;text-align: center;">
@@ -85,13 +93,21 @@
       </el-row>
     </el-form>
   </div>
-
+  <div v-else-if="show && code === 1001">
+    <el-card class="box-card" shadow="hover"
+             style="position:absolute;top:45%;
+    width: 25%;height: 15.28%;margin-left: 37.64%;background-color:#acb2b9">
+      <div>
+        暂无打分权限，请联系管理员确认是否拥有打分权限
+      </div>
+    </el-card>
+  </div>
   <div v-else>
     <el-card class="box-card" shadow="hover"
     style="position:absolute;top:45%;
-    width: 24.72%;height: 15.28%;margin-left: 37.64%;background-color:#acb2b9">
+    width: 25%;height: 15.28%;margin-left: 37.64%;background-color:#acb2b9">
       <div>
-        系统暂时不可打分，请于每月25日到次月10日进行打分。
+        系统暂时不可打分，请在每年3，6，9，12月份的25日到次月10日进行打分。
       </div>
     </el-card>
   </div>
@@ -103,12 +119,19 @@ name: "Appraise",
   data() {
     return {
       id: "",
+      name : "",
       pid: "",
+      tid : "",
+      did : "",
+      code : "",
+      position: "",
+      year: new Date().getFullYear(),
       nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
       search1: "",
       min: "",
       max: "",
+      show: false,
       isRouterAlive : true,
       list: [],
       form: {},
@@ -123,7 +146,16 @@ name: "Appraise",
       selectName: "",
       selectType: "",
       queryByd:null,
-      queryByt:null
+      queryByt:null,
+      sqlDate: "",
+      scoreList : [
+        {value : 1.05, text : 1.05},
+        {value : 1.03, text : 1.03},
+        {value : 1.00, text : 1.00},
+        {value : 0.98, text : 0.98},
+        {value : 0.95, text : 0.95},
+        {value : 0.90, text : 0.90},
+        {value : 0.85, text : 0.85},],
     }
   },
   provide(){
@@ -132,11 +164,28 @@ name: "Appraise",
     }
   },
   mounted() {
-    if (this.nowDay < this.endDay)
-      this.month= --this.month;
+  if (this.month%3 === 0){
+    if (this.nowDay>=25){
+      this.show=true
+      if ((this.month - 2) > 0){
+        this.sqlDate =this.year + "-" +  (this.month-2) + "-" + 1
+      }else {
+        this.year = -- this.year
+        this.sqlDate = this.year + "-" + (this.month + 9) + "-" + 1
+      }
+    }
+  }else if(this.month%3 === 1) {
+    if (this.nowDay <= 20) {
+      this.show = true
+      if ((this.month - 3) > 0) {
+        this.sqlDate = this.year + "-" + (this.month - 3) + "-" + 1
+      } else {
+        this.year = --this.year
+        this.sqlDate = this.year + "-" + (this.month + 8) + "-" + 1
+      }
+    }
+  }
     this.getLogIn();
-    // this.getData();
-    // this.getOtherData();
   },
   methods: {
     update(e) {
@@ -149,38 +198,42 @@ name: "Appraise",
       this.search1 = null;
       this.getData();
     },
+    querySearch(queryString, cb) {
+      // let scoreList = this.scoreList;
+      // let results = queryString ? scoreList.filter(this.createFilter(queryString)) : scoreList;
+      // 调用 callback 返回建议列表的数据
+      cb(this.scoreList);
+    },
     getLogIn() {
       let i = JSON.parse(sessionStorage.getItem("appraise"));
       this.id = i.id;
       this.pid = i.pid;
+      this.name = i.name;
+      this.tid = i.tid;
+      this.did = i.did;
+      this.position = i.position;
       this.getData();
       this.getOtherData();
     },
     getData() {
-      //指定人员查询
-      // this.$axios
-      //   .post(this.$baseUrl + 'userScore/queryByGradeId',{
-      //     "id" : this.id ,
-      //     "pageIndex" : this.pageIndex,
-      //     "pageSize" : this.pageSize,
-      //     "queryByd": this.queryByd,
-      //     "queryByt": this.queryByt}
-      //   )
-      //   .then(res => {this.list = res.data.data.list,this.totalSize = res.data.data.total})
-      //   .catch(res => (console.log(res)));
-      // 非指定
       this.$axios
-        .post(this.$baseUrl + 'user/queryNotSelf', {
+        .post(this.$baseUrl + 'user/queryToScore', {
           "id" : this.id,
+          "name" : this.name,
+          "did" : this.did,
+          "tid" : this.tid,
+          "sqlDate" : this.sqlDate,
           "pageIndex" : this.pageIndex,
           "pageSize" : this.pageSize,
-          "selectName" : this.selectName,
-          "selectType" : this.selectType,
-          "tIds": this.queryByt,
-          "dIds" : this.queryByd,
-          "name" : this.search1
+          "selectName" : this.search1,
         },)
-        .then(res => {this.list = res.data.data.list;this.totalSize = res.data.data.total;
+        .then(res => {
+          this.code = res.data.code;
+          this.list = res.data.data;
+        this.list.forEach((item,index)=>{
+          this.departmentList.push2({value:item.department,text:item.department})
+          this.technologyList.push2({value:item.technology,text:item.technology})
+        })
         this.$nextTick(function() {
         this.loading = false;})
         })
@@ -191,18 +244,6 @@ name: "Appraise",
         .post(this.$baseUrl + 'range/query',{},{headers: {'id': this.id}})
         .then(res => {this.max = res.data.data.max ;
           this.min = res.data.data.min})
-        .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'technology/queryNotUser',{},{headers: {'id': this.id}})
-        .then(res => {this.technologyList = res.data.data;
-          this.technologyList = JSON.parse(JSON.stringify(this.technologyList).replace(/id/g,"value").replace(
-            /name/g,"text"));})
-        .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'department/queryNotUser',{},{headers: {'id': this.id}})
-        .then(res => {this.departmentList = res.data.data;
-          this.departmentList = JSON.parse(JSON.stringify(this.departmentList).replace(/id/g,"value").replace(
-            /name/g,"text"));})
         .catch(res => (console.log(res)));
     },
     appraise() {
@@ -228,16 +269,23 @@ name: "Appraise",
         let tData = {pageIndex:this.pageIndex , list:this.list}
         this.tableData.push(tData)
       }
+      console.log(this.position)
       this.tableData.forEach(data =>{
         data.list.forEach(table =>{
           if (table.designer !=null || table.personal != null || table.coordinate!= null){
+            let  role = null;
+            if (this.position === null || this.position === undefined)
+              role = table.role;
+            else
+              role = this.position;
             let userScore = {
               gradeId: this.id,
               scoreId: table.id,
               designer: table.designer,
               personal: table.personal,
               coordinate: table.coordinate,
-              date : new Date().getTime()
+              date : new Date().getTime(),
+              role : role
             };
             this.listData.push(userScore);
           }
@@ -328,29 +376,31 @@ name: "Appraise",
     changeState(v){
       this.list[v].state = false;
     },
-    filterMethod(filter){
-      this.search1 = null;
-      this.appraise()
-      for (let obj in filter){
-        if (obj === "technology") {
-          this.queryByd = null;
-          if (filter.technology.length !== 0) {
-            this.queryByt = filter.technology
-          }else {
-            this.queryByt = null
-          }
-
-        }
-        else {
-          this.queryByt = null;
-          if (filter.department.length !== 0) {
-            this.queryByd = filter.department
-          }else {
-            this.queryByd = null
-          }
-        }
-      }
-      this.getData()
+    filterMethod(value, row, column){
+        const property = column['property'];
+        return row[property] === value;
+      // }      // this.search1 = null;
+      // this.appraise()
+      // for (let obj in filter){
+      //   if (obj === "technology") {
+      //     this.queryByd = null;
+      //     if (filter.technology.length !== 0) {
+      //       this.queryByt = filter.technology
+      //     }else {
+      //       this.queryByt = null
+      //     }
+      //
+      //   }
+      //   else {
+      //     this.queryByt = null;
+      //     if (filter.department.length !== 0) {
+      //       this.queryByd = filter.department
+      //     }else {
+      //       this.queryByd = null
+      //     }
+      //   }
+      // }
+      // this.getData()
     },
 
     changeSort(v){

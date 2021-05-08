@@ -35,6 +35,9 @@
               </el-table-column>
               <el-table-column prop="designer" min-width="7%" label="设计人" sortable>
               </el-table-column>
+              <el-table-column prop="workday" label="工时" min-width="6%" align="center"
+                               sortable>
+              </el-table-column>
               <el-table-column  min-width="11%" label="计划完成时间">
                 <template slot-scope="scope">
                   <span> {{timeConversion(scope.row.planned_publication_date)}}</span>
@@ -96,6 +99,8 @@
         </el-form>
       </div>
     </el-dialog>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 </template>
 
@@ -132,6 +137,7 @@ export default {
       expands: [],
       id: "",
       pid: "",
+      isShow : false,
       list: [],
       form: {},
       listIndex:0,
@@ -209,6 +215,7 @@ export default {
         .post(this.$baseUrl + 'proportion/queryLastTime',{
             "volumeId" : w.vid,
             "userId" : this.id,
+            "type" : 1,
           }
         )
         .then(res => {this.lastReport = res.data.data

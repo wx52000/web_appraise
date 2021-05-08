@@ -21,12 +21,13 @@
               :key="tec.id"
               :label="tec.name"
               :name="tec.id.toString()">
-
             </el-tab-pane>
           </el-tabs>
         </el-tab-pane>
       </el-tabs>
     </el-row>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   <el-dialog
     title="部门新增"
     :visible.sync="visible"
@@ -66,6 +67,7 @@ export default {
     return{
       value:"",
       tecValue: "",
+      isShow : false,
       department: [],
       technology: [],
       visible : false,

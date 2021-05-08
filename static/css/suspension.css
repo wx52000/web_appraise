@@ -1,0 +1,8 @@
+.news{
+  width: 5rem;
+  height: 3rem;
+  position: fixed;
+  bottom: 2rem;
+  right: 1rem;
+  z-index: 9999;
+}

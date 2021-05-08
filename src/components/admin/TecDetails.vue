@@ -1,54 +1,54 @@
 <template>
+
   <div id="main" align="center">
     <el-row>
       <!-- 列表 -->
       <el-row style="margin: 0px 20px 20px 20px;background-color: #FFF;">
         <el-row>
-          <el-row style="margin:0 auto;text-align: center; align-content: center">
-            <el-col :span="18" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-              <span style="margin-left: 33%">{{month}}月个人评价详情表</span>
-              <i class="el-icon-document-copy" @click="openDialog"></i>
-            </el-col>
-            <el-col :span="6">
-              <template>
-                <el-select v-model="month" placeholder="请选择" @change="selectData"
-                           style="width: 40%;margin-top: 10px" size="mini">
-                  <el-option
-                    v-for="item in listMonth"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                    <span style="float: left">{{ item.label }}</span>
-                    <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}月</span>
-                  </el-option>
-                </el-select>
-              </template>
-            </el-col>
-          </el-row>
+            <el-row style="margin:0 auto;text-align: center; align-content: center">
+              <el-col :span="18" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
+                <span style="margin-left: 33%">第{{quarter}}季度专业评价详情表</span>
+                <i class="el-icon-document-copy" @click="openDialog"></i>
+              </el-col>
+              <el-col :span="6">
+                <template>
+                  <el-select v-model="quarterNumber" placeholder="请选择" @change="selectData"
+                             style="width: 40%;margin-top: 10px" size="mini">
+                    <el-option
+                      v-for="item in listMonth"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                      <span style="float: left">{{ item.label }}</span>
+                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}月</span>
+                    </el-option>
+                  </el-select>
+                </template>
+              </el-col>
+            </el-row>
           <el-table border ref="table1" :data="list" style="width:85%"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                     @filter-change="filterMethod"
                     @sort-change="changeSort">
-            <el-table-column prop="gname" label="评价人"
+            <el-table-column prop="name" label="评价人"
                              sortable="custom" min-width="10%">
             </el-table-column>
-            <el-table-column prop="sname" label="得分人"
-                             sortable="custom" min-width="10%">
-            </el-table-column>
-            <el-table-column prop="technology" label="得分人专业" min-width="15%"
+
+            <el-table-column prop="technology" label="专业" min-width="15%"
                              column-key="technology"
                              :filters="technologyList">
             </el-table-column>
-            <el-table-column prop="department" label="得分人部门" min-width="30%"
+            <el-table-column prop="department" label="部门" min-width="35%"
                              column-key="department"
                              :filters="departmentList">
             </el-table-column>
-            <el-table-column prop="designer" label="质量得分" min-width="9%">
+            <el-table-column prop="designer" label="质量得分" min-width="10%">
             </el-table-column>
-            <el-table-column prop="personal" label="进度得分" min-width="9%">
+            <el-table-column prop="personal" label="进度得分" min-width="10%">
             </el-table-column>
-            <el-table-column prop="coordinate" label="配合得分" min-width="9%">
+            <el-table-column prop="coordinate" label="配合得分" min-width="10%">
             </el-table-column>
+
           </el-table>
         </el-row>
       </el-row>
@@ -59,90 +59,95 @@
       <el-container>
         <el-header>
           <el-row>
-            <el-col :span="8">
+            <el-col :span="12" >
               <el-button type="primary" size="small " plain @click="downExcel">整体数据导出</el-button>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="12">
               <el-button type="primary" size="small " plain @click="openTransfer">指定人员导出</el-button>
-            </el-col>
-            <el-col :span="8">
-              <el-switch
-                v-model="mode"
-                active-text="被打分人"
-                inactive-text="打分人"
-                active-value="1"
-                inactive-value="0"
-                @change="openTransfer"
-              style="margin-top: 5%">
-              </el-switch>
             </el-col>
           </el-row>
         </el-header>
         <el-main v-if="section">
-            <tree-transfer
-              :title="['人员选择','已选部门，人员']"
-              placeholder="请输入人员名字"
-              height='320px'
-              :from_data="userAll"
-              :to_data='toData'
-              filter
-              mode='transfer'
+          <tree-transfer
+            :title="['人员选择','已选部门，人员']"
+            placeholder="请输入人员名字"
+            height='320px'
+            :from_data="userAll"
+            :to_data='toData'
+            filter
+            mode='transfer'
 
-              @addBtn='add'
-              @removeBtn='remove'
-              >
-            </tree-transfer>
-              <el-button  size="small " style="margin-right: 10%" @click="closeDialog">取消</el-button>
+            @addBtn='add'
+            @removeBtn='remove'
+          >
+          </tree-transfer>
+          <el-button  size="small " style="margin-right: 10%" @click="closeDialog">取消</el-button>
 
-              <el-button type="primary" size="small " style="margin-left: 10%" @click="downExcelPart">确定</el-button>
+          <el-button type="primary" size="small " style="margin-left: 10%" @click="downExcelPart">确定</el-button>
         </el-main>
       </el-container>
     </el-dialog>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 </template>
 
 <script>
-import treeTransfer  from 'el-tree-transfer'
+import treeTransfer from "el-tree-transfer";
+
 export default {
-  name: "Details",
+  name: "tecDetails",
   data() {
     return {
       id: "",
+      quarter:"",
+      isShow : false,
+      quarterNumber : "",
       nowDay: new Date().getDate(),
       month: new Date().getMonth() + 1,
       listMonth : [],
+      visible : false,
       pageIndex: 1,
       pageSize: 10,
       list: [],
-      visible : false,
       technologyList:[],
       departmentList:[],
       selectName: "",
       selectType: "",
       queryByd:null,
       queryByt:null,
-      userList : [],
-      defaultProps: {
-        children: 'value',
-        label: 'text'
-      },
       userAll : [],
       title:["人员选择","已选中"],
       section : false,
       toData : [],
-      mode : 0, //0代表根据打分人下载，1代表根据被打分人下载
     }
   },
   components:{
     treeTransfer
   },
   mounted() {
-    if (this.nowDay < this.startDay) {
-      if (this.month === 1) {
-        this.month = 12
-      } else {
-        this.month = --this.month;
+    let quarter = ["一","二","三","四"]
+    let quarterNumber = [3, 6, 9, 12 ]
+    if (this.month%3 === 0){
+      if (this.nowDay>=25){
+        this.quarter = quarter[Math.floor(this.month/3)]
+        this.quarterNumber = quarterNumber[Math.floor(this.month/3)]
+      }else{
+        if (this.month === 3){
+          this.quarter = "四"
+          this.quarterNumber = 12
+        }else {
+          this.quarter = quarter[Math.floor(this.month / 3) - 1]
+          this.quarterNumber = quarterNumber[Math.floor(this.month / 3) - 1]
+        }
       }
+    }else{
+      if (this.month<3){
+        this.quarter = "四"
+        this.quarterNumber = 12
+      }
+      this.quarter = quarter[Math.floor(this.month/3)-1]
+      this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
     }
     this.setListMonth();
     this.getLogIn();
@@ -163,13 +168,13 @@ export default {
     },
     getData() {
       this.$axios
-        .post(this.$baseUrl + 'userScore/query', {
+        .post(this.$baseUrl + 'tecScore/query', {
           "id": this.id,
           "selectName" : this.selectName,
           "selectType" : this.selectType,
           "tIds": this.queryByt,
           "dIds" : this.queryByd,
-          "thisMonth" : this.month
+          "thisMonth" : this.quarterNumber
         })
         .then(res => (this.list = res.data.data))
         .catch(res => (console.log(res)));
@@ -197,9 +202,8 @@ export default {
           }else {
             this.queryByt = null
           }
-
         }
-        else if (obj === "department"){
+        else if (obj === "department") {
           this.queryByt = null;
           if (filter.department.length !== 0) {
             this.queryByd = filter.department
@@ -227,7 +231,7 @@ export default {
     },
     downExcel() {
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'userScore/detail?month=' + this.month;
+      window.location.href = this.$baseUrl + 'tecScore/detail?month=' + this.quarterNumber;
     },
     downExcelPart(){
       let users = [];
@@ -240,15 +244,16 @@ export default {
       })
       console.log(users)
       this.$message.success("即将开始下载");
-      this.$axios.post(this.$baseUrl + 'userScore/part', {
-          list: users,
-          mode: this.mode,
-          month : this.month})
-          .then(res => {
-            window.location.href = this.$baseUrl + 'userScore/partDownload?fileName=' + res.data.data;
-          })
-          .catch(res => console.log(res)
-      )
+      this.$axios.post(this.$baseUrl + 'tecScore/part', {
+        list: users,
+        mode: this.mode,
+        month : this.quarterNumber
+        })
+        .then(res => {
+          window.location.href = this.$baseUrl + 'userScore/partDownload?fileName=' + res.data.data;
+        })
+        .catch(res => console.log(res)
+        )
     },
     openDialog(){
       this.visible = true;
@@ -256,7 +261,7 @@ export default {
     openTransfer(){
       this.toData=[];
       this.$axios
-        .post(this.$baseUrl + 'user/userAll',{},{headers:{mode : this.mode}})
+        .post(this.$baseUrl + 'user/userAll',{},{headers:{mode : 0}})
         .then(res => {this.userAll = res.data.data;})
         .catch(res => (console.log(res)));
       this.section = true;
@@ -265,26 +270,6 @@ export default {
       this.toData = [];
       this.section = false;
       this.visible = false;
-    },
-    remoteMethod(query) {
-      if (query !== '') {
-        this.loading = true;
-        setTimeout(() => {
-          this.$axios
-            .post(this.$baseUrl + 'user/queryByName', {
-                "name" : query
-              }
-            )
-            .then(res => {
-              if (res.data.data != null) {
-                this.general = res.data.data
-              }
-            });
-          this.loading = false;
-        }, 200);
-      } else {
-        this.general = [];
-      }
     },
     handleRemove(file, fileList) {
       console.log(file, fileList);
@@ -296,18 +281,18 @@ export default {
       this.toData = toData;
     },
     setListMonth(){
-      let MonthData1 = { value : this.month , label : "本月"};
+      let MonthData1 = { value : this.quarterNumber, label : "本季度"};
       let MonthData2 = {};
       let MonthData3 = {};
-      if (this.month === 1){
-        MonthData2 = {value : 12 , label : "上月"}
-        MonthData3 = {value : 11 , label : "上上月"}
-      }else if (this.month === 2){
-        MonthData2 = {value : 1 , label : "上月"}
-        MonthData3 = {value : 12 , label : "上上月"}
-      }else {
-        MonthData2 = {value : this.month-1 , label : "上月"}
-        MonthData3 = {value : this.month-2 , label : "上上月"}
+      if (this.quarterNumber >= 9){
+        MonthData2 = {value : this.quarterNumber-3 , label : "上季度"}
+        MonthData3 = {value : this.quarterNumber-6 , label : "上上季度"}
+      }else if (this.quarterNumber === 6){
+        MonthData2 = {value : 3 , label : "上季度"}
+        MonthData3 = {value : 12 , label : "上上季度"}
+      }else if (this.quarterNumber === 3){
+        MonthData2 = {value : 12 , label : "上季度"}
+        MonthData3 = {value : 9 , label : "上上季度"}
       }
       this.listMonth.push(MonthData1);
       this.listMonth.push(MonthData2);
@@ -321,8 +306,6 @@ export default {
       this.$refs.table1.clearFilter()
       this.getData()
     }
-
-
 
   }
 }

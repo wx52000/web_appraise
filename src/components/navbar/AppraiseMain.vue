@@ -19,7 +19,7 @@
     <el-menu-item index="/appraiseMain/tecAppraise" @click="toPage('/appraiseMain/tecAppraise')">专业评价</el-menu-item>
     </el-submenu>
       <el-menu-item index="/appraiseMain/userScore" @click="toPage('/appraiseMain/userScore')">我的得分</el-menu-item>
-      <el-menu-item v-if="position !== null && position.indexOf(`1`) != -1" index="/appraiseMain/headmanProject" @click="toPage('/appraiseMain/headmanProject')">组长管理</el-menu-item>
+<!--      <el-menu-item v-if="position !== null && position.indexOf(`1`) != -1" index="/appraiseMain/headmanProject" @click="toPage('/appraiseMain/headmanProject')">组长管理</el-menu-item>-->
     <el-menu-item index="/home/main" @click="toPage('/home/main')"
                   style="float: right" v-if="pid == 1">系统管理</el-menu-item>
   </el-menu>

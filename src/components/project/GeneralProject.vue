@@ -303,6 +303,9 @@
         <el-table-column prop="designer" label="设计人" min-width="6%" align="center"
                          :filters="designerList" :filter-method="filterHandler1">
         </el-table-column>
+        <el-table-column prop="workday" label="工时" min-width="6%" align="center"
+                         sortable>
+        </el-table-column>
         <el-table-column prop="state" min-width="9%"  label="状态" align="center"
                          :filters="[{text:'尚未开展',value:'尚未开展'},{text:'正在设计',value:'正在设计'},
                           {text:'正在校审',value:'正在校审'},{text:'代送出版',value:'代送出版'},
@@ -351,6 +354,8 @@
         </el-table-column>
       </el-table>
     </el-dialog>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 </template>
 
@@ -366,6 +371,7 @@ export default {
       expands: [],
       id: "",
       pid: "",
+      isShow : false,
       list: [],
       project: {},
       volume: {},
@@ -646,6 +652,13 @@ export default {
           })
         })
         .catch(res => (console.log(res)));
+      // const href =  this.$router.resolve({
+      //   path:"",
+      //   params:{
+      //
+      // }
+      // })
+      // window.open(href.href,"black")
       this.volumeVisible = true
     },
     filterHandler(value, row, column) {
@@ -696,10 +709,10 @@ export default {
       if (day2 === 0) day2 = 7;
       let d = Math.round((date.getTime() - date2.getTime() + (day2 - day1) * (24 * 60 * 60 * 1000)) / 86400000);
       //当周数大于52则为下一年的第一周
-      if((Math.ceil(d / 7)) === 52){
+      if((Math.floor(d / 7)) === 52){
         return 52
       }
-      else return (Math.ceil(d / 7))
+      else return (Math.floor(d / 7))
     },
 }
 }

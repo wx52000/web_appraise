@@ -67,6 +67,8 @@
         </el-row>
       </el-row>
     </el-form>
+    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
+    </news-dialog>
   </div>
 </template>
 

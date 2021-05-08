@@ -1,28 +1,37 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Login from '../components/Login'
-import Appraise  from "../components/Appraise";
-import Score  from "../components/Score";
-import Home  from "../components/Home";
-import Details from "../components/Details";
-import AppraiseMain from "../components/AppraiseMain";
-import TecAppraise from "../components/TecAppraise";
-import TecScore from "../components/TecScore";
-import TecDetails from "../components/TecDetails";
-import Personal from "../components/Personal";
-import Department from "../components/Department";
-import AppraiseManage from "../components/ApprasieManage";
+import Login from '../components/login/Login'
+import Appraise  from "../components/score/Appraise";
+import Score  from "../components/admin/Score";
+import Home  from "../components/navbar/Home";
+import Details from "../components/admin/Details";
+import AppraiseMain from "../components/navbar/AppraiseMain";
+import TecAppraise from "../components/score/TecAppraise";
+import TecScore from "../components/admin/TecScore";
+import TecDetails from "../components/admin/TecDetails";
+import Personal from "../components/admin/Personal";
+import Department from "../components/admin/Department";
+import AppraiseManage from "../components/admin/ApprasieManage";
 import emptyPage from "../components/emptyPage";
-import GeneralProject from "../components/GeneralProject";
-import DesignerProject from "../components/DesignerProject";
-import PrincipalProject from "../components/PrincipalProject";
-import CheckerProject from "../components/CheckerProject";
-import HeadmanProject from "../components/HeadmanProject";
-import AdminProject from "../components/AdminProject";
-import Main from "../components/Main";
-import UserScore from "../components/UserScore";
-import ShowProject from "../components/ShowProject";
+import GeneralProject from "../components/project/GeneralProject";
+import DesignerProject from "../components/project/DesignerProject";
+import PrincipalProject from "../components/project/PrincipalProject";
+import CheckerProject from "../components/project/CheckerProject";
+import HeadmanProject from "../components/project/HeadmanProject";
+import AdminProject from "../components/admin/AdminProject";
+import Main from "../components/admin/Main";
+import UserScore from "../components/admin/UserScore";
+import ShowProject from "../components/project/ShowProject";
+import ProjectMain from "../components/navbar/ProjectMain";
+import Project from "../components/project/Project";
+import ProjectVolume from "../components/project/ProjectVolume";
+import WorkDayManage from "../components/project/WorkDayManage";
+import Virtual from "../components/admin/Virtual";
+import news from "../components/diglog/news";
+import Business from "../components/admin/Business";
+import ReserveWorkDay from "../components/project/ReserveWorkDay";
 Vue.use(Router)
+
 
 
 const VueRouterPush = Router.prototype.push
@@ -92,6 +101,16 @@ export default new Router({
           name: 'adminProject',
           component: AdminProject
         },
+        {
+          path: 'virtual',
+          name: 'virtual',
+          component: Virtual
+        },
+        {
+          path: 'business',
+          name: 'business',
+          component: Business
+        },
       ]
     },
     {
@@ -155,6 +174,35 @@ export default new Router({
           component: ShowProject
         }]
     },
+    {
+      path: '/projectMain',
+      name: 'projectMain',
+      redirect: '/projectMain/project',
+      component: ProjectMain,
+      children: [
+        {
+          path: 'project',
+          name: 'project',
+          component: Project
+        },
+        {
+          path: 'projectVolume',
+          name: 'projectVolume',
+          component: ProjectVolume
+        },
+        {
+          path: 'workDayManage',
+          name: 'workDayManage',
+          component: WorkDayManage
+        },
+        {
+          path: 'reserveWorkDay',
+          name: 'reserveWorkDay',
+          component: ReserveWorkDay
+        },
+      ]
+    }
   ]
 })
+
 
