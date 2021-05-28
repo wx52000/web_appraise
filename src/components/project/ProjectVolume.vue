@@ -18,59 +18,59 @@
             <span>{{scope.row.checker}}</span>
           </el-form-item>
           <el-form-item label="计划出手日期：">
-            <span>{{timeConversion(scope.row.planned_shot_date)}}</span>
+            <span>{{scope.row.planned_shot_date}}</span>
           </el-form-item>
           <el-form-item label="出手日期：">
-            <span>{{timeConversion(scope.row.shot_date)}}</span>
+            <span>{{scope.row.shot_date}}</span>
           </el-form-item>
           <el-form-item label="互校人完成时间：">
-            <span>{{timeConversion(scope.row.proofreading_date)}}</span>
+            <span>{{scope.row.proofreading_date}}</span>
           </el-form-item>
           <el-form-item label="计划出版时间：">
-            <span>{{timeConversion(scope.row.planned_publication_date)}}</span>
+            <span>{{scope.row.planned_publication_date}}</span>
           </el-form-item>
           <el-form-item label="实际最终出版时间：">
-            <span>{{timeConversion(scope.row.actual_publication_date)}}</span>
+            <span>{{scope.row.actual_publication_date}}</span>
           </el-form-item>
           <el-form-item label="完成日期">
-            <span>{{timeConversion(scope.row.complete_time)}}</span>
+            <span>{{scope.row.complete_time}}</span>
           </el-form-item>
-          <el-form-item label="设计人本周完成比例：" >
-            <span>{{recordConversion(scope.row.designerList,0,0)}}%</span>
-          </el-form-item>
-          <el-form-item label="备注：" >
-            <span>{{recordConversion(scope.row.designerList,0,1)}}</span>
-          </el-form-item>
-          <el-form-item label="设计人上次完成比例：">
-            <span>{{recordConversion(scope.row.designerList,1,0)}}%</span>
-          </el-form-item>
-          <el-form-item label="备注：">
-            <span>{{recordConversion(scope.row.designerList,1,1)}}</span>
-          </el-form-item>
-          <el-form-item label="互校人本周完成比例：">
-            <span>{{recordConversion(scope.row.checkerList,0,0)}}%</span>
-          </el-form-item>
-          <el-form-item label="备注：">
-            <span>{{recordConversion(scope.row.checkerList,0,1)}}</span>
-          </el-form-item>
-          <el-form-item label="互校人上次完成比例：">
-            <span>{{recordConversion(scope.row.checkerList,1,0)}}%</span>
-          </el-form-item>
-          <el-form-item label="备注：">
-            <span>{{recordConversion(scope.row.checkerList,1,1)}}</span>
-          </el-form-item>
-          <el-form-item label="主设人本周完成比例：">
-            <span>{{recordConversion(scope.row.principalList,0,0)}}%</span>
-          </el-form-item>
-          <el-form-item label="备注：">
-            <span>{{recordConversion(scope.row.principalList,0,1)}}</span>
-          </el-form-item>
-          <el-form-item label="主设人上次完成比例：">
-            <span>{{recordConversion(scope.row.principalList,1,0)}}%</span>
-          </el-form-item>
-          <el-form-item label="备注：">
-            <span>{{recordConversion(scope.row.principalList,1,1)}}</span>
-          </el-form-item>
+<!--          <el-form-item label="设计人本周完成比例：" >-->
+<!--            <span>{{recordConversion(scope.row.designerList,0,0)}}%</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="备注：" >-->
+<!--            <span>{{recordConversion(scope.row.designerList,0,1)}}</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="设计人上次完成比例：">-->
+<!--            <span>{{recordConversion(scope.row.designerList,1,0)}}%</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="备注：">-->
+<!--            <span>{{recordConversion(scope.row.designerList,1,1)}}</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="互校人本周完成比例：">-->
+<!--            <span>{{recordConversion(scope.row.checkerList,0,0)}}%</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="备注：">-->
+<!--            <span>{{recordConversion(scope.row.checkerList,0,1)}}</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="互校人上次完成比例：">-->
+<!--            <span>{{recordConversion(scope.row.checkerList,1,0)}}%</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="备注：">-->
+<!--            <span>{{recordConversion(scope.row.checkerList,1,1)}}</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="主设人本周完成比例：">-->
+<!--            <span>{{recordConversion(scope.row.principalList,0,0)}}%</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="备注：">-->
+<!--            <span>{{recordConversion(scope.row.principalList,0,1)}}</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="主设人上次完成比例：">-->
+<!--            <span>{{recordConversion(scope.row.principalList,1,0)}}%</span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="备注：">-->
+<!--            <span>{{recordConversion(scope.row.principalList,1,1)}}</span>-->
+<!--          </el-form-item>-->
         </el-form>
       </template>
     </el-table-column>
@@ -113,18 +113,18 @@
       </template>
       <template slot-scope="scope" style="text-align: center">
         <el-row>
-          <el-col :span="12">
-            <el-popover
-              placement="top-start"
-              width="300"
-              trigger="hover"
-              content="蓝色为设计人进度，红色为互校人进度，黄色为主设人进度。互校人填写进度后显示的为互校人进度，主设人填写后显示的为主设人进度">
-              <i slot="reference" class="el-icon-question"></i>
-            </el-popover>
-            <span
-              :style="displayColor(scope.row)" style="margin-right: 50%">
-                {{displayProgress(scope.row)}}</span>
-          </el-col>
+<!--          <el-col :span="12">-->
+<!--            <el-popover-->
+<!--              placement="top-start"-->
+<!--              width="300"-->
+<!--              trigger="hover"-->
+<!--              content="蓝色为设计人进度，红色为互校人进度，黄色为主设人进度。互校人填写进度后显示的为互校人进度，主设人填写后显示的为主设人进度">-->
+<!--              <i slot="reference" class="el-icon-question"></i>-->
+<!--            </el-popover>-->
+<!--            <span-->
+<!--              :style="displayColor(scope.row)" style="margin-right: 50%">-->
+<!--                {{displayProgress(scope.row)}}</span>-->
+<!--          </el-col>-->
           <el-col :span="12">
             <el-button
               size="mini"
@@ -238,7 +238,7 @@ export default {
     pickerEvent(){
       this.$axios
         .post(this.$baseUrl + 'volume/queryByProjectId', {
-            "id" : this.openId,
+            "id" : this.projectId,
             "month": new Date().getMonth()+1,
             "pickerDate" : this.pickerValue
           },
@@ -265,5 +265,21 @@ export default {
 </script>
 
 <style scoped>
-
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 130px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
+}
+.el-table {
+  horiz-align: center;
+  font-size: 12px;
+  word-wrap: break-word;
+}
 </style>

@@ -29,7 +29,8 @@ import WorkDayManage from "../components/project/WorkDayManage";
 import Virtual from "../components/admin/Virtual";
 import news from "../components/diglog/news";
 import Business from "../components/admin/Business";
-import ReserveWorkDay from "../components/project/ReserveWorkDay";
+import VirtualManage from "../components/admin/VirtualManage";
+import BusinessManage from "../components/admin/BusinessManage";
 Vue.use(Router)
 
 
@@ -172,7 +173,17 @@ export default new Router({
           path: 'showProject',
           name: 'showProject',
           component: ShowProject
-        }]
+        },]
+    },
+    {
+      path: '/virtualManage',
+      name : 'virtualManage',
+      component: VirtualManage
+    },
+    {
+      path: '/businessManage',
+      name : 'businessManage',
+      component: BusinessManage
     },
     {
       path: '/projectMain',
@@ -194,11 +205,6 @@ export default new Router({
           path: 'workDayManage',
           name: 'workDayManage',
           component: WorkDayManage
-        },
-        {
-          path: 'reserveWorkDay',
-          name: 'reserveWorkDay',
-          component: ReserveWorkDay
         },
       ]
     }

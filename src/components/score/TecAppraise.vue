@@ -24,7 +24,8 @@
               <el-table-column prop="scope" label="质量得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
-                            type="text" :ref = "'designer' + scope.$index" v-model="scope.row.designer"
+                            type="text" :ref = "'designer' + scope.$index"
+                            :v-model="scope.row.designer"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.designer,'designer',scope.$index)"
                             ></el-input>
@@ -33,7 +34,8 @@
               <el-table-column prop="scope" label="进度得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
-                            type="text" :ref = "'personal' + scope.$index" v-model="scope.row.personal"
+                            type="text" :ref = "'personal' + scope.$index"
+                            :v-model="scope.row.personal"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.personal,'personal',scope.$index)"
                             ></el-input>
@@ -42,7 +44,8 @@
               <el-table-column prop="scope" label="配合得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
-                            type="text" :ref = "'coordinate' + scope.$index" v-model="scope.row.coordinate"
+                            type="text" :ref = "'coordinate' + scope.$index"
+                            :v-model="scope.row.coordinate"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.coordinate,'coordinate',scope.$index)"
                             ></el-input>
@@ -63,7 +66,7 @@
              style="position:absolute;top:45%;
     width: 25%;height: 15.28%;margin-left: 37.64%;background-color:#acb2b9">
       <div>
-        系统暂时不可打分，请在每年3，6，9，12月份的25日到次月10日进行打分。
+        系统暂时不可打分，请在每年3，6，9，12月份的{{startDay}}日到次月{{endDay}}日进行打分。
       </div>
     </el-card>
   </div>
@@ -79,6 +82,8 @@ name: "TecAppraise",
       month: new Date().getMonth() + 1,
       min: "",
       max: "",
+      startDay : 25,
+      endDay : 10,
       list: [],
       form: {},
       show : false,
@@ -96,15 +101,6 @@ name: "TecAppraise",
     }
   },
   mounted() {
-    if (this.month%3 === 0){
-      if (this.nowDay>=25){
-        this.show=true
-      }
-    }else if(this.month%3 === 1){
-      if (this.nowDay <= 20) {
-        this.show=true
-      }
-    }
     this.getLogIn();
   },
   methods: {
@@ -127,14 +123,42 @@ name: "TecAppraise",
     },
     getData() {
       this.$axios
+        .post(this.$baseUrl + 'range/queryDate')
+        .then(res => {
+          this.endDay = res.data.data.end;
+          this.startDay = res.data.data.start;
+          if (this.month%3 === 0){
+            if (this.nowDay>= Number(this.startDay)){
+              this.show=true
+            }
+          }else if(this.month%3 === 1){
+            if (this.nowDay <= Number(this.endDay)) {
+              this.show=true
+            }
+          }
+        })
+        .catch(res => (console.log(res)));
+      this.$axios
         .post(this.$baseUrl + 'technology/evaluate',{},{headers: {'id': this.id}})
-        .then(res => (this.list = res.data.data))
+        .then(res => (
+          res.data.data.forEach((item,index)=>{
+          if (item.designer !== undefined ){
+            item.designer = item.designer.toString();
+          }
+          if (item.personal !== undefined ){
+            item.personal = item.personal.toString();
+          }
+          if (item.coordinate !== undefined ){
+            item.coordinate = item.coordinate.toString();
+          }
+          this.list.push(item);
+        })
+        ))
         .catch(res => (console.log(res)));
       this.$axios
         .post(this.$baseUrl + 'range/query',{},{headers: {'id': this.id}})
         .then(res => {this.max = res.data.data.max ; this.min = res.data.data.min})
         .catch(res => (console.log(res)));
-
     },
     appraise() {
       for (let i = this.list.length-1; i >= 0; i--) {

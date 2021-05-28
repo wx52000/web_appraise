@@ -30,7 +30,6 @@
         </el-upload>
       </el-col>
       <el-button type="primary" size="mini" style="text-align: center; " @click="getWeight" >权重管理</el-button>
-      <el-button type="primary" size="mini" style="text-align: center; " @click="getRange" >评价取值范围管理</el-button>
     </el-row>
     <el-row style="text-align: center">
     <el-table v-loading="loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading"
@@ -282,21 +281,6 @@
         <el-button type="primary" @click="addPer">确 定</el-button>
       </el-row>x
     </el-dialog>
-    <el-dialog
-      title="评价取值范围管理"
-      :visible.sync="rangeVisible"
-      width="60%">
-      <el-form id="range">
-        <el-row>
-          <el-col :span="8" >最小值<el-input v-model="min" style="width: 50%" ></el-input></el-col>
-          <el-col :span="8" >最大值<el-input v-model="max" style="width: 50%" ></el-input></el-col>
-          <el-col :span="8" style="text-align: right;">
-            <el-button type="primary" @click="rangeUpd">确定</el-button>
-            <el-button @click="rangeReset">重置</el-button>
-          </el-col>
-        </el-row >
-      </el-form>
-    </el-dialog>
     <el-drawer
       title="评价权重管理"
       :visible.sync="weightVisible"
@@ -356,7 +340,6 @@ export default {
       totalSize: 0,
       visible : false,
       addVisible: false,
-      rangeVisible : false,
       weightVisible: false,
       list: [],
       upd :{},
@@ -374,8 +357,6 @@ export default {
       queryByd : null,
       queryByt : null,
       queryByP : null,
-      min: "",
-      max : "",
       weightPage: "主任",
       weightTabs :[
         {id:2, name : "主任"},
@@ -639,34 +620,6 @@ export default {
           this.files.push(file)
         }
       }
-    },
-    getRange() {
-      this.$axios
-        .post(this.$baseUrl + 'range/query')
-        .then(res => (this.min = res.data.data.min,
-          this.max = res.data.data.max))
-        .catch(res => (console.log(res)));
-      this.rangeVisible = true
-    },
-    rangeReset(){
-      this.$axios
-        .post(this.$baseUrl + 'range/query')
-        .then(res => (this.min = res.data.data.min,
-          this.max = res.data.data.max))
-        .catch(res => (console.log(res)));
-    },
-    rangeUpd(){
-      this.$axios
-        .post(this.$baseUrl + 'range/update',{
-          "id" : 1,
-          "min" : this.min,
-          "max" : this.max
-        })
-        .then(res => (this.min = res.data.data.min,
-          this.max = res.data.data.max))
-        .catch(res => (console.log(res)));
-      this.$message("修改成功");
-      this.rangeVisible = false;
     },
     weightTabClick(tab,event){
       this.$axios

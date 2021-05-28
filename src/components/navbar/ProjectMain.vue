@@ -8,13 +8,11 @@
                     @click="toPage('/projectMain/project')">项目详情</el-menu-item>
       <el-menu-item index="/projectMain/projectVolume"
                     @click="toPage('/projectMain/projectVolume')">卷册列表</el-menu-item>
-      <el-submenu index="2">
-        <template slot="title">项目工时管理</template>
-        <el-menu-item index="/projectMain/workDayManage"
-                      @click="toPage('/projectMain/workDayManage')">项目及设计工时管理</el-menu-item>
-        <el-menu-item index="/projectMain/reserveWorkDay"
-                      @click="toPage('/projectMain/reserveWorkDay')">主设人及备用工时管理</el-menu-item>
-      </el-submenu>
+
+      <el-menu-item index="/projectMain/workDayManage"
+                      @click="toPage('/projectMain/workDayManage')">工时管理</el-menu-item>
+<!--        <el-menu-item index="/projectMain/reserveWorkDay"-->
+<!--                      @click="toPage('/projectMain/reserveWorkDay')">主设人及备用工时管理</el-menu-item>-->
     </el-menu>
   </div>
   <div style="position:absolute;right: 0;top:15px;width: 25%;">

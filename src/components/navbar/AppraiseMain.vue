@@ -2,23 +2,23 @@
   <div>
     <div>
   <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" >
-    <el-submenu index="1">
-      <template slot="title">项目管理
-      </template>
-      <el-menu-item index="/appraiseMain/generalProject" @click="toPage('/appraiseMain/generalProject')">
-        设总管理
-      </el-menu-item>
-      <el-menu-item index="/appraiseMain/principalProject" @click="toPage('/appraiseMain/principalProject')">主设人管理</el-menu-item>
-      <el-menu-item index="/appraiseMain/designerProject" @click="toPage('/appraiseMain/designerProject')">设计人管理</el-menu-item>
-      <el-menu-item index="/appraiseMain/checkerProject" @click="toPage('/appraiseMain/checkerProject')">互校人管理</el-menu-item>
-    </el-submenu>
+<!--    <el-submenu index="1">-->
+<!--      <template slot="title">项目管理-->
+<!--      </template>-->
+<!--      <el-menu-item index="/appraiseMain/generalProject" @click="toPage('/appraiseMain/generalProject')">-->
+<!--        设总管理-->
+<!--      </el-menu-item>-->
+<!--      <el-menu-item index="/appraiseMain/principalProject" @click="toPage('/appraiseMain/principalProject')">主设人管理</el-menu-item>-->
+<!--      <el-menu-item index="/appraiseMain/designerProject" @click="toPage('/appraiseMain/designerProject')">设计人管理</el-menu-item>-->
+<!--      <el-menu-item index="/appraiseMain/checkerProject" @click="toPage('/appraiseMain/checkerProject')">互校人管理</el-menu-item>-->
+<!--    </el-submenu>-->
     <el-menu-item index="/appraiseMain/showProject" @click="toPage('/appraiseMain/showProject')">卷册查询</el-menu-item>
     <el-submenu index="2" >
     <template slot="title" >我的评价</template>
     <el-menu-item index="/appraiseMain/appraise" @click="toPage('/appraiseMain/appraise')">个人评价</el-menu-item>
     <el-menu-item index="/appraiseMain/tecAppraise" @click="toPage('/appraiseMain/tecAppraise')">专业评价</el-menu-item>
     </el-submenu>
-      <el-menu-item index="/appraiseMain/userScore" @click="toPage('/appraiseMain/userScore')">我的得分</el-menu-item>
+      <el-menu-item index="/appraiseMain/userScore" @click="toPage('/appraiseMain/userScore')">卷册和工时</el-menu-item>
 <!--      <el-menu-item v-if="position !== null && position.indexOf(`1`) != -1" index="/appraiseMain/headmanProject" @click="toPage('/appraiseMain/headmanProject')">组长管理</el-menu-item>-->
     <el-menu-item index="/home/main" @click="toPage('/home/main')"
                   style="float: right" v-if="pid == 1">系统管理</el-menu-item>

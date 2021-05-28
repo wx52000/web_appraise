@@ -8,7 +8,7 @@
             <el-row style="margin-left:-10px;text-align: center; align-content: center;">
               <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
                 施工图工时管理
-                <i class="el-icon-document-copy" @click="excelDialog = true"></i>
+                <i class="el-icon-document-copy" @click="openExcel()"></i>
               </el-col>
             </el-row>
             <el-row style="margin-left:-10px; align-content: center;">
@@ -538,23 +538,30 @@
     <el-dialog
       title="Excel导出"
       :visible.sync="excelDialog"
-      width="25%" style="text-align: center">
+      width="40%" style="text-align: center">
       <el-row >
-        <el-col :span="15">
+        <el-col :span="24" align="center">
       <template>
-        <el-select v-model="downMonth" placeholder="请选择">
-          <el-option
-            v-for="item in excelMonth"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
+        <el-date-picker
+          v-model="downMonth"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          unlink-panels
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
+        </el-date-picker>
       </template>
         </el-col>
-        <el-col :span="6" style="margin-left: 10%">
-      <el-button type="primary" @click="downExcel()">确 定</el-button>
-        </el-col>
+      </el-row>
+      <el-row align="center" style="margin-top: 20px">
+        <el-button @click="downExcel()" style="width: 250px">各项目专业工时分配与使用下载</el-button>
+      </el-row>
+      <el-row align="center"style="margin-top: 20px">
+        <el-button @click="downExcel1()" style="width: 250px">各项目个人工时分配下载</el-button>
+      </el-row>
+      <el-row align="center" style="margin-top: 20px">
+        <el-button @click="downExcel2()" style="width: 250px">各项目卷册数据下载</el-button>
       </el-row>
     </el-dialog>
     <el-dialog
@@ -658,19 +665,7 @@ export default {
       temporaryDialog : false,
       temporaryPersonal :[],
       excelDialog : false,
-      excelMonth : [{
-        value: new Date().getMonth()+1,
-        label: "本月数据"
-      },
-        {
-          value: new Date().getMonth(),
-          label: "上月数据"
-        },
-        {
-          value: new Date().getMonth()-1,
-          label: "前月数据"
-        },],
-      downMonth : new Date().getMonth()+1,
+      downMonth : "",
       volumeMonth:new Date().getMonth()+1,
       filterMethod(query, item) {
         return item.pinyin.indexOf(query) > -1;
@@ -731,6 +726,15 @@ export default {
           this.list = res.data.data
         })
         .catch(res => (console.log(res)));
+    },
+    openExcel(){
+      const date = new Date();
+      const end = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+      const date1 = new Date();
+      date1.setTime(date1.getTime() - 3600 * 1000 * 24 * 30)
+      const start = date1.getFullYear() + "-" + (date1.getMonth()+1) + "-" + date1.getDate();
+      this.downMonth = [start,end]
+      this.excelDialog = true;
     },
     clickRowHandle(row, column, event) {
       if (column.property !== undefined) {
@@ -1021,7 +1025,6 @@ export default {
         projectTec.push(this.newProject.tec[i][0])
         projectUsers.push(this.newProject.tec[i][1])
       }
-      console.log(this.newProject)
       this.$axios
         .post(this.$baseUrl + 'project/add',{
 
@@ -1056,7 +1059,15 @@ export default {
     },
     downExcel() {
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'project/projectExcel?month=' + this.downMonth;
+      window.location.href = this.$baseUrl + 'projectExcel/statisticAll?minDay=' + this.downMonth[0]+'&maxDay='+this.downMonth[1];
+    },
+     downExcel1() {
+      this.$message.success("即将开始下载");
+      window.location.href = this.$baseUrl + 'projectExcel/everyoneAll?minDay=' + this.downMonth[0]+'&maxDay='+this.downMonth[1];
+    },
+    downExcel2() {
+      this.$message.success("即将开始下载");
+      window.location.href = this.$baseUrl + 'projectExcel/volumeAll?minDay=' + this.downMonth[0]+'&maxDay='+this.downMonth[1];
     },
     addNumber(){
       this.$axios

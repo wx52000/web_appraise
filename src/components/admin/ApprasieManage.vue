@@ -7,11 +7,15 @@
     </el-row>
         <el-form id="user">
           <el-row>
-            <el-col :span="8" >姓名<el-input size="mini" v-model="search1" style="width: 50%" ></el-input></el-col>
-            <el-col :span="8" >工号<el-input size="mini" v-model="search2" style="width: 50%" ></el-input></el-col>
-            <el-col :span="8" style="text-align: right;">
+            <el-col :span="5" >姓名<el-input size="mini" v-model="search1" @keyup.enter.native="getData" style="width: 50%" ></el-input></el-col>
+            <el-col :span="5" >工号<el-input size="mini" v-model="search2" @keyup.enter.native="getData" style="width: 50%" ></el-input></el-col>
+            <el-col :span="4" style="text-align: right;">
               <el-button type="primary" size="mini" @click="search()">查询</el-button>
               <el-button size="mini" @click="reset()">重置</el-button>
+            </el-col>
+            <el-col :span="10">
+            <el-button type="primary" size="mini" style="text-align: center; " @click="getRange" >评价取值范围管理</el-button>
+              <el-button type="primary" size="mini" style="text-align: center; " @click="getRangeDate" >评价时间管理</el-button>
             </el-col>
           </el-row >
         <el-row style="width: 100%;text-align: center;">
@@ -71,8 +75,18 @@
       </el-form>
     <el-dialog
       :visible.sync="visible"
-      @close=""
+      @close="closeDialog"
       width="70%">
+      <el-row style="text-align: right">
+        <el-switch
+          v-model="grade"
+          active-text="可打分"
+          inactive-text="不可打分"
+          :active-value = 1
+          inactive-value = 0
+          @change="gradeChange">
+        </el-switch>
+      </el-row>
             <el-tabs type="border-card">
                 <el-tree
                   :data="userTree"
@@ -98,8 +112,36 @@
                  </span>
                 </el-tree>
             </el-tabs>
-            <el-button  size="small " style="margin-right: 10%" @click="closeDialog">取消</el-button>
-            <el-button type="primary" size="small " style="margin-left: 10%" @click="submit">确定</el-button>
+    </el-dialog>
+    <el-dialog
+      title="评价取值范围管理"
+      :visible.sync="rangeVisible"
+      width="60%">
+      <el-form id="range">
+        <el-row>
+          <el-col :span="8" >最小值<el-input v-model="min" style="width: 50%" ></el-input></el-col>
+          <el-col :span="8" >最大值<el-input v-model="max" style="width: 50%" ></el-input></el-col>
+          <el-col :span="8" style="text-align: right;">
+            <el-button type="primary" @click="rangeUpd">确定</el-button>
+            <el-button @click="rangeReset">重置</el-button>
+          </el-col>
+        </el-row >
+      </el-form>
+    </el-dialog>
+    <el-dialog
+      title="评价时间范围管理"
+      :visible.sync="rangeDateVisible"
+      width="60%">
+      <el-form id="rangeDate">
+        <el-row>
+          <el-col :span="8" >开始日期<el-input v-model="startDay" style="width: 50%" ></el-input></el-col>
+          <el-col :span="8" >结束日期<el-input v-model="endDay" style="width: 50%" ></el-input></el-col>
+          <el-col :span="8" style="text-align: right;">
+            <el-button type="primary" @click="rangeDateUpd">确定</el-button>
+            <el-button @click="rangeReset">重置</el-button>
+          </el-col>
+        </el-row >
+      </el-form>
     </el-dialog>
     <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
     </news-dialog>
@@ -116,6 +158,12 @@ export default {
       month: new Date().getMonth() + 1,
       isShow : false,
       visible : false,
+      rangeVisible : false,
+      rangeDateVisible : false,
+      min: "",
+      max : "",
+      startDay : "",
+      endDay : "",
       list : [],
       department: [],
       technology: [],
@@ -126,6 +174,7 @@ export default {
       userTree : [],
       userAppraise : [],
       rowId : null,
+      grade : 0,
     }
   },
   mounted() {
@@ -136,7 +185,7 @@ export default {
     reset() {
       this.search1 = "";
       this.search2 = "";
-      this.getUser(this.visibleId);
+      this.getData();
     },
     getLogIn() {
       let i = JSON.parse(sessionStorage.getItem("appraise"));
@@ -145,8 +194,13 @@ export default {
     },
     getData() {
       this.$axios
-        .post(this.$baseUrl + 'user/queryAppriseAll', {},)
-        .then(res => {this.list = res.data.data;
+        .post(this.$baseUrl + 'user/query', {
+          "pageIndex" : 1,
+          "pageSize" : 10000,
+          "name" : this.search1,
+          "username" : this.search2,
+        },)
+        .then(res => {this.list = res.data.data.list;
         this.list.forEach(item => {
           this.department.push2({value : item.department,text : item.department});
           this.technology.push2({value : item.technology,text : item.technology})
@@ -162,6 +216,8 @@ export default {
       return row.id;   //指定row-key的一个标识
     },
     handle(row){
+      this.grade = row.grade
+      console.log(this.grade)
       this.rowId = row.id;
         this.$axios
           .post(this.$baseUrl + 'user/userAllAndState',{},{headers:{id : row.id}})
@@ -179,8 +235,16 @@ export default {
         })
         .catch(res => (console.log(res)));
     },
-    submit(){
-
+    gradeChange(){
+        this.$axios
+          .post(this.$baseUrl + 'user/upd', {
+            id : this.rowId,
+            grade : this.grade
+          })
+          .then(res => {
+            this.$message("权限修改成功")
+          })
+          .catch(res => (console.log(res)));
     },
     closeDialog(){
       this.userAppraise = [];
@@ -189,9 +253,9 @@ export default {
         this.$refs.userAppraise.setCheckedKeys([]);
       });
       this.visible = false
+      this.getData()
     },
     handleRadio(node){
-      console.log(node)
       this.$axios
         .post(this.$baseUrl + 'scoreManage/handle',{
           scoreId : this.rowId,
@@ -202,8 +266,59 @@ export default {
           this.visible = true
         })
         .catch(res => (console.log(res)));
-    }
-
+    },
+    getRange() {
+      this.$axios
+        .post(this.$baseUrl + 'range/query')
+        .then(res => (this.min = res.data.data.min,
+          this.max = res.data.data.max))
+        .catch(res => (console.log(res)));
+      this.rangeVisible = true
+    },
+    rangeReset(){
+      this.$axios
+        .post(this.$baseUrl + 'range/query')
+        .then(res => (this.min = res.data.data.min,
+          this.max = res.data.data.max))
+        .catch(res => (console.log(res)));
+    },
+    rangeUpd(){
+      this.$axios
+        .post(this.$baseUrl + 'range/update',{
+          "id" : 1,
+          "min" : this.min,
+          "max" : this.max
+        })
+        .then(res => {this.$message("修改成功")})
+        .catch(res => (console.log(res)));
+      this.rangeVisible = false;
+    },
+    getRangeDate() {
+      this.$axios
+        .post(this.$baseUrl + 'range/queryDate')
+        .then(res => (this.endDay = res.data.data.end,
+          this.startDay = res.data.data.start))
+        .catch(res => (console.log(res)));
+      this.rangeDateVisible = true
+    },
+    rangeResetDate(){
+      this.$axios
+        .post(this.$baseUrl + 'range/queryDate')
+        .then(res => (this.endDay = res.data.data.end,
+          this.startDay = res.data.data.start))
+        .catch(res => (console.log(res)));
+    },
+    rangeDateUpd(){
+      this.$axios
+        .post(this.$baseUrl + 'range/updateDate',{
+          "id" : 1,
+          "min" : this.endDay,
+          "max" : this.startDay
+        })
+        .then(res => {this.$message("修改成功")})
+        .catch(res => (console.log(res)));
+      this.rangeDateVisible = false;
+    },
     }
   }
 </script>

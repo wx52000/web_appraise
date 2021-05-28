@@ -24,6 +24,10 @@
               </el-col>
               </el-row>
             <el-table border :data="list"
+                      v-loading="loading"
+                      element-loading-text="拼命加载中"
+                      element-loading-spinner="el-icon-loading"
+                      element-loading-background="rgba(0, 0, 0, 0.8)"
                       :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                       style="margin-top:20px;width: 80% ;horiz-align: center; left: 10% ; "
                       :default-sort = "{prop: 'date', order: 'descending'}">
@@ -79,12 +83,6 @@
               </el-table-column>
 
             </el-table>
-<!--            <el-row style="padding: 5px 0;text-align: right;">-->
-<!--              <el-pagination @current-change="changeIndex" @size-change="changeSize" :current-page="pageIndex"-->
-<!--                             :page-sizes="[20,50,100]"-->
-<!--                             layout="total, prev, sizes, pager, next, jumper" :total="totalSize" :page-size="pageSize">-->
-<!--              </el-pagination>-->
-<!--            </el-row>-->
           </el-row>
         </el-row>
         <el-row style="padding: 20px 0 0 0;text-align: center;">
@@ -107,7 +105,7 @@
     style="position:absolute;top:45%;
     width: 25%;height: 15.28%;margin-left: 37.64%;background-color:#acb2b9">
       <div>
-        系统暂时不可打分，请在每年3，6，9，12月份的25日到次月10日进行打分。
+        系统暂时不可打分，请在每年3，6，9，12月份的{{startDay}}日到次月{{endDay}}日进行打分。
       </div>
     </el-card>
   </div>
@@ -123,7 +121,7 @@ name: "Appraise",
       pid: "",
       tid : "",
       did : "",
-      code : "",
+      code : 0,
       position: "",
       year: new Date().getFullYear(),
       nowDay: new Date().getDate(),
@@ -134,7 +132,10 @@ name: "Appraise",
       show: false,
       isRouterAlive : true,
       list: [],
+      loading : true,
       form: {},
+      startDay : 25,
+      endDay : 10,
       appraiseData: {},
       pageIndex: 1,
       pageSize: 20,
@@ -149,13 +150,13 @@ name: "Appraise",
       queryByt:null,
       sqlDate: "",
       scoreList : [
-        {value : 1.05, text : 1.05},
-        {value : 1.03, text : 1.03},
-        {value : 1.00, text : 1.00},
-        {value : 0.98, text : 0.98},
-        {value : 0.95, text : 0.95},
-        {value : 0.90, text : 0.90},
-        {value : 0.85, text : 0.85},],
+        {value : "1.05", text : 1.05},
+        {value : "1.03", text : 1.03},
+        {value : "1.00", text : 1.00},
+        {value : "0.98", text : 0.98},
+        {value : "0.95", text : 0.95},
+        {value : "0.90", text : 0.90},
+        {value : "0.85", text : 0.85},],
     }
   },
   provide(){
@@ -163,29 +164,10 @@ name: "Appraise",
       reload:this.reload
     }
   },
-  mounted() {
-  if (this.month%3 === 0){
-    if (this.nowDay>=25){
-      this.show=true
-      if ((this.month - 2) > 0){
-        this.sqlDate =this.year + "-" +  (this.month-2) + "-" + 1
-      }else {
-        this.year = -- this.year
-        this.sqlDate = this.year + "-" + (this.month + 9) + "-" + 1
-      }
-    }
-  }else if(this.month%3 === 1) {
-    if (this.nowDay <= 20) {
-      this.show = true
-      if ((this.month - 3) > 0) {
-        this.sqlDate = this.year + "-" + (this.month - 3) + "-" + 1
-      } else {
-        this.year = --this.year
-        this.sqlDate = this.year + "-" + (this.month + 8) + "-" + 1
-      }
-    }
-  }
+  created() {
     this.getLogIn();
+  },
+  mounted() {
   },
   methods: {
     update(e) {
@@ -199,9 +181,6 @@ name: "Appraise",
       this.getData();
     },
     querySearch(queryString, cb) {
-      // let scoreList = this.scoreList;
-      // let results = queryString ? scoreList.filter(this.createFilter(queryString)) : scoreList;
-      // 调用 callback 返回建议列表的数据
       cb(this.scoreList);
     },
     getLogIn() {
@@ -229,15 +208,51 @@ name: "Appraise",
         },)
         .then(res => {
           this.code = res.data.code;
-          this.list = res.data.data;
-        this.list.forEach((item,index)=>{
-          this.departmentList.push2({value:item.department,text:item.department})
-          this.technologyList.push2({value:item.technology,text:item.technology})
-        })
-        this.$nextTick(function() {
-        this.loading = false;})
+          this.loading = false;
+          res.data.data.forEach((item,index)=>{
+            if (item.designer !== undefined ){
+              item.designer = item.designer.toString();
+            }
+            if (item.personal !== undefined ){
+              item.personal = item.personal.toString();
+            }
+            if (item.coordinate !== undefined ){
+              item.coordinate = item.coordinate.toString();
+            }
+            this.list.push(item);
+            this.departmentList.push2({value:item.department,text:item.department})
+            this.technologyList.push2({value:item.technology,text:item.technology})
+          })
         })
         .catch(res => (console.log(res)));
+        this.$axios
+          .post(this.$baseUrl + 'range/queryDate')
+          .then(res => {
+            this.endDay = res.data.data.end;
+            this.startDay = res.data.data.start;
+            if (this.month%3 === 0){
+              if (this.nowDay >= this.startDay){
+                this.show=true
+                if ((this.month - 2) > 0){
+                  this.sqlDate =this.year + "-" +  (this.month-2) + "-" + 1
+                }else {
+                  this.year = -- this.year
+                  this.sqlDate = this.year + "-" + (this.month + 9) + "-" + 1
+                }
+              }
+            }else if(this.month%3 === 1) {
+              if (this.nowDay <= this.endDay) {
+                this.show = true
+                if ((this.month - 3) > 0) {
+                  this.sqlDate = this.year + "-" + (this.month - 3) + "-" + 1
+                } else {
+                  this.year = --this.year
+                  this.sqlDate = this.year + "-" + (this.month + 8) + "-" + 1
+                }
+              }
+            }
+          })
+          .catch(res => (console.log(res)));
     },
     getOtherData(){
       this.$axios
@@ -248,15 +263,6 @@ name: "Appraise",
     },
     appraise() {
       this.listData = [];
-      // for (var i = 0; i < this.list.length; i++) {
-      //   if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
-      //     if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
-      //     } else {
-      //       alert("评价应要么三项全评价，要么全不评价");
-      //       return;
-      //     }
-      //   }
-      // }
       let e = 0;
       this.tableData.forEach((data)=>{
         if (data.pageIndex === this.pageIndex){
@@ -269,7 +275,6 @@ name: "Appraise",
         let tData = {pageIndex:this.pageIndex , list:this.list}
         this.tableData.push(tData)
       }
-      console.log(this.position)
       this.tableData.forEach(data =>{
         data.list.forEach(table =>{
           if (table.designer !=null || table.personal != null || table.coordinate!= null){
@@ -305,7 +310,9 @@ name: "Appraise",
         })
         .catch(res => (console.log(res)));
     },
+    changeDesigner(row){
 
+    },
     judge(v,w,n) {
       if ( v !== null && v !== '') {
         if (v < this.min || v > this.max) {
@@ -322,17 +329,6 @@ name: "Appraise",
       })
     },
     changeIndex(v) {
-      // for (let i = 0; i < this.list.length; i++) {
-      //   if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
-      //     if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
-      //
-      //     } else {
-      //       alert("评价应要么三项全评价，要么全不评价");
-      //       return 0;
-      //     }
-      //   }
-      // }
-      // table中无数据，直接存入
       if (this.tableData.length === 0){
         let tData = {pageIndex:this.pageIndex , list:this.list};
         this.tableData.push(tData);
@@ -379,28 +375,6 @@ name: "Appraise",
     filterMethod(value, row, column){
         const property = column['property'];
         return row[property] === value;
-      // }      // this.search1 = null;
-      // this.appraise()
-      // for (let obj in filter){
-      //   if (obj === "technology") {
-      //     this.queryByd = null;
-      //     if (filter.technology.length !== 0) {
-      //       this.queryByt = filter.technology
-      //     }else {
-      //       this.queryByt = null
-      //     }
-      //
-      //   }
-      //   else {
-      //     this.queryByt = null;
-      //     if (filter.department.length !== 0) {
-      //       this.queryByd = filter.department
-      //     }else {
-      //       this.queryByd = null
-      //     }
-      //   }
-      // }
-      // this.getData()
     },
 
     changeSort(v){

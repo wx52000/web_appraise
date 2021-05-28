@@ -4,6 +4,9 @@
        align="center">
     <div style="float:left;width: 30%;height: 300px;box-sizing: border-box;"
          align="center">
+      <el-button @click="downExcel" style="margin-top: 70px">专业工时使用情况汇总下载</el-button>
+      <el-button @click="downExcel1" style="margin-top: 20px">个人工时获得情况汇总下载</el-button>
+      <el-button @click="downExcel2" style="margin-top: 20px">卷册工时使用情况汇总下载</el-button>
     </div>
     <div style="float:right;width: 70%;height: 300px;box-sizing: border-box;"
          align="center">
@@ -56,26 +59,23 @@ name: "Project",
   },
   methods: {
     drawLine() {
-      let legend = [];
       let proWorkDay = [];
       let tecWorkDay = [];
       let sum = 0;
-      proWorkDay.value
       this.$axios.post(this.$baseUrl + 'projectWorkDay/drawLine', {},
         {headers: {"id": this.projectId}})
         .then(res => {
-          legend = res.data.data.legend;
-          proWorkDay = res.data.data.proWorkDay;
+          proWorkDay.push({name :"设总管理工时",value : res.data.data.proWorkDay.manage})
+          proWorkDay.push({name :"专业工时",value : res.data.data.proWorkDay.tec})
+          proWorkDay.push({name :"备用工时",value : res.data.data.proWorkDay.backup})
           tecWorkDay = res.data.data.tecWorkDay;
-          proWorkDay.forEach((item, index) => {
-            sum += item.value
-          })
+          sum = res.data.data.proWorkDay.manage +
+            res.data.data.proWorkDay.tec + res.data.data.proWorkDay.backup;
           // let myChart = this.$echarts.init(document.getElementById('myChart'))
           let myChart = this.$refs.myChart
           if (myChart) {
             const thisChart = this.$echarts.init(myChart)
             const option = {
-
               tooltip: {
                 trigger: 'item',
                 formatter: '{a} <br/>{b}: {c} ({d}%)'
@@ -205,10 +205,12 @@ name: "Project",
       this.$axios.post(this.$baseUrl + 'projectWorkDay/queryUsedTecWorkDay',{},
         {headers : { "id" : this.projectId, type : 3}})
         .then( res => { data = res.data.data;
+        console.log(data)
         data.forEach((item,index) => {
           xAxisData.push(item.tec)
           data1.push(item.have)
           data2.push(item.used)
+          console.log(xAxisData+ "+++++++++++++++++");
         })
           // let myChart = this.$echarts.init(document.getElementById('myChart'))
           let myChart = this.$refs.myChart2
@@ -307,6 +309,18 @@ name: "Project",
         })
         .catch( res => (console.log(res.data)))
     },
+    downExcel(){
+      this.$message.success("即将开始下载");
+      window.location.href = this.$baseUrl + 'projectExcel/statistic?id=' + this.projectId;
+    },
+    downExcel1(){
+      this.$message.success("即将开始下载");
+      window.location.href = this.$baseUrl + 'projectExcel/everyone?id=' + this.projectId;
+    },
+    downExcel2(){
+      this.$message.success("即将开始下载");
+      window.location.href = this.$baseUrl + 'projectExcel/volume?id=' + this.projectId;
+    }
   },
 }
 </script>
