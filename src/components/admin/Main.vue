@@ -148,25 +148,12 @@ name: "Main.vue",
   }
   },
   mounted() {
-    this.getLogIn()
+    this.getData1()
+    this.getData2()
+    this.getData3()
+    this.getData4()
   },
   methods: {
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      if (i == null) {
-        this.$message.error("请登录！");
-        setTimeout(function () { window.location.href = "/"; }, 1000)
-      } else
-      {
-        this.logIn = true;
-        this.id = i.id;
-        this.name = i.name;
-      }
-      this.getData1()
-      this.getData2()
-      this.getData3()
-      this.getData4()
-    },
     getData1() {
       this.$axios
         .post(this.$baseUrl + 'user/queryAppraise', {
@@ -233,20 +220,6 @@ name: "Main.vue",
         })
         .catch(res => {console.error(res)})
     },
-    // getOtherData(){
-    //   this.$axios
-    //     .post(this.$baseUrl + 'technology/queryNotUser',{},{headers: {'id': this.id}})
-    //     .then(res => {this.technologyList = res.data.data;
-    //       this.technologyList = JSON.parse(JSON.stringify(this.technologyList).replace(/id/g,"value").replace(
-    //         /name/g,"text"));})
-    //     .catch(res => (console.log(res)));
-    //   this.$axios
-    //     .post(this.$baseUrl + 'department/queryNotUser',{},{headers: {'id': this.id}})
-    //     .then(res => {this.departmentList = res.data.data;
-    //       this.departmentList = JSON.parse(JSON.stringify(this.departmentList).replace(/id/g,"value").replace(
-    //         /name/g,"text"));})
-    //     .catch(res => (console.log(res)));
-    // },
     openDialog(v,w,x){
       this.user = v;
       this.dialogTitle = w;

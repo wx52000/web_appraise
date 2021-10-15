@@ -9,10 +9,15 @@
       <el-menu-item index="/projectMain/projectVolume"
                     @click="toPage('/projectMain/projectVolume')">卷册列表</el-menu-item>
 
-      <el-menu-item index="/projectMain/workDayManage"
-                      @click="toPage('/projectMain/workDayManage')">工时管理</el-menu-item>
-<!--        <el-menu-item index="/projectMain/reserveWorkDay"-->
-<!--                      @click="toPage('/projectMain/reserveWorkDay')">主设人及备用工时管理</el-menu-item>-->
+      <el-submenu index="/workday/">
+        <template slot="title">工时管理</template>
+        <el-menu-item index="/projectMain/projectWorkday"
+                      @click="toPage('/projectMain/projectWorkday')">项目工时管理</el-menu-item>
+        <el-menu-item index="/projectMain/majorWorkday"
+                      @click="toPage('/projectMain/majorWorkday')">专业工时管理</el-menu-item>
+        <el-menu-item index="/projectMain/backupWorkday"
+                      @click="toPage('/projectMain/backupWorkday')">备用工时管理</el-menu-item>
+      </el-submenu>
     </el-menu>
   </div>
   <div style="position:absolute;right: 0;top:15px;width: 25%;">
@@ -51,35 +56,34 @@
 </template>
 
 <script>
+
+const roleList = [ "1","2" ,"3"]
+
 export default {
 name: "ProjectMain",
   data(){
   return{
-    id: "",
+    name: "",
     pid: "",
-    tid : "",
+    state : "",
     projectId : "",
     activeIndex : "/projectMain/project",
     project : {},
     }
   },
   mounted() {
-  this.getLogIn()
+    this.getParams();
+    this.activeIndex = this.$route.path
   },
   methods:{
     getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      if (i == null) {
-        this.$message.error("请登录！");
-        setTimeout(function () { window.location.href = "/" }, 1000)
-      } else
-      {
-        this.logIn = true;
-        this.id = i.id;
-        this.name = i.name;
-        this.pid = i.pid;
-      }
-      this.getParams();
+      this.$axios
+        .post(this.$baseUrl + 'user/queryById'
+        )
+        .then(res => {this.name = res.data.data.name;
+          this.pid = res.data.data.pid
+          this.state = res.data.data.state})
+        .catch(res => (console.log(res)));
     },
     getParams() {
       // 取到路由带过来的参数

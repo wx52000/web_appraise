@@ -1,27 +1,32 @@
 <template>
   <div>
     <div>
-  <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" >
-<!--    <el-submenu index="1">-->
-<!--      <template slot="title">项目管理-->
-<!--      </template>-->
-<!--      <el-menu-item index="/appraiseMain/generalProject" @click="toPage('/appraiseMain/generalProject')">-->
-<!--        设总管理-->
-<!--      </el-menu-item>-->
-<!--      <el-menu-item index="/appraiseMain/principalProject" @click="toPage('/appraiseMain/principalProject')">主设人管理</el-menu-item>-->
-<!--      <el-menu-item index="/appraiseMain/designerProject" @click="toPage('/appraiseMain/designerProject')">设计人管理</el-menu-item>-->
-<!--      <el-menu-item index="/appraiseMain/checkerProject" @click="toPage('/appraiseMain/checkerProject')">互校人管理</el-menu-item>-->
-<!--    </el-submenu>-->
+  <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
     <el-menu-item index="/appraiseMain/showProject" @click="toPage('/appraiseMain/showProject')">卷册查询</el-menu-item>
     <el-submenu index="2" >
     <template slot="title" >我的评价</template>
     <el-menu-item index="/appraiseMain/appraise" @click="toPage('/appraiseMain/appraise')">个人评价</el-menu-item>
     <el-menu-item index="/appraiseMain/tecAppraise" @click="toPage('/appraiseMain/tecAppraise')">专业评价</el-menu-item>
     </el-submenu>
-      <el-menu-item index="/appraiseMain/userScore" @click="toPage('/appraiseMain/userScore')">卷册和工时</el-menu-item>
+      <el-menu-item index="/appraiseMain/construction" @click="toPage('/appraiseMain/construction')">施工图项目</el-menu-item>
+    <el-menu-item index="/appraiseMain/prophase" @click="toPage('/appraiseMain/prophase')">可研项目和业务建设</el-menu-item>
 <!--      <el-menu-item v-if="position !== null && position.indexOf(`1`) != -1" index="/appraiseMain/headmanProject" @click="toPage('/appraiseMain/headmanProject')">组长管理</el-menu-item>-->
-    <el-menu-item index="/home/main" @click="toPage('/home/main')"
-                  style="float: right" v-if="pid == 1">系统管理</el-menu-item>
+<!--    <el-menu-item index="/home/main" @click="toPage('/home/main')"-->
+<!--                  style="float: right" v-if="pid == 1">系统管理</el-menu-item>-->
+    <el-menu-item  style="float: right" >
+      <span style="color: #dd6161">欢迎使用:</span>
+      <span style="color: #e6a23c">{{name}}</span>
+      <el-dropdown  @command="handleCommand">
+        <i class="el-icon-setting" style="margin-bottom: 5px"></i>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item v-if="showadmin > 0"
+          command="1">管理员管理</el-dropdown-item>
+            <el-dropdown-item
+                              command="2">个人信息页面</el-dropdown-item>
+          <el-dropdown-item>退出登录</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </el-menu-item>
   </el-menu>
     </div>
     <div>
@@ -53,6 +58,9 @@
 </template>
 
 <script>
+
+const power_id = [1,2,3]
+
 export default {
   name: "AppraiseMain",
   data() {
@@ -87,6 +95,7 @@ export default {
       id : "",
       name : "",
       pid : "",
+      showadmin : 0,
       position : "",
       grade : "",
       paw : {
@@ -111,23 +120,30 @@ export default {
   },
   methods: {
     getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      if (i == null) {
-        this.$message.error("请登录！");
-        setTimeout(function () { window.location.href = "/" }, 1000)
-      } else
-      {
-        this.logIn = true;
-        this.id = i.id;
-        this.name = i.name;
-        this.pid = i.pid;
-        this.grade = i.grade;
-        if (i.position != null){
-          this.position = i.position;
-        }
-        if (i.pawState === 0){
-          this.visible = true
-        }
+      this.$axios
+        .post(this.$baseUrl + 'user/queryById'
+        )
+        .then(res => {
+          this.name = res.data.data.name;
+        this.pid = res.data.data.pid
+          this.showadmin = power_id.find(obj =>{
+            return obj === this.pid;
+          })
+          if (res.data.data.paw_state === 0) {
+            this.visible = true;
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
+
+    handleCommand(command){
+      if (command === "1"){
+        this.$router.push('/home')
+      }else if (command === "2"){
+        this.activeIndex = "";
+        this.$router.replace('/appraiseMain/self')
+      }else {
+
       }
     },
     toPage(path) {
@@ -157,7 +173,6 @@ export default {
         return 0;
       }
     },
-
   }
 }
 

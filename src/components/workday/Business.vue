@@ -10,19 +10,21 @@
   </el-row>
   <el-row style="margin-left:-10px; align-content: center;">
     <el-col  align="right">
-      <el-button style="margin-right: 50px"  type="primary" @click="openNewProject">新增项目</el-button>
+      <el-button style="margin-right: 50px"  type="primary" @click="openNewActivity">新增项目</el-button>
     </el-col>
   </el-row>
   <el-table border :data="list" class="el-table"
             :row-class-name="tableRowClassName"
             :header-cell-style="{background:'#F5F5F5'}">
-    <el-table-column prop="number" min-width="16%" label="项目编号" align="center"  >
+    <el-table-column prop="name" min-width="16%" label="活动名称" align="center">
     </el-table-column>
-    <el-table-column prop="name" min-width="22%" label="项目名称" align="center">
-    </el-table-column>
-    <el-table-column prop="general" min-width="8" label="设总" align="center" style="word-break: break-all;">
+    <el-table-column prop="general" min-width="8" label="总负责人" align="center" style="word-break: break-all;">
     </el-table-column>
     <el-table-column prop="workday" min-width="8" label="总工时" align="center" style="word-break: break-all;">
+    </el-table-column>
+    <el-table-column prop="start_date" min-width="8" label="开始时间" align="center" style="word-break: break-all;">
+    </el-table-column>
+    <el-table-column prop="end_date" min-width="8" label="结束时间" align="center" style="word-break: break-all;">
     </el-table-column>
     <el-table-column prop="createUser" min-width="8" label="创建人" align="center" style="word-break: break-all;">
     </el-table-column>
@@ -34,7 +36,7 @@
           <el-col :span="12">
             <el-button
               size="mini"
-              @click="openProject(scope.row)">项目管理</el-button>
+              @click="openProject(scope.row)">活动管理</el-button>
           </el-col>
         </el-row>
       </template>
@@ -49,7 +51,7 @@
 <script>
 import treeTransfer  from 'el-tree-transfer'
 export default {
-name: "Virtual",
+name: "Business",
   data(){
     return{
       id: "",
@@ -58,36 +60,27 @@ name: "Virtual",
       isShow : false,
       list : [],
 
-
     }
   },
   components:{
   treeTransfer
   },
   mounted() {
-  this.getLogIn();
+    this.getData();
   },
   methods:{
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
-      this.pid = i.pid;
-      this.tid = i.tid;
-      this.getData();
-    },
     getData(){
       this.$axios
-      .post(this.$baseUrl + 'virtual/query')
+      .post(this.$baseUrl + 'activity/query')
       .then(res => {this.list = res.data.data
       })
       .catch(res => (console.log(res.data)))
-
     },
     tableRowClassName({row, rowIndex}) {
       //把每一行的索引放进row
       row.index = rowIndex;
     },
-    openNewProject(){
+    openNewActivity(){
       const href = this.$router.resolve(
         {
           path: "/virtualManage",
@@ -102,8 +95,8 @@ name: "Virtual",
     openProject(row){
       const href = this.$router.resolve(
         {
-          path: "/virtualManage",
-          name: "virtualManage",
+          path: "/businessManage",
+          name: "businessManage",
           query:{
             "id" : row.id,
           }
@@ -111,14 +104,6 @@ name: "Virtual",
       )
       window.open( href.href,row.id)
     },
-
-
-
-
-
-
-
-
   }
 }
 </script>

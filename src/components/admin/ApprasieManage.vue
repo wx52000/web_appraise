@@ -16,50 +16,61 @@
             <el-col :span="10">
             <el-button type="primary" size="mini" style="text-align: center; " @click="getRange" >评价取值范围管理</el-button>
               <el-button type="primary" size="mini" style="text-align: center; " @click="getRangeDate" >评价时间管理</el-button>
+              <el-button type="primary" size="mini" style="text-align: center; " @click="getWeight" >权重管理</el-button>
             </el-col>
           </el-row >
         <el-row style="width: 100%;text-align: center;">
         <template>
-          <el-table
-            ref="multipleTable"
-            :data="list"
-            tooltip-effect="dark"
-            style="width: 90%;left: 5%"
-            :row-key="getRowKeys"
-            :default-sort = "{prop: 'date', order: 'descending'}"
-            >
-            <el-table-column
-              prop="name"
+          <ux-grid ref="userTable" key="userlist" use-virtual v-loading="loading"
+                   :max-height=pageHeight
+                   :edit-config="{trigger: 'click', mode: 'cell'}"
+                   element-loading-text="拼命加载中"
+                   element-loading-spinner="el-icon-loading"
+                   border :data="list" style="margin-top: 5px"
+                   size="mini"
+                   :default-sort = "{prop: 'date', order: 'descending'}"
+                   :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
+            <ux-table-column
+              field = "name"
               sortable
-              label="姓名"
+              title="姓名"
+              align="center"
+              width="15%"
             >
-            </el-table-column>
-            <el-table-column
-              prop="username"
+            </ux-table-column>
+            <ux-table-column
+              field = "username"
               sortable
-              label="工号"
+              title="工号"
+              align="center"
+              width="15%"
               >
-            </el-table-column>
-            <el-table-column
-              prop="technology"
-              label="专业"
+            </ux-table-column>
+            <ux-table-column
+              field="technology"
+              title="专业"
+              align="center"
               column-key="technology"
               :filters="technology"
               :filter-method="filterMethod"
+              width="20%"
               >
-            </el-table-column>
-            <el-table-column
-              prop="department"
-              label="部门"
+            </ux-table-column>
+            <ux-table-column
+              field="department"
+              title="部门"
+              align="center"
               column-key="department"
               :filters="department"
               :filter-method="filterMethod"
+              width="30%"
               >
-            </el-table-column>
-            <el-table-column
+            </ux-table-column>
+            <ux-table-column
               fixed="right"
-              label="操作"
-              width="120">
+              title="操作"
+              width="20%"
+            align="center">
               <template slot-scope="scope">
                 <el-button
                   @click="handle(scope.row)"
@@ -68,8 +79,8 @@
                   管理
                 </el-button>
               </template>
-            </el-table-column>
-          </el-table>
+            </ux-table-column>
+          </ux-grid>
         </template>
         </el-row>
       </el-form>
@@ -143,8 +154,42 @@
         </el-row >
       </el-form>
     </el-dialog>
-    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
-    </news-dialog>
+    <el-drawer
+      title="评价权重管理"
+      :visible.sync="weightVisible"
+      direction="rtl"
+      width="60%">
+      <el-form id="weight">
+        <template>
+          <el-tabs v-model="weightPage" @tab-click="weightTabClick" style="margin-left: 10px">
+            <el-tab-pane
+              :key="item.id"
+              v-for="(item, index) in weightTabs"
+              :label="item.name"
+              :name="item.name"
+            >
+              <el-table
+                :data="weightList"
+                style="width: 100%">
+                <el-table-column
+                  prop="name"
+                  name="职位名称"
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  name="权重"
+                  width="180">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.weight" width="100%" style="text-align: center"></el-input>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-button type="primary" @click="setWeight">确认</el-button>
+            </el-tab-pane>
+          </el-tabs>
+        </template>
+      </el-form>
+    </el-drawer>
   </div>
 </template>
 
@@ -155,10 +200,13 @@ export default {
   data() {
     return {
       id: "",
+      pageHeight : document.body.clientHeight,
       month: new Date().getMonth() + 1,
+      loading: true,
       isShow : false,
       visible : false,
       rangeVisible : false,
+      weightVisible : false,
       rangeDateVisible : false,
       min: "",
       max : "",
@@ -175,11 +223,19 @@ export default {
       userAppraise : [],
       rowId : null,
       grade : 0,
+      weightPage: "主任",
+      weightTabs :[
+        {id:2, name : "主任"},
+        {id:3, name : "经理"},
+        {id:4, name : "设总"},
+        {id:5, name : "主设人"},
+        {id:6, name : "设计人"},
+      ],
+      weightList : [],
     }
   },
   mounted() {
-    this.getLogIn();
-    // this.getData();
+    this.getData();
   },
   methods: {
     reset() {
@@ -187,28 +243,25 @@ export default {
       this.search2 = "";
       this.getData();
     },
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
-      this.getData();
-    },
     getData() {
       this.$axios
         .post(this.$baseUrl + 'user/query', {
-          "pageIndex" : 1,
-          "pageSize" : 10000,
           "name" : this.search1,
           "username" : this.search2,
         },)
-        .then(res => {this.list = res.data.data.list;
+        .then(res => {this.list = res.data.data;
+          this.loading  =false;
         this.list.forEach(item => {
-          this.department.push2({value : item.department,text : item.department});
-          this.technology.push2({value : item.technology,text : item.technology})
+          this.department.push2({value : item.department,label : item.department});
+          this.technology.push2({value : item.technology,label : item.technology});
         })
+          this.$refs.userTable.setFilter(this.$refs.userTable.getColumnByField('department'),this.department)
+          this.$refs.userTable.setFilter(this.$refs.userTable.getColumnByField('technology'),this.technology)
+          this.$refs.userTable.updateData()
         })
         .catch(res => (console.log(res)));
     },
-    filterMethod(value, row, column){
+    filterMethod({value, row, column}){
       const property = column['property'];
       return row[property] === value;
     },
@@ -318,6 +371,32 @@ export default {
         .then(res => {this.$message("修改成功")})
         .catch(res => (console.log(res)));
       this.rangeDateVisible = false;
+    },
+    weightTabClick(tab,event){
+      this.$axios
+        .post(this.$baseUrl + 'position/queryByWeight',{},
+          {headers : {"id" :this.weightTabs[tab.index].id}})
+        .then(res => (this.weightList = res.data.data))
+        .catch(res => (console.log(res)));
+    },
+    getWeight() {
+      this.$axios
+        .post(this.$baseUrl + 'position/queryByWeight',{},
+          {headers : {"id" : 2}})
+        .then(res => {
+          this.weightList = res.data.data;
+          this.weightVisible = true
+          console.log(this.weightList)
+        })
+        .catch(res => (console.log(res)));
+    },
+    setWeight() {
+      this.$axios
+        .post(this.$baseUrl + 'position/update', this.weightList
+        )
+        .then(res => (this.weightVisible = false))
+        .catch(res => (console.log(res)));
+      this.weightVisible = true
     },
     }
   }

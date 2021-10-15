@@ -77,17 +77,9 @@ export default {
     }
   },
   mounted() {
-    this.getLogIn();
+    this.getData();
   },
   methods: {
-    search() {
-      this.getData();
-    },
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
-      this.getData();
-    },
     getData() {
       this.$axios
         .post(this.$baseUrl + 'department/query', {},)

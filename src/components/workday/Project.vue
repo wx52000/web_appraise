@@ -24,8 +24,6 @@
     <span>项目进度</span>
     <div ref="myChart1" id="myChart1" align="center" style="width: 500px;height: 300px;margin-left: 10%"></div>
   </div>
-  <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
-  </news-dialog>
 </div>
 </template>
 

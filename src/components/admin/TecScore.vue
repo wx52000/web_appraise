@@ -25,23 +25,21 @@
                 </template>
               </el-col>
             </el-row>
-          <el-table border :data="list" style="width:85%"
+          <u-table use-virtual :row-height="50" border :data="list" style="width:85%"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
 
-            <el-table-column prop="department" label="部门">
-            </el-table-column>
-            <el-table-column prop="technology" label="专业">
-            </el-table-column>
-            <el-table-column prop="score" label="平均评分">
-            </el-table-column>
+            <u-table-column prop="department" label="部门">
+            </u-table-column>
+            <u-table-column prop="technology" label="专业">
+            </u-table-column>
+            <u-table-column prop="score" label="平均评分">
+            </u-table-column>
 
 
-          </el-table>
+          </u-table>
         </el-row>
       </el-row>
     </el-row>
-    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
-    </news-dialog>
   </div>
 </template>
 
@@ -89,20 +87,11 @@ export default {
       this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
     }
     this.setListMonth();
-    this.getLogIn();
+    this.getData();
   },
   methods: {
-    search() {
-      this.getData();
-    },
     reset() {
       this.pageIndex = 1;
-      this.getData();
-    },
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
-      this.pid = i.pid
       this.getData();
     },
     getData() {

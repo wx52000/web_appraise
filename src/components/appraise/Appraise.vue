@@ -16,14 +16,15 @@
                 本月取值范围为{{min}}~{{max}}
               </el-col>
             </el-row>
-            <el-row style="text-align: right" v-if="">
+            <el-row style="text-align: right">
               <el-col :span="24" style="text-align: right;">
                 姓名/工号<el-input v-model="search1" size="mini" style="width: 130px" ></el-input>
                 <el-button type="primary" @click="search()"  size="mini">查询</el-button>
                 <el-button size="mini" @click="reset()" style="margin-right: 10%">重置</el-button>
               </el-col>
               </el-row>
-            <el-table border :data="list"
+            <u-table border :data="list"
+                     use-virtual :row-height="50"
                       v-loading="loading"
                       element-loading-text="拼命加载中"
                       element-loading-spinner="el-icon-loading"
@@ -31,19 +32,19 @@
                       :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                       style="margin-top:20px;width: 80% ;horiz-align: center; left: 10% ; "
                       :default-sort = "{prop: 'date', order: 'descending'}">
-              <el-table-column prop="department" label="部门"
+              <u-table-column prop="department" label="部门"
                                column-key="department"
                                :filters="departmentList" :filter-method="filterMethod" min-width="25%">
-              </el-table-column>
-              <el-table-column prop="technology" label="专业"
+              </u-table-column>
+              <u-table-column prop="technology" label="专业"
                                column-key="technology"
                                :filters="technologyList" :filter-method="filterMethod" min-width="10%">
-              </el-table-column>
-              <el-table-column prop="name" label="姓名" sortable min-width="10%">
-              </el-table-column>
-              <el-table-column prop="username" label="工号" sortable min-width="10%">
-              </el-table-column>
-              <el-table-column prop="scope" label="质量得分" min-width="10%">
+              </u-table-column>
+              <u-table-column prop="name" label="姓名" sortable min-width="10%">
+              </u-table-column>
+              <u-table-column prop="username" label="工号" sortable min-width="10%">
+              </u-table-column>
+              <u-table-column prop="scope" label="质量得分" min-width="10%">
                 <template slot-scope="scope">
                   <el-autocomplete
                     :ref = "'designer' + scope.$index"
@@ -54,9 +55,9 @@
                     :fetch-suggestions="querySearch"
                   ></el-autocomplete>
                 </template>
-              </el-table-column>
+              </u-table-column>
 
-              <el-table-column prop="scope" label="进度得分" min-width="10%">
+              <u-table-column prop="scope" label="进度得分" min-width="10%">
                 <template slot-scope="scope">
                   <el-autocomplete
                     :ref = "'personal' + scope.$index"
@@ -67,9 +68,9 @@
                     :fetch-suggestions="querySearch"
                   ></el-autocomplete>
                 </template>
-              </el-table-column>
+              </u-table-column>
 
-              <el-table-column prop="scope" label="配合得分" min-width="10%" >
+              <u-table-column prop="scope" label="配合得分" min-width="10%" >
                 <template slot-scope="scope">
                   <el-autocomplete
                     :ref = "'coordinate' + scope.$index"
@@ -80,9 +81,9 @@
                     :fetch-suggestions="querySearch"
                   ></el-autocomplete>
                 </template>
-              </el-table-column>
+              </u-table-column>
 
-            </el-table>
+            </u-table>
           </el-row>
         </el-row>
         <el-row style="padding: 20px 0 0 0;text-align: center;">
@@ -193,6 +194,7 @@ name: "Appraise",
       this.position = i.position;
       this.getData();
       this.getOtherData();
+      console.log(this.position)
     },
     getData() {
       this.$axios
@@ -256,7 +258,7 @@ name: "Appraise",
     },
     getOtherData(){
       this.$axios
-        .post(this.$baseUrl + 'range/query',{},{headers: {'id': this.id}})
+        .post(this.$baseUrl + 'range/query')
         .then(res => {this.max = res.data.data.max ;
           this.min = res.data.data.min})
         .catch(res => (console.log(res)));
@@ -281,8 +283,12 @@ name: "Appraise",
             let  role = null;
             if (this.position === null || this.position === undefined)
               role = table.role;
-            else
-              role = this.position;
+            else {
+              // role = this.position;
+              if (this.position !==  undefined) {
+                role = this.position.split(",")[0]
+              }
+            }
             let userScore = {
               gradeId: this.id,
               scoreId: table.id,

@@ -25,31 +25,31 @@
               </template>
             </el-col>
           </el-row>
-          <el-table border ref="table1" :data="list" style="width:85%"
+          <el-table use-virtual :row-height="50" border ref="table1" :data="list" style="width:85%"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                     @sort-change="changeSort">
-            <el-table-column prop="gname" label="评价人"
+            <u-tablecolumn prop="gname" label="评价人"
                              sortable="custom" min-width="10%">
-            </el-table-column>
-            <el-table-column prop="sname" label="得分人"
+            </u-tablecolumn>
+            <u-tablecolumn prop="sname" label="得分人"
                              sortable="custom" min-width="10%">
-            </el-table-column>
-            <el-table-column prop="technology" label="得分人专业" min-width="15%"
+            </u-tablecolumn>
+            <u-tablecolumn prop="technology" label="得分人专业" min-width="15%"
                              column-key="technology"
                              :filters="technologyList"
                              :filter-method="filterMethod">
-            </el-table-column>
-            <el-table-column prop="department" label="得分人部门" min-width="30%"
+            </u-tablecolumn>
+            <u-tablecolumn prop="department" label="得分人部门" min-width="30%"
                              column-key="department"
                              :filters="departmentList"
                              :filter-method="filterMethod">
-            </el-table-column>
-            <el-table-column prop="designer" label="质量得分" min-width="9%">
-            </el-table-column>
-            <el-table-column prop="personal" label="进度得分" min-width="9%">
-            </el-table-column>
-            <el-table-column prop="coordinate" label="配合得分" min-width="9%">
-            </el-table-column>
+            </u-tablecolumn>
+            <u-tablecolumn prop="designer" label="质量得分" min-width="9%">
+            </u-tablecolumn>
+            <u-tablecolumn prop="personal" label="进度得分" min-width="9%">
+            </u-tablecolumn>
+            <u-tablecolumn prop="coordinate" label="配合得分" min-width="9%">
+            </u-tablecolumn>
           </el-table>
         </el-row>
       </el-row>
@@ -166,19 +166,11 @@ export default {
       this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
     }
     this.setListMonth();
-    this.getLogIn();
+    this.getData();
   },
   methods: {
-    search() {
-      this.getData();
-    },
     reset() {
       this.pageIndex = 1;
-      this.getData();
-    },
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
       this.getData();
     },
     getData() {

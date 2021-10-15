@@ -4,7 +4,7 @@
             <el-row style="line-height: 50px;font-size: 16px;font-weight: bold;color: #999;">用户登录 / USER
               LOGIN</el-row>
             <el-row style="padding: 0 0 15px 0;">
-              <el-input type="text" clearable v-model="name" placeholder="请输入用户名称"
+              <el-input type="text" clearable v-model="username" placeholder="请输入用户名"
                         prefix-icon="el-icon-user" style="width: 250px"></el-input>
             </el-row>
             <el-row style="padding: 0 0 15px 0;">
@@ -26,41 +26,40 @@ export default{
   name: 'Login',
   data() {
     return {
-      name: "",
+      username: "",
       password: "",
     }
   },
   mounted() { },
   methods: {
     logIn() {
-      if (this.name == "") {
+      if (this.name === "") {
         this.$message.error("请输入用户名称")
-      } else if (this.password == "") {
+      } else if (this.password === "") {
         this.$message.error("请输入登录密码")
       } else {
         this.$axios
-          .post(this.$baseUrl + 'user/login', {
-            username: this.name,
-            paw: this.password,
+          .post(this.$baseUrl + "login",{
+            username : this.username,
+            paw : this.password,
           })
           .then(res => {
-            if (res.data.code == 10) {
-              this.$message.error("账号或密码错误")
-            }
-            else {
-              sessionStorage.setItem("appraise", JSON.stringify({
-                id: res.data.data.id,
-                pid: res.data.data.pid,
-                pawState : res.data.data.pawState,
-                tid : res.data.data.tid,
-                did : res.data.data.did,
-                name : res.data.data.name,
-                position : res.data.data.position,
-                grade : res.data.data.grade}));
-                this.$router.push('/appraiseMain')
-            }
+            let userToken = 'Bearer ' + res.data.access_token;
+            let refresh_token = res.data.refresh_token;
+            this.$storage.set('Authorization',userToken);
+            this.$storage.set('refresh_token', refresh_token);
+            // 将用户token保存到vuex中
+            this.$router.push('/appraiseMain')
           })
-          .catch(res => (console.log(res)));
+          .catch(res => {
+            // console.log(res)
+            // if (res.data.status === 500) {
+            //   this.$message.error("用户名或密码错误");
+            // }else {
+            //   this.$message.error("服务器出错");
+            // }
+            console.log(res)
+          });
       }
     },
     down(){

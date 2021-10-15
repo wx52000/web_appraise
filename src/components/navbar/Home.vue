@@ -13,6 +13,9 @@
         <!-- 导航 -->
         <el-row style="margin-top: 20px; ">
           <el-menu  default-active="1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
+            <el-menu-item index="home/workday" @click="toPage(toPage('/home/workday'))">
+              工时信息
+            </el-menu-item>
             <el-submenu index="1">
               <template slot="title">
                 <el-row >项目管理</el-row>
@@ -20,9 +23,7 @@
             <el-menu-item-group>
               <el-menu-item class="nav2" index="1-1" @click="toPage(toPage('/home/adminProject'))">施工图项目进度管理
               </el-menu-item>
-              <el-menu-item class="nav2" index="1-2" @click="toPage('/home/virtual')">初设前期进度管理
-              </el-menu-item>
-              <el-menu-item class="nav2" index="1-3" @click="toPage('/home/business')">业务建设工时管理
+              <el-menu-item class="nav2" index="1-2" @click="toPage('/home/virtual')">可研项目和业务建设
               </el-menu-item>
             </el-menu-item-group>
             </el-submenu>
@@ -83,7 +84,7 @@
           </el-row>
         </el-header>
         <!-- 主 -->
-        <el-main style="padding: 0; height: 100%;"  >
+        <el-main style="padding: 0; height: 100%;">
           <router-view v-if ="isRouterAlive" />
         </el-main>
       </el-container>
@@ -104,6 +105,7 @@ name: "Home",
       logIn: true,
       checkInPage: false,
       id: "",
+      pid : "",
       name: "",
       level: "",
       isRouterAlive: true,
@@ -120,19 +122,16 @@ name: "Home",
       console.log(key, keyPath);
     },
     getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      if (i == null) {
-        this.$message.error("请登录！");
-        setTimeout(function () { window.location.href = "/"; }, 1000)
-      } else
-      {
-        this.logIn = true;
-        this.id = i.id;
-        this.name = i.name;
-      }
+      this.$axios
+        .post(this.$baseUrl + 'user/queryById'
+        )
+        .then(res => {
+          this.name = res.data.data.name;
+          this.pid = res.data.data.pid
+          })
+        .catch(res => (console.log(res)));
     },
     logOut() {
-      sessionStorage.removeItem("appraise");
       this.getLogIn();
     },
     logApp() {

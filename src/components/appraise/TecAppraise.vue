@@ -15,44 +15,44 @@
                 本月取值范围为{{min}}~{{max}}
               </el-col>
             </el-row>
-            <el-table border :data="list" style="margin-top:20px;width: 80% ;horiz-align: center; left: 10%"
+            <u-table use-virtual :row-height="50" border :data="list" style="margin-top:20px;width: 80% ;horiz-align: center; left: 10%"
                       :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
-              <el-table-column prop="department" label="部门" min-width="30%">
-              </el-table-column>
-              <el-table-column prop="technology" label="专业" min-width="15%">
-              </el-table-column>
-              <el-table-column prop="scope" label="质量得分" min-width="15%">
+              <u-table-column prop="department" label="部门" min-width="30%">
+              </u-table-column>
+              <u-table-column prop="technology" label="专业" min-width="15%">
+              </u-table-column>
+              <u-table-column prop="scope" label="质量得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'designer' + scope.$index"
-                            :v-model="scope.row.designer"
+                            v-model="scope.row.designer"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.designer,'designer',scope.$index)"
                             ></el-input>
                 </template>
-              </el-table-column>
-              <el-table-column prop="scope" label="进度得分" min-width="15%">
+              </u-table-column>
+              <u-table-column prop="scope" label="进度得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'personal' + scope.$index"
-                            :v-model="scope.row.personal"
+                            v-model="scope.row.personal"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.personal,'personal',scope.$index)"
                             ></el-input>
                 </template>
-              </el-table-column>
-              <el-table-column prop="scope" label="配合得分" min-width="15%">
+              </u-table-column>
+              <u-table-column prop="scope" label="配合得分" min-width="15%">
                 <template slot-scope="scope">
                   <el-input
                             type="text" :ref = "'coordinate' + scope.$index"
-                            :v-model="scope.row.coordinate"
+                            v-model="scope.row.coordinate"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.coordinate,'coordinate',scope.$index)"
                             ></el-input>
                 </template>
-              </el-table-column>
+              </u-table-column>
 
-            </el-table>
+            </u-table>
           </el-row>
         </el-row>
         <el-row style="padding: 20px 0 0 0;text-align: center;">
@@ -142,15 +142,15 @@ name: "TecAppraise",
         .post(this.$baseUrl + 'technology/evaluate',{},{headers: {'id': this.id}})
         .then(res => (
           res.data.data.forEach((item,index)=>{
-          if (item.designer !== undefined ){
-            item.designer = item.designer.toString();
-          }
-          if (item.personal !== undefined ){
-            item.personal = item.personal.toString();
-          }
-          if (item.coordinate !== undefined ){
-            item.coordinate = item.coordinate.toString();
-          }
+          // if (item.designer !== undefined ){
+          //   item.designer = item.designer.toString();
+          // }
+          // if (item.personal !== undefined ){
+          //   item.personal = item.personal.toString();
+          // }
+          // if (item.coordinate !== undefined ){
+          //   item.coordinate = item.coordinate.toString();
+          // }
           this.list.push(item);
         })
         ))

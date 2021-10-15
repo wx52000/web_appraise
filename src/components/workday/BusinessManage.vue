@@ -7,7 +7,7 @@
             <el-col :span="12">
               <el-form-item label="活动名称" size="mini" label-width="80px">
                 <el-input type="text"  v-model="activity.name" style="width: 80%"
-                          :disabled="activity.name !== undefined"></el-input>
+                          :disabled="activity.nameDisable"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -212,6 +212,8 @@ name: "BusinessManage",
             .then(res => {
               this.activity.general = res.data.data.general;
             this.activity.name = res.data.data.activity.name;
+              if (this.activity.name !== undefined)
+                this.activity.nameDisable = true
             this.activity.workday = res.data.data.activity.workday;
             this.activity.date = [];
             this.activity.date.push(res.data.data.activity.start_date);

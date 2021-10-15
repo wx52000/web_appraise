@@ -6,21 +6,31 @@ import App from './App.vue';
 import ElementUI from 'element-ui';
 import * as Echarts from 'echarts';
 import 'element-ui/lib/theme-chalk/index.css';
-import Axios from 'axios';
 import 'font-awesome/css/font-awesome.min.css';
 import '../static/css/suspension.css'
 import 'babel-polyfill';
 import tableText from '../static/js/tableText'
-import news from "./components/diglog/news";
+import news from "./components/other/news";
+import axios from "./store/httpRequest"
+import storage from "./store/index"
+import "../src/components/tools/js/timeInit"
+import UmyUi from 'umy-ui'
+import 'umy-ui/lib/theme-chalk/index.css';// 引入样式
+
 
 Vue.config.productionTip = false
 
+
 Vue.use(ElementUI);
 Vue.use(tableText);
+Vue.use(UmyUi);
 Vue.component(news.name,news)
-Vue.prototype.$axios = Axios;
 Vue.prototype.$echarts = Echarts
+Vue.prototype.$storage = storage;
 Vue.prototype.$baseUrl = 'http://localhost:9999/';
+Vue.prototype.$tokenUrl = "http://localhost:9100/";
+Vue.prototype.$axios = axios;
+// 挂载到$message上
 // Vue.prototype.$baseUrl = 'http://10.136.238.22:9999/';
 //每月评价开始日期npm
 Vue.prototype.startDay = 25;

@@ -108,21 +108,12 @@ name: "Score",
       this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
     }
     this.setListMonth();
-    this.getLogIn();
+    this.getData()
   },
   methods: {
-    search() {
-      this.getData();
-    },
     reset() {
 
       this.pageIndex = 1;
-      this.getData();
-    },
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
-      this.pid = i.pid;
       this.getData();
     },
     getData() {

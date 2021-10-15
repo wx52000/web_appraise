@@ -13,27 +13,25 @@
             </el-row>
             <el-row style="margin-left:-10px; align-content: center;">
               <el-col  align="right">
-<!--                <el-button style="margin-right: 50px"  type="primary" @click="handleAddPro">新增项目</el-button>-->
                 <el-button style="margin-right: 50px"  type="primary" @click="proHandler">抓取项目列表</el-button>
-<!--                <el-button style="margin-right: 50px"  type="primary" @click="visible = true">项目导入</el-button>-->
               </el-col>
             </el-row>
 
-            <el-table border :data="list" class="el-table" :row-class-name="tableRowClassName"
-                      :header-cell-style="{background:'#F5F5F5'}">
-              <el-table-column prop="number" min-width="18%" label="项目编号" align="center"  >
-              </el-table-column>
-              <el-table-column prop="projectName" min-width="30%" label="项目名称" align="center">
-              </el-table-column>
-              <el-table-column prop="director" min-width="8%" label="主管设总" align="center"  >
-              </el-table-column>
-              <el-table-column prop="general" min-width="8" label="设总" align="center" style="word-break: break-all;">
-              </el-table-column>
-              <el-table-column prop="state" min-width="8%" label="项目状态" align="center">
-              </el-table-column>
-              <el-table-column prop="amount"  min-width="8%" label="卷册总数"  align="center">
-              </el-table-column>
-              <el-table-column  min-width="20%" align="center">
+            <u-table border :data="list" class="u-table" :row-class-name="tableRowClassName"
+                      :header-cell-style="{background:'#F5F5F5'}" :cell-style="this.CellStyleOne">
+              <u-table-column prop="number" min-width="18%" label="项目编号" align="center"  >
+              </u-table-column>
+              <u-table-column prop="projectName" min-width="30%" label="项目名称" align="center">
+              </u-table-column>
+              <u-table-column prop="director" min-width="8%" label="主管设总" align="center"  >
+              </u-table-column>
+              <u-table-column prop="general" min-width="8" label="设总" align="center" style="word-break: break-all;">
+              </u-table-column>
+              <u-table-column prop="state" min-width="8%" label="项目状态" align="center">
+              </u-table-column>
+              <u-table-column prop="amount"  min-width="8%" label="卷册总数"  align="center">
+              </u-table-column>
+              <u-table-column  min-width="20%" align="center">
                 <template slot-scope="scope">
                   <el-row>
                     <el-col :span="12">
@@ -48,8 +46,8 @@
                     </el-col>
                   </el-row>
                 </template>
-              </el-table-column>
-            </el-table>
+              </u-table-column>
+            </u-table>
           </el-row>
         </el-row>
       </el-row>
@@ -518,20 +516,20 @@
       :visible.sync="temporaryDialog"
       width="50%" style="text-align: center">
       <template>
-        <el-table
+        <u-table
           :data="temporaryPersonal"
           style="width: 100%">
-          <el-table-column
+          <u-table-column
             prop="name"
             label="姓名"
             min-width="40" >
-          </el-table-column>
-          <el-table-column
+          </u-table-column>
+          <u-table-column
             prop="username"
             label="临时用户名"
           min-width="60%">
-          </el-table-column>
-        </el-table>
+          </u-table-column>
+        </u-table>
       </template>
       <el-button type="primary" @click="temporaryDialog = false"   >确 定</el-button>
   </el-dialog>
@@ -576,16 +574,16 @@
           <el-button type="primary" @click="addNumber()">添加</el-button>
         </el-col>
       </el-row>
-      <el-table border :data="list" class="el-table"
+      <u-table border :data="list" class="u-table"
                 :header-cell-style="{background:'#F5F5F5' } "
                 :row-class-name="tableRowClassName"
                 :default-sort = "{prop: 'date', order: 'descending'}"
                 >
-        <el-table-column prop="number" min-width="13  %" label="项目号" sortable align="center"  >
-        </el-table-column>
-        <el-table-column prop="projectName" min-width="24" label="项目名称" sortable align="center" style="word-break: break-all;">
-        </el-table-column>
-        <el-table-column min-width="24" label="蜘蛛状态" sortable align="center">
+        <u-table-column prop="number" min-width="13  %" label="项目号" sortable align="center"  >
+        </u-table-column>
+        <u-table-column prop="projectName" min-width="24" label="项目名称" sortable align="center" style="word-break: break-all;">
+        </u-table-column>
+        <u-table-column min-width="24" label="蜘蛛状态" sortable align="center">
           <template slot-scope="scope">
           <el-switch
             v-model="scope.row.spider"
@@ -596,8 +594,8 @@
             @change="spiderHandler(scope.row)">
           </el-switch>
           </template>
-        </el-table-column>
-      </el-table>
+        </u-table-column>
+      </u-table>
     </el-dialog >
     <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
     </news-dialog>
@@ -704,19 +702,11 @@ export default {
     }
   },
   mounted() {
-    this.getLogIn();
+    this.getData();
     this.nowWeek = this.getWeek()
   },
   methods: {
-
-    "getLogIn"() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
-      this.pid = i.pid;
-      this.tid = i.tid;
-      this.getData();
-    },
-    "getData"() {
+    getData() {
       this.$axios
         .post(this.$baseUrl + 'project/queryByAdmin', {
             "id": this.id
@@ -1215,7 +1205,7 @@ export default {
   margin-bottom: 0;
   width: 50%;
 }
-.el-table {
+.u-table {
   margin-top:20px;
   width: 100% ;
   horiz-align: center;

@@ -26,30 +26,30 @@
                 </template>
               </el-col>
             </el-row>
-          <el-table border ref="table1" :data="list" style="width:85%"
+          <u-table use-virtual :row-height="50" border ref="table1" :data="list" style="width:85%"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
                     @filter-change="filterMethod"
                     @sort-change="changeSort">
-            <el-table-column prop="name" label="评价人"
+            <u-table-column prop="name" label="评价人"
                              sortable="custom" min-width="10%">
-            </el-table-column>
+            </u-table-column>
 
-            <el-table-column prop="technology" label="专业" min-width="15%"
+            <u-table-column prop="technology" label="专业" min-width="15%"
                              column-key="technology"
                              :filters="technologyList">
-            </el-table-column>
-            <el-table-column prop="department" label="部门" min-width="35%"
+            </u-table-column>
+            <u-table-column prop="department" label="部门" min-width="35%"
                              column-key="department"
                              :filters="departmentList">
-            </el-table-column>
-            <el-table-column prop="designer" label="质量得分" min-width="10%">
-            </el-table-column>
-            <el-table-column prop="personal" label="进度得分" min-width="10%">
-            </el-table-column>
-            <el-table-column prop="coordinate" label="配合得分" min-width="10%">
-            </el-table-column>
+            </u-table-column>
+            <u-table-column prop="designer" label="质量得分" min-width="10%">
+            </u-table-column>
+            <u-table-column prop="personal" label="进度得分" min-width="10%">
+            </u-table-column>
+            <u-table-column prop="coordinate" label="配合得分" min-width="10%">
+            </u-table-column>
 
-          </el-table>
+          </u-table>
         </el-row>
       </el-row>
     </el-row>
@@ -87,8 +87,6 @@
         </el-main>
       </el-container>
     </el-dialog>
-    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
-    </news-dialog>
   </div>
 </template>
 
@@ -150,21 +148,12 @@ export default {
       this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
     }
     this.setListMonth();
-    this.getLogIn();
+    this.getData();
   },
   methods: {
-    search() {
-      this.getData();
-    },
     reset() {
       this.pageIndex = 1;
       this.getData();
-    },
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
-      this.getData();
-      this.getOtherData();
     },
     getData() {
       this.$axios
