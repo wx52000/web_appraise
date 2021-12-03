@@ -26,9 +26,9 @@
                 </template>
               </el-col>
             </el-row>
-          <u-table use-virtual :row-height="50" border ref="table1" :data="list" style="width:85%"
+          <u-table use-virtual :row-height="50" border ref="table1" :data="list"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
-                    @filter-change="filterMethod"
+                    @filter-change="filterMethod" size = "mini"
                     @sort-change="changeSort">
             <u-table-column prop="name" label="评价人"
                              sortable="custom" min-width="10%">

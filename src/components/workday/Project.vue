@@ -5,8 +5,18 @@
     <div style="float:left;width: 30%;height: 300px;box-sizing: border-box;"
          align="center">
       <el-button @click="downExcel" style="margin-top: 70px">专业工时使用情况汇总下载</el-button>
-      <el-button @click="downExcel1" style="margin-top: 20px">个人工时获得情况汇总下载</el-button>
-      <el-button @click="downExcel2" style="margin-top: 20px">卷册工时使用情况汇总下载</el-button>
+      <el-button @click="downExcel1" style="margin-top: 20px">个人卷册完成情况汇总下载</el-button>
+      <el-button @click="downExcel2" style="margin-top: 20px">卷册详情汇总下载</el-button>
+<!--      <el-upload-->
+<!--        class="upload-demo"-->
+<!--        ref="upload"-->
+<!--        action=""-->
+<!--        :show-file-list="false"-->
+<!--        :on-change="handleSuccess"-->
+<!--        :auto-upload="false"-->
+<!--        accept=".xls,.xlsx">-->
+<!--        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>-->
+<!--      </el-upload>-->
     </div>
     <div style="float:right;width: 70%;height: 300px;box-sizing: border-box;"
          align="center">
@@ -40,7 +50,6 @@ name: "Project",
   },
   mounted() {
     this.projectId = this.$route.query.project_id;
-    console.log("project")
     this.$nextTick(() => {
       //  执行echarts方法
       this.drawLine();
@@ -203,12 +212,10 @@ name: "Project",
       this.$axios.post(this.$baseUrl + 'projectWorkDay/queryUsedTecWorkDay',{},
         {headers : { "id" : this.projectId, type : 3}})
         .then( res => { data = res.data.data;
-        console.log(data)
         data.forEach((item,index) => {
           xAxisData.push(item.tec)
           data1.push(item.have)
           data2.push(item.used)
-          console.log(xAxisData+ "+++++++++++++++++");
         })
           // let myChart = this.$echarts.init(document.getElementById('myChart'))
           let myChart = this.$refs.myChart2
@@ -308,18 +315,93 @@ name: "Project",
         .catch( res => (console.log(res.data)))
     },
     downExcel(){
+      let that = this;
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'projectExcel/statistic?id=' + this.projectId;
+      let xhr = new XMLHttpRequest();
+      let u =  this.$baseUrl + 'projectExcel/statistic?id=' + this.projectId;
+      xhr.open("get", u, true); // get、post都可
+      xhr.responseType = "blob";  // 转换流
+      xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
+      xhr.onload = function() {
+        if (this.status === 200) {
+          let blob = this.response;
+          let a = document.createElement("a")
+          let url = window.URL.createObjectURL(blob)
+          a.href = url
+          a.download =  that.$parent.project.name + "专业工时使用情况.xlsx"  // 文件名
+          a.click()
+          window.URL.revokeObjectURL(url)
+        }
+      }
+      xhr.send();
     },
     downExcel1(){
+      let that = this;
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'projectExcel/everyone?id=' + this.projectId;
+      let xhr = new XMLHttpRequest();
+      let u =  this.$baseUrl + 'projectExcel/everyone?id=' + this.projectId;
+      xhr.open("get", u, true); // get、post都可
+      xhr.responseType = "blob";  // 转换流
+      xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
+      xhr.onload = function() {
+        if (this.status === 200) {
+          let blob = this.response;
+          let a = document.createElement("a")
+          let url = window.URL.createObjectURL(blob)
+          a.href = url
+          a.download =  that.$parent.project.name + "个人卷册完成情况.xlsx"  // 文件名
+          a.click()
+          window.URL.revokeObjectURL(url)
+        }
+      }
+      xhr.send();
     },
     downExcel2(){
+      let that = this;
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'projectExcel/volume?id=' + this.projectId;
-    }
+      let xhr = new XMLHttpRequest();
+      let u =  this.$baseUrl + 'projectExcel/volume?id=' + this.projectId;
+      xhr.open("get", u, true); // get、post都可
+      xhr.responseType = "blob";  // 转换流
+      xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
+      xhr.onload = function() {
+        if (this.status === 200) {
+          let blob = this.response;
+          let a = document.createElement("a")
+          let url = window.URL.createObjectURL(blob)
+          a.href = url
+          a.download =  that.$parent.project.name + "卷册详情.xlsx"  // 文件名
+          a.click()
+          window.URL.revokeObjectURL(url)
+        }
+      }
+      xhr.send();
+    },
+    handleSuccess(file) {
+      console.log('+++++++++++++')
+      console.log(file)
+      let formData = new FormData();
+      formData.append("id",this.projectId)
+      formData.append("file",file.raw)
+      console.log(formData)
+      this.$axios({
+        url : this.$baseUrl + 'projectExcel/workdayByProject',
+        method : 'post',
+        data : formData,
+        processData: false,// 告诉axios不要去处理发送的数据(重要参数)
+        contentType : false,
+
+      })
+        .then((response) => {
+          if(response.data.info=="success"){this.$message({
+            type: 'success',
+            message: '附件上传成功!'
+          });
+          }
+        })
+    },
   },
+
 }
 </script>
 

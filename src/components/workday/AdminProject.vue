@@ -37,7 +37,7 @@
                     <el-col :span="12">
                   <el-button
                     size="mini"
-                    @click="openVolumeList(scope.row)">卷册详情</el-button>
+                    @click="openVolumeList(scope.row)">项目主页</el-button>
                     </el-col>
                     <el-col :span="12">
                   <el-button
@@ -52,514 +52,29 @@
         </el-row>
       </el-row>
     </el-form>
-    <el-dialog
-      title="操作页面"
-      :visible.sync="dialogVisible"
-      width="60%">
-      <el-container>
-        <el-header style="background: #B3C0D1 ;color: #333; text-align: left;height:40px;padding-top: 10px" >
-          <el-row>
-            <el-col :span="8">项目管理</el-col>
-            <el-col :span="16" align="right">
-                <el-button type="success" icon="el-icon-check" size="mini" circle @click="confirmProject"></el-button>
 
-            </el-col>
-          </el-row>
-        </el-header>
-        <el-form :model="project">
-          <el-main>
-            <el-form-item label="项目名称" style="width: 80%">
-              <el-input type="text"  v-model="project.name" style="width: 80%"></el-input>
-            </el-form-item>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="设总" style="text-align: left">
-                  <el-select v-model="project.general" :filterable="true"  :remote="true" multiple
-                             :remote-method="remoteMethod"
-                             :loading="loading" placeholder="请选择">
-                    <el-option
-                      v-for="item in general"
-                      :key="item.id"
-                      :label="item.name"
-                      :value="item.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="相关专业" style="text-align: left">
-                  <el-cascader :props="props" :options="options" v-model="project.tec"
-                               style="margin-left: 20px"  :filterable="true"></el-cascader>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-button type="primary" size="mini" @click="updProject" round style="margin-left: 80%">确 定</el-button>
-          </el-main>
-        </el-form>
-        <el-header style="background: #B3C0D1 ;color: #333; text-align: left;height:40px;padding-top: 10px" >
-          <el-row>
-            <el-col :span="8">卷册管理</el-col>
-            <el-col :span="16" align="right">
-              <el-button type="primary" size="mini"   @click="handleAdd" plain>新增卷册</el-button>
-            </el-col>
-          </el-row>
-        </el-header>
-        <el-form :model="volume">
-          <el-main>
-                <el-form-item label="卷册号" style="width: 80%; ">
-                  <el-input type="text"  v-model="volume.number" style="width: 80%;margin-left: 15px"></el-input>
-                </el-form-item>
-                <el-form-item label="卷册名称" style="width: 80%">
-                  <el-input type="text"  v-model="volume.name" style="width: 80%"></el-input>
-                </el-form-item>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="卷册等级" >
-                      <el-input type="number" inline  v-model="volume.grade" style="width: 50%;margin-right: 26px"></el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="专业" >
-                      <el-select v-model="volume.tec" placeholder="请选择" @change="getUserByTec" style="width: 50%;margin-left: 15px">
-                        <el-option
-                          v-for="item in tecList"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="设计人" >
-                      <el-select v-model="volume.designer" filterable  placeholder="请选择"  style="width: 50%;margin-left: -15px">
-                        <el-option
-                          v-for="item in userList"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="互校人">
-                      <el-select v-model="volume.checker"  filterable placeholder="请选择"  style="width: 50%">
-                        <el-option
-                          v-for="item in userList"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="计划出版时间">
-                      <el-date-picker
-                        v-model="volume.planned_publication_date"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%;margin-left:  -60px">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="实际出版时间">
-                      <el-date-picker
-                        v-model="volume.actual_publication_date"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%;margin-left:  -45px">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="接收对外专业资料时间" style="margin-left: -15px" >
-                      <el-date-picker
-                        v-model="volume.professional_date"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="对外提资时间">
-                      <el-date-picker
-                        v-model="volume.withdrawal_date"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%;margin-left:  -45px">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="出手日期" >
-                      <el-date-picker
-                        v-model="volume.shot_date"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%;margin-left:  -30px">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="完成日期">
-                      <el-date-picker
-                        v-model="volume.complete_time"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%;margin-left:  -15px">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-button type="primary" size="mini" @click="updVolume"  round style="margin-left: 80%">确 定</el-button>
-          </el-main>
-        </el-form>
-      </el-container>
-    </el-dialog>
-    <el-dialog
-      title="新增页面"
-      :visible.sync="addVolume"
-      width="60%" >
-      <el-container>
-        <el-header style="background: #B3C0D1 ;color: #333; text-align: left;height:40px;padding-top: 10px" >
-          <el-row>
-            <el-col :span="8">卷册新增</el-col>
-          </el-row>
-        </el-header>
-        <el-form :model="newVolume" ref="newVolume">
-          <el-main>
-            <el-carousel height="500px" :autoplay=false>
-              <el-carousel-item>
-                <el-form-item label="卷册号" style="width: 80%; " prop="number">
-                  <el-input type="text"  v-model="newVolume.number" style="width: 80%;margin-left: 15px"></el-input>
-                </el-form-item>
-                <el-form-item label="卷册名称" style="width: 80%">
-                  <el-input type="text"  v-model="newVolume.name" style="width: 80%"></el-input>
-                </el-form-item>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="卷册等级" prop="grade">
-                      <el-input type="number" inline  v-model="newVolume.grade" style="width: 50%;margin-right: 26px"></el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="专业" >
-                      <el-select v-model="newVolume.tec" placeholder="请选择"  style="width: 50%;margin-left: 15px">
-                        <el-option
-                          v-for="item in tecList"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="12" >
-                    <el-form-item label="设计人" prop="designer">
-                      <el-select v-model="newVolume.designer" filterable  placeholder="请选择"  style="width: 50%;margin-left: -15px">
-                        <el-option
-                          v-for="item in userList"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="互校人" prop="checker">
-                      <el-select v-model="newVolume.checker"  filterable placeholder="请选择"  style="width: 50%">
-                        <el-option
-                          v-for="item in userList"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="12" >
-                    <el-form-item label="计划出版时间" prop="planned_publication_date">
-                      <el-date-picker
-                        v-model="newVolume.planned_publication_date"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%;margin-left:  -60px">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="对外提资时间" prop="withdrawal_date">
-                      <el-date-picker
-                        v-model="newVolume.withdrawal_date"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%;margin-left:  -45px">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="接收对外专业资料时间" style="margin-left: -15px" prop="professional_date" >
-                      <el-date-picker
-                        v-model="newVolume.professional_date"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-button type="primary" size="mini" @click="addVolumeMethod"  round style="margin-left: 80%">确 定</el-button>
-              </el-carousel-item>
-            </el-carousel>
-          </el-main>
-        </el-form>
-      </el-container>
-    </el-dialog>
-  <el-dialog title="Excel导入"
-             :visible.sync="visible"
-             width="40%"
-             style="padding:0;" @close="visible = false">
-    <el-row style="text-align: center">
-      <el-col >
-        <span>项目上传</span>
-        <el-upload
-          style="margin-top: 10px"
-          class="upload-demo"
-          ref="upload"
-          :action="this.$baseUrl + 'excel/project'"
-          :on-preview="handlePreview"
-          :on-remove="handleRemove"
-          :file-list="fileList"
-          :on-success="handle_success">
-          <el-button size="small" type="primary">点击上传</el-button>
-          <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
-        </el-upload>
-      </el-col>
-    </el-row>
-  </el-dialog>
-    <el-dialog
-      title="新增"
-      :visible.sync="addProject"
-      width="60%">
-      <el-container>
-        <el-header style="background: #B3C0D1 ;color: #333; text-align: left;height:40px;padding-top: 10px" >
-          <el-row>
-            <el-col :span="8">项目新增</el-col>
-          </el-row>
-        </el-header>
-        <el-form :model="newProject" ref="newProject">
-          <el-main>
-            <el-form-item label="项目名称" style="width: 80%">
-              <el-input type="text"  v-model="newProject.name" style="width: 80%"></el-input>
-            </el-form-item>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="设总" style="text-align: left">
-                  <el-select v-model="newProject.general" :filterable="true"  :remote="true" multiple
-                             :remote-method="remoteMethod"
-                             :loading="loading" placeholder="请选择">
-                    <el-option
-                      v-for="item in general"
-                      :key="item.id"
-                      :label="item.name"
-                      :value="item.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="相关专业" style="text-align: left">
-                  <el-cascader :props="props" :options="options" v-model="newProject.tec"
-                               style="margin-left: 20px"  :filterable="true" @change="addProjectTec"></el-cascader>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-main>
-        <el-header style="background: #B3C0D1 ;color: #333; text-align: left;height:40px;padding-top: 10px" >
-          <el-row>
-            <el-col :span="8">卷册新增</el-col>
-          </el-row>
-        </el-header>
-          <el-main>
-            <div v-for="(item,index) in newProject.volumes" :key="index">
-              <el-divider content-position="left">新增卷册{{index+1}}</el-divider>
-                <el-form-item label="卷册号" :prop="'volumes.'+index+'.number'" style="width: 80%; ">
-                  <el-input type="text"  v-model="item.number" style="width: 80%;margin-left: 15px"></el-input>
-                </el-form-item>
-                <el-form-item label="卷册名称" :prop="'volumes.'+index+'.name'" style="width: 80%">
-                  <el-input type="text"  v-model="item.name" style="width: 80%"></el-input>
-                </el-form-item>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="卷册等级" :prop="'volumes.'+index+'.grade'">
-                      <el-input type="number" inline  v-model="item.grade" style="width: 50%;margin-right: 26px"></el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="专业" :prop="'volumes.'+index+'.tec'">
-                      <el-select v-model="item.tec" placeholder="请选择"  style="width: 50%;margin-left: 15px"  @change="getUserByTec">
-                        <el-option
-                          v-for="item in tecList"
-                          :key="item.id"
-                          :label="item.name"
-                          :value="item.id">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="12">
-                    <el-form-item label="设计人" :prop="'volumes.'+index+'.designer'" >
-                      <el-select v-model="item.designer" filterable  placeholder="请选择"  style="width: 50%;margin-left: -15px">
-                        <el-option
-                          v-for="item in userList"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="互校人" :prop="'volumes.'+index+'.checker'">
-                      <el-select v-model="item.checker"  filterable placeholder="请选择"  style="width: 50%">
-                        <el-option
-                          v-for="item in userList"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              <el-row>
-                <el-col :span="12">
-                  <el-form-item label="计划出版时间" :prop="'volumes.'+index+'.plannedPublicationDate'">
-                    <el-date-picker
-                      v-model="item.plannedPublicationDate"
-                      type="date"
-                      format="yyyy-MM-dd"
-                      value-format="timestamp"
-                      placeholder="选择日期" style="width: 50%;margin-left:  -60px">
-                    </el-date-picker>
-                  </el-form-item>
-                </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="对外提资时间" :prop="'volumes.'+index+'.withdrawalDate'">
-                      <el-date-picker
-                        v-model="item.withdrawalDate"
-                        type="date"
-                        format="yyyy-MM-dd"
-                        value-format="timestamp"
-                        placeholder="选择日期" style="width: 50%;margin-left:  -45px">
-                      </el-date-picker>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              <el-row>
-                <el-col :span="12">
-                  <el-form-item label="接收对外专业资料时间"  :prop="'volumes.'+index+'.professionalDate'" >
-                    <el-date-picker
-                      v-model="item.professionalDate"
-                      type="date"
-                      format="yyyy-MM-dd"
-                      value-format="timestamp"
-                      placeholder="选择日期" style="width: 50%">
-                    </el-date-picker>
-                  </el-form-item>
-                </el-col>
-                <el-button type="danger" v-if="index !==0" size="mini" icon="el-icon-delete" circle
-                style="margin-left: 30px" @click="deleteItem"></el-button>
-              </el-row>
-
-            </div>
-            <el-row>
-              <el-button size="mini" @click="addItem">新增卷册</el-button>
-              <el-button type="primary" size="mini" @click="addProjectMethod"  round  >确 定</el-button>
-            </el-row>
-          </el-main>
-        </el-form>
-      </el-container>
-    </el-dialog>
-    <el-dialog
-      title="新增临时人员"
-      :visible.sync="temporaryDialog"
-      width="50%" style="text-align: center">
-      <template>
-        <u-table
-          :data="temporaryPersonal"
-          style="width: 100%">
-          <u-table-column
-            prop="name"
-            label="姓名"
-            min-width="40" >
-          </u-table-column>
-          <u-table-column
-            prop="username"
-            label="临时用户名"
-          min-width="60%">
-          </u-table-column>
-        </u-table>
-      </template>
-      <el-button type="primary" @click="temporaryDialog = false"   >确 定</el-button>
-  </el-dialog>
     <el-dialog
       title="Excel导出"
       :visible.sync="excelDialog"
       width="40%" style="text-align: center">
       <el-row >
         <el-col :span="24" align="center">
-      <template>
         <el-date-picker
           v-model="downMonth"
-          type="daterange"
-          value-format="yyyy-MM-dd"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期">
+          type="month"
+          value-format="yyyy-MM"
+          placeholder="选择月">
         </el-date-picker>
-      </template>
         </el-col>
       </el-row>
       <el-row align="center" style="margin-top: 20px">
         <el-button @click="downExcel()" style="width: 250px">各项目专业工时分配与使用下载</el-button>
       </el-row>
       <el-row align="center"style="margin-top: 20px">
-        <el-button @click="downExcel1()" style="width: 250px">各项目个人工时分配下载</el-button>
+        <el-button @click="downExcel1()" style="width: 250px">各项目个人完成卷册数量下载</el-button>
       </el-row>
       <el-row align="center" style="margin-top: 20px">
-        <el-button @click="downExcel2()" style="width: 250px">各项目卷册数据下载</el-button>
+        <el-button @click="downExcel2()" style="width: 250px">各项目完成卷册信息下载</el-button>
       </el-row>
     </el-dialog>
     <el-dialog
@@ -597,12 +112,12 @@
         </u-table-column>
       </u-table>
     </el-dialog >
-    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
-    </news-dialog>
   </div>
 </template>
 
 <script>
+import storage from "../../store";
+
 export default {
   "name": "AdminProject",
   "data"() {
@@ -614,31 +129,15 @@ export default {
       expands: [],
       id: "",
       pid: "",
-      tid : "",
       isShow : false,
       list: [],
       project: {
       },
       volume: {},
-      tecList: [],
-      userList: [],
-      listIndex: 0,
-      meshRow: 0,
-      dialogVisible: false,
       projectVisible:false,
-      volumeVisible: false,
-      visible : false,
       options: [],
       fileList : [],
       proNum:'',
-      volumeLoading: true,
-      props: {
-        checkStrictly: true,
-        multiple: true,
-        value: 'id',
-        label: 'name',
-        children: 'list'
-      },
       state: [
         {
           value: 0,
@@ -650,24 +149,16 @@ export default {
         }
       ],
       general : [],
-      openId : '',
       loading : false,
       newVolume : {},
-      addVolume : false,
       new_pid: null,
       newProject : {
         volumes : []
       },
       addProject : false,
-      addTec : [],
-      temporaryDialog : false,
-      temporaryPersonal :[],
       excelDialog : false,
       downMonth : "",
       volumeMonth:new Date().getMonth()+1,
-      filterMethod(query, item) {
-        return item.pinyin.indexOf(query) > -1;
-      },
       pickerOptions: {
         shortcuts: [{
           text: '最近一周',
@@ -695,7 +186,6 @@ export default {
           }
         }]
       },
-      pickerValue:null,
       principalList:[],
       designerList:[],
       nowWeek : "",
@@ -720,10 +210,11 @@ export default {
     openExcel(){
       const date = new Date();
       const end = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
-      const date1 = new Date();
-      date1.setTime(date1.getTime() - 3600 * 1000 * 24 * 30)
-      const start = date1.getFullYear() + "-" + (date1.getMonth()+1) + "-" + date1.getDate();
-      this.downMonth = [start,end]
+      // const date1 = new Date();
+      // date1.setTime(date1.getTime() - 3600 * 1000 * 24 * 30)
+      // const start = date1.getFullYear() + "-" + (date1.getMonth()+1) + "-" + date1.getDate();
+      this.downMonth = date.getFullYear() + "-" + (date.getMonth()+1)
+      // this.downMonth = [start,end]
       this.excelDialog = true;
     },
     clickRowHandle(row, column, event) {
@@ -809,45 +300,6 @@ export default {
       //把每一行的索引放进row
       row.index = rowIndex;
     },
-    "handleEdit"(v, w) {
-      this.new_pid = w.pid;
-      this.$axios
-        .post(this.$baseUrl + 'project/queryById', {}, {"headers": {'id': w.pid}}
-        )
-        .then(res => {
-          this.project = res.data.data
-        })
-        .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'volume/queryById', {}, {"headers": {'id': w.vid}}
-        )
-        .then(res => {
-          this.volume = res.data.data
-        })
-        .catch(res => (console.log(res)));
-      this.dialogVisible = true;
-      this.$axios
-        .post(this.$baseUrl + 'technology/queryToSelected')
-        .then(res => {
-          this.options = res.data.data
-        })
-        .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'projectTec/query', {}, {"headers": {'id': w.pid}}
-        )
-        .then(res => {
-          this.tecList = res.data.data
-        })
-        .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'user/queryByTec', {}, {"headers": {'id': w.tid}}
-        )
-        .then(res => {
-          this.userList = res.data.data
-        })
-        .catch(res => (console.log(res)));
-    },
-
     "updProject"() {
       let projectUsers = [];
       let projectTec = [];
@@ -946,10 +398,6 @@ export default {
         }
       }
     },
-    handleAdd(){
-      this.newVolume = {}
-      this.addVolume = true;
-    },
     addVolumeMethod(){
       this.addVisible = true;
       this.$axios
@@ -1005,59 +453,72 @@ export default {
           "id" : r.id,
           "spider" : r.spider
         })
+        .then(res =>{this.getData()})
         .catch(res => (console.log(res)));
-    },
-    addProjectMethod(){
-      let projectUsers = [];
-      let projectTec = [];
-      for (let i = 0; i < this.newProject.tec.length; i++) {
-        console.log(this.newProject.tec[i])
-        projectTec.push(this.newProject.tec[i][0])
-        projectUsers.push(this.newProject.tec[i][1])
-      }
-      this.$axios
-        .post(this.$baseUrl + 'project/add',{
-
-          "name" : this.newProject.name,
-          "creator" : this.id,
-          "creatorTime" : new Date().getTime(),
-          "general" : this.newProject.general,
-          "projectTec" : projectTec,
-          "projectUsers" : projectUsers,
-          "volumes" : this.newProject.volumes
-        })
-        .then(res => {if(res.data.code === 0)
-          this.$message("操作成功")
-        else this.$message.error("操作失败，请重试")})
-        .catch(res => (console.log(res)));
-    },
-    addItem() {
-        this.newProject.volumes.push({
-        number : '',
-        name: '',
-        grade:'',
-        tec:'' ,
-        designer: '',
-        checker: '',
-        professionalDate : '',
-        withdrawalDate : '',
-        plannedPublicationDate : ''
-      });
-    },
-    deleteItem (item, index) {
-      this.newProject.volumes.splice(index, 1)
     },
     downExcel() {
+      let that = this;
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'projectExcel/statisticAll?minDay=' + this.downMonth[0]+'&maxDay='+this.downMonth[1];
+      let xhr = new XMLHttpRequest();
+      let u =  this.$baseUrl + 'projectExcel/statisticAll?date=' + this.downMonth;
+      xhr.open("get", u, true); // get、post都可
+      xhr.responseType = "blob";  // 转换流
+      xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
+      xhr.onload = function() {
+        if (this.status === 200) {
+          let blob = this.response;
+          let a = document.createElement("a")
+          let url = window.URL.createObjectURL(blob)
+          a.href = url
+          a.download =  that.downMonth + "专业工时分配与使用表.xlsx"  // 文件名
+          a.click()
+          window.URL.revokeObjectURL(url)
+        }
+      }
+    xhr.send();
+      // window.location.href = this.$baseUrl + 'projectExcel/statisticAll?minDay=' + this.downMonth[0]+'&maxDay='+this.downMonth[1];
     },
      downExcel1() {
-      this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'projectExcel/everyoneAll?minDay=' + this.downMonth[0]+'&maxDay='+this.downMonth[1];
+       let that = this;
+       this.$message.success("即将开始下载");
+       let xhr = new XMLHttpRequest();
+       let u =  this.$baseUrl + 'projectExcel/everyoneAll?date=' + this.downMonth;
+       xhr.open("get", u, true); // get、post都可
+       xhr.responseType = "blob";  // 转换流
+       xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
+       xhr.onload = function() {
+         if (this.status === 200) {
+           let blob = this.response;
+           let a = document.createElement("a")
+           let url = window.URL.createObjectURL(blob)
+           a.href = url
+           a.download =  that.downMonth + "个人完成卷册数量表.xlsx"  // 文件名
+           a.click()
+           window.URL.revokeObjectURL(url)
+         }
+       }
+       xhr.send();
     },
     downExcel2() {
+      let that = this;
       this.$message.success("即将开始下载");
-      window.location.href = this.$baseUrl + 'projectExcel/volumeAll?minDay=' + this.downMonth[0]+'&maxDay='+this.downMonth[1];
+      let xhr = new XMLHttpRequest();
+      let u =  this.$baseUrl + 'projectExcel/volumeAll?date=' + this.downMonth;
+      xhr.open("get", u, true); // get、post都可
+      xhr.responseType = "blob";  // 转换流
+      xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
+      xhr.onload = function() {
+        if (this.status === 200) {
+          let blob = this.response;
+          let a = document.createElement("a")
+          let url = window.URL.createObjectURL(blob)
+          a.href = url
+          a.download =  that.downMonth + "项目完成卷册表.xlsx"  // 文件名
+          a.click()
+          window.URL.revokeObjectURL(url)
+        }
+      }
+      xhr.send();
     },
     addNumber(){
       this.$axios
@@ -1065,64 +526,21 @@ export default {
           number : this.proNum
         })
         .then(res => {
+          if (res.data.data.code === 0){
+            this.$message({
+              type: "success",
+              message : "已成功添加"
+            })
+          }
           this.getData();
         })
         .catch(res => (console.log(res)));
-    },
-    addProjectTec(v){
-      for (let i = 0 ; i < v.length ; i++){
-        this.addTec.push(v[i][0])
-      }
-      this.$axios
-        .post(this.$baseUrl + 'technology/queryById',{
-          projectTec : this.addTec
-        })
-        .then(res => {
-          this.tecList = res.data.data;
-          this.$forceUpdate();
-        })
-        .catch(res => (console.log(res)));
-
-    },
-    getUserByTec(v){
-      this.$axios
-        .post(this.$baseUrl + 'user/queryByTec', {}, {"headers": {'id': v}}
-        )
-        .then(res => {
-          this.userList = res.data.data;
-          this.$forceUpdate();
-        })
-        .catch(res => (console.log(res)));
-    },
-    handle_success(v){
-      console.log(v);
-      this.temporaryPersonal = v.data;
-      this.$nextTick(function () {
-        this.temporaryDialog = true;
-      })
     },
     openVolume(p){
       window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/RollEntityBill.aspx?' +
         'OrganizationId=' + p + '&secid=00000000-0000-0000-0000-000000000000&IsPortal=True')
     },
     openVolumeList(project){
-      // this.openId = id;
-      // this.$axios
-      //   .post(this.$baseUrl + 'volume/queryByProjectId', {
-      //     "id" : id,
-      //     "month" : this.volumeMonth
-      //     },
-      //   )
-      //   .then(res => {
-      //     this.volumeList = res.data.data;
-      //     this.volumeLoading = false;
-      //     this.volumeList.forEach((item,index)=>{
-      //       this.principalList.push2({value:item.principal,text:item.principal});
-      //       this.designerList.push2({value:item.designer,text:item.designer})
-      //     })
-      //   })
-      //   .catch(res => (console.log(res)));
-      // this.volumeVisible = true
       console.log(project)
       const href = this.$router.resolve(
         {
@@ -1134,39 +552,6 @@ export default {
         }
       )
       window.open( href.href,project.id)
-    },
-    filterHandler(value, row, column) {
-      // console.log(column)
-      // const property = column['property'];
-      return row['pid'] === value;
-    },
-    filterHandler1(value, row, column){
-      const property = column['property'];
-      return row[property] === value;
-    },
-    openVolume1(f){
-      // window.open('http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=' + f +
-      window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/ContentMange.aspx?actionType=1&RollID=' + f)
-    },
-    handleClose(){
-      this.volumeLoading = true;
-      this.pickerValue =null;
-      this.openId = '';
-    },
-    pickerEvent(){
-      this.$axios
-        .post(this.$baseUrl + 'volume/queryByProjectId', {
-            "id" : this.openId,
-            "month": this.volumeMonth,
-            "pickerDate" : this.pickerValue
-          },
-        )
-        .then(res => {
-          this.volumeList = res.data.data;
-          this.volumeLoading = false;
-        })
-        .catch(res => (console.log(res)));
-      this.volumeVisible = true
     },
     getWeek(){
       // date = formatTimebytype(date, 'yyyy-MM-dd');//将日期转换成yyyy-mm-dd格式

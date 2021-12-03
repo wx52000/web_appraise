@@ -9,7 +9,7 @@
     <el-menu-item index="/appraiseMain/tecAppraise" @click="toPage('/appraiseMain/tecAppraise')">专业评价</el-menu-item>
     </el-submenu>
       <el-menu-item index="/appraiseMain/construction" @click="toPage('/appraiseMain/construction')">施工图项目</el-menu-item>
-    <el-menu-item index="/appraiseMain/prophase" @click="toPage('/appraiseMain/prophase')">可研项目和业务建设</el-menu-item>
+    <el-menu-item index="/appraiseMain/prophase" @click="toPage('/appraiseMain/prophase')">前期项目和其它项目</el-menu-item>
 <!--      <el-menu-item v-if="position !== null && position.indexOf(`1`) != -1" index="/appraiseMain/headmanProject" @click="toPage('/appraiseMain/headmanProject')">组长管理</el-menu-item>-->
 <!--    <el-menu-item index="/home/main" @click="toPage('/home/main')"-->
 <!--                  style="float: right" v-if="pid == 1">系统管理</el-menu-item>-->
@@ -39,8 +39,9 @@
       width="40%"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
-      :showClose="false">
-      <div style="width:100%;text-align:center">
+      :showClose="false"
+      >
+      <div style="width:100%;text-align:center" @keyup.enter="updPaw">
       <el-form id="paw" :model="paw" :rules="ruleValidate" label-width="100px"  >
         <el-form-item prop="paw1" label="新密码"  style="width: 60%; padding-left: 15%">
           <el-input pro v-model="paw.paw1" type="password"  autocomplete="off"
@@ -129,7 +130,7 @@ export default {
           this.showadmin = power_id.find(obj =>{
             return obj === this.pid;
           })
-          if (res.data.data.paw_state === 0) {
+          if (res.data.data.pawState === 0) {
             this.visible = true;
           }
         })
@@ -143,7 +144,8 @@ export default {
         this.activeIndex = "";
         this.$router.replace('/appraiseMain/self')
       }else {
-
+        this.$storage.removeAll();
+        this.$router.push('/login')
       }
     },
     toPage(path) {
@@ -162,7 +164,7 @@ export default {
           .then(res => {
             if (res.data.code === 0) {
               this.$message("密码修改成功，请重新登录");
-              setTimeout(function () { window.location.href = "/" }, 1000)
+              setTimeout(function () { window.location.href = "/#/login" }, 1000)
 
             }
           })

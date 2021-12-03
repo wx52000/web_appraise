@@ -19,8 +19,8 @@
             <template slot="header">
               <el-switch
                 v-model="type"
-                active-text="业务建设"
-                inactive-text="可研项目"
+                active-text="其他项目"
+                inactive-text="前期项目"
                 @change="getData">
               </el-switch>
             </template>
@@ -28,8 +28,9 @@
               <el-row>
                 <el-button
                   size="mini"
+                  v-if="scope.row.role.indexOf(1) !== -1"
                   @click="openProject(scope.row)">项目管理</el-button>
-                <el-button :disabled="scope.row.role === 3"
+                <el-button :disabled="scope.row.role.indexOf(2) === -1"
                            size="mini"
                            @click="openWorkday(scope.row)">工时分配</el-button>
               </el-row>
@@ -42,7 +43,7 @@
               style="margin-left: 10px"
               :cell-style="this.CellStyleOne"
               size="mini" v-if="type">
-          <el-table-column prop="number"   label="活动名称" align="center">
+          <el-table-column prop="number"   label="活动编号" align="center">
           </el-table-column>
           <el-table-column prop="name"   label="活动名称" align="center">
           </el-table-column>
@@ -60,8 +61,8 @@
             <template slot="header">
               <el-switch
                 v-model="type"
-                active-text="业务建设"
-                inactive-text="可研项目"
+                active-text="其他项目"
+                inactive-text="前期项目"
                 @change="getData">
               </el-switch>
             </template>
@@ -69,8 +70,9 @@
               <el-row>
                 <el-button
                            size="mini"
+                           v-if="scope.row.role.indexOf(1) !== -1"
                            @click="openProject(scope.row)">项目管理</el-button>
-                <el-button :disabled="scope.row.role === 3"
+                <el-button :disabled="scope.row.role.indexOf(2) === -1"
                            size="mini"
                            @click="openWorkday(scope.row)">工时分配</el-button>
               </el-row>
@@ -139,22 +141,31 @@
             </template>
           </el-form-item>
           <el-row v-for="(item,index) in form.principal " style="margin-top: 5px" :key="index ">
-            <el-col :span="12">
-              {{formLabel.principal}}<el-select v-model="item.name" size="mini"
-                                                :filterable="true"  :remote="true"
-                                                :remote-method="remoteMethod"
-                                                :loading="nameLoading"
-                                                style="width: 50%"
-                                                placeholder="请输入人员姓名或工号"
-                                                @change="selectPrincipal($event,index)">
+            <el-col :span="7">
+              {{formLabel.tec}}<el-select v-model="item.tec" size="mini"
+                                          style="width: 50%"
+                                          placeholder="请输入人员姓名或工号"
+                                          @change="selectTec($event,index)">
               <el-option
-                v-for="item in nameList"
+                v-for="item in tecList"
                 :key="item.id"
                 :label="item.name"
                 :value="item">
               </el-option></el-select>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="7">
+              {{formLabel.principal}}<el-select v-model="item.name" size="mini"
+                                                style="width: 50%"
+                                                placeholder="请输入人员姓名或工号"
+                                                @change="selectPrincipal($event,index)">
+              <el-option
+                v-for="item in item.nameList"
+                :key="item.id"
+                :label="item.name"
+                :value="item">
+              </el-option></el-select>
+            </el-col>
+            <el-col :span="10">
               可分配工时:<el-input type="type" size="mini" style="width: 50%" v-model="item.workday"></el-input>
               <el-button icon="el-icon-circle-plus-outline"
                          size="mini" circle @click="addItemPrincipal(index)"></el-button>
@@ -250,14 +261,21 @@ export default {
         workday : "",
         general : [],
         date : [],
-        principal : [],
+        principal : [{
+          tec : "",
+          name : "",
+          tid : "",
+          workday : 0}
+        ],
       },
+      tecLoading : false,
       workdayNumber : 0,
       usable : "",
       used : "",
       visible_workday :false,
       workday : [],
       dialogId  : "",
+      tecList : [],
     }
   },
   computed: {
@@ -373,6 +391,7 @@ export default {
     },
     openProject(row){
       this.disabled = true;
+      this.openNewProject()
       if (!this.type) {
         this.$axios
           .post(this.$baseUrl + 'virtual/queryById',{
@@ -397,12 +416,11 @@ export default {
           })
           .catch(res => (console.log(res.data)))
       }
-      this.openNewProject()
       this.visible = true;
     },
     openNewProject(){
       if (!this.type) {
-        this.title = "新增可研项目"
+        this.title = "前期项目管理"
         this.formLabel = {
           number : "项目编号",
           name : "项目名称",
@@ -412,17 +430,36 @@ export default {
           date : false,
         }
       }else {
-        this.title = "新增业务建设"
+        this.title = "其它项目管理"
         this.formLabel = {
-          number : "活动编号",
-          name : "活动名称",
-          workday : "活动工时",
-          general : "活动主管",
-          principal : "活动管理员:",
-          date : true,
+          number: "活动编号",
+          name: "活动名称",
+          workday: "活动工时",
+          general: "活动主管",
+          principal: "活动管理员:",
+          date: true,
         }
       }
+        if ( this.tecList.length <= 0) {
+          this.$axios
+            .post(this.$baseUrl + 'technology/queryAll')
+            .then(res => {
+              this.tecList = res.data.data
+            })
+            .catch(res => (console.log(res.data)))
+        }
       this.visible = true;
+    },
+    selectTec(val,index){
+      this.form.principal[index].tec = val.name;
+      this.form.principal[index].tid = val.id;
+      this.$axios
+        .post(this.$baseUrl + 'user/queryByTid',{},{headers :{ id : val.id}})
+        .then(res => {
+          this.form.principal[index].nameList = res.data.data
+          this.$forceUpdate();
+        })
+        .catch(res => (console.log(res.data)))
     },
     selectPrincipal(val,index){
       this.form.principal[index].name = val.name;
@@ -432,9 +469,12 @@ export default {
       this.workday[index].name = val.name;
       this.workday[index].id = val.id
     },
-
     addItemPrincipal(){
-      this.form.principal.push({name:""})
+      this.form.principal.push({
+        tec : "",
+        name : "",
+        tid : "",
+        workday : 0})
 
     },
     removeItemPrincipal(index){
@@ -502,17 +542,7 @@ export default {
     openExcel(){
       this.excelDialog = true;
     },
-    ratioSubmit(){
-      if (this.ruled === true) {
-        this.$axios
-          .post(this.$baseUrl + 'projectWorkDay/setTecVolumeRatio',
-            this.ratio)
-          .then(res => {
-            this.ratioDialog = false;
-          })
-          .catch(res => (console.log(res)));
-      }else this.$message.error("比例总和不得超过100%")
-    },
+
     remoteMethod(query) {
       if (query !== '') {
         this.nameLoading = true;

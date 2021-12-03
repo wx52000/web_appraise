@@ -21,7 +21,7 @@ import ProjectMain from "../components/navbar/ProjectMain";
 import Project from "../components/workday/Project";
 import ProjectVolume from "../components/workday/ProjectVolume";
 import ProjectWorkday from "../components/workday/ProjectWorkday";
-import Virtual from "../components/workday/AdminProphase";
+import AdminProphase from "../components/workday/AdminProphase";
 import news from "../components/other/news";
 import Business from "../components/workday/Business";
 import BusinessManage from "../components/workday/BusinessManage";
@@ -31,6 +31,10 @@ import MajorWorkday from "../components/workday/MajorWorkday";
 import BackupWorkday from "../components/workday/BackupWorkday";
 import Self from "../components/Self";
 import Workday from "../components/admin/Workday";
+import { Message } from 'element-ui'
+import  storage  from  "../store/index"
+import WorkdayLog from "../components/workday/WorkdayLog";
+import BackupLog from "../components/workday/BackupLog";
 
 Vue.use(Router)
 
@@ -48,76 +52,15 @@ Router.prototype.replace = function replace (to) {
 const router = new Router({
   routes: [
     {
-      path: '/home',
-      name: 'Home',
-      component: Home,
-      children:[
-        {
-          path: 'main',
-          name: 'main',
-          component: Main
-        },
-        {
-          path: 'workday',
-          name: 'workday',
-          component: Workday
-        },
-        {
-          path: 'perScore',
-          name: 'score',
-          component: Score
-        },
-        {
-          path: 'perDetails',
-          name: 'details',
-          component: Details
-        },
-        {
-          path: 'tecScore',
-          name: 'tecScore',
-          component: TecScore
-        },
-        {
-          path: 'tecDetails',
-          name: 'tecDetails',
-          component: TecDetails
-        },
-        {
-          path: 'personal',
-          name: 'personal',
-          component: Personal
-        },
-        {
-          path: 'department',
-          name: 'department',
-          component: Department
-        },
-        {
-          path: 'appraiseManage',
-          name: 'appraiseManage',
-          component: AppraiseManage
-        },
-        {
-          path: 'adminProject',
-          name: 'adminProject',
-          component: AdminProject
-        },
-        {
-          path: 'virtual',
-          name: 'virtual',
-          component: Virtual
-        },
-        {
-          path: 'business',
-          name: 'business',
-          component: Business
-        },
+      path: '',
+      name: 'self',
+      component: AppraiseMain,
+      children: [
+        {path: '',
+          name: 'Main',
+          component: Self,
+        }
       ]
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: Login
     },
     {
       path: '/appraiseMain',
@@ -126,9 +69,9 @@ const router = new Router({
       children: [
         {
           path: '',
-          name: 'Main',
+          name: 'self',
           component: Self,
-       },
+        },
         {
           path: 'self',
           name: 'self',
@@ -163,7 +106,99 @@ const router = new Router({
           path: 'showProject',
           name: 'showProject',
           component: ShowProject
-        },]
+        },
+      ]
+    },
+    {
+      path: '/home',
+      name: 'Home',
+      component: Home,
+      meta :{ role : ["超级管理员","管理员","主任"] },
+      children:[
+        {
+          path: '',
+          name: 'main',
+          component: Main,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'main',
+          name: 'main',
+          component: Main,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'workday',
+          name: 'workday',
+          component: Workday,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'perScore',
+          name: 'score',
+          component: Score,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'perDetails',
+          name: 'details',
+          component: Details,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'tecScore',
+          name: 'tecScore',
+          component: TecScore,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'tecDetails',
+          name: 'tecDetails',
+          component: TecDetails,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'personal',
+          name: 'personal',
+          component: Personal,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'department',
+          name: 'department',
+          component: Department,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'appraiseManage',
+          name: 'appraiseManage',
+          component: AppraiseManage,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'adminProject',
+          name: 'adminProject',
+          component: AdminProject,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'adminProphase',
+          name: 'adminProphase',
+          component: AdminProphase,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+        {
+          path: 'business',
+          name: 'business',
+          component: Business,
+          meta :{ role : ["超级管理员","管理员","主任"] },
+        },
+      ]
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
     },
     {
       path: '/businessManage',
@@ -201,6 +236,16 @@ const router = new Router({
           name: 'backupWorkday',
           component: BackupWorkday
         },
+        {
+          path: 'workdayLog',
+          name: 'workdayLog',
+          component: WorkdayLog
+        },
+        {
+          path: 'backupLog',
+          name: 'backupLog',
+          component: BackupLog
+        },
       ]
     }
   ]
@@ -210,7 +255,7 @@ router.beforeEach((to, from, next) => {
   if (to.path === '/login') {
     next();
   } else {
-    let token = localStorage.getItem('Authorization');
+    let token = storage.get('Authorization');
     if (token === null || token === '') {
       store.remove('TOKEN')
       next({
@@ -220,7 +265,19 @@ router.beforeEach((to, from, next) => {
         } // 将刚刚要去的路由path（却无权限）作为参数，方便登录成功后直接跳转到该路由
       });
     } else {
-      next();
+      let reg = RegExp('home')
+      if (reg.test(to.path)) {
+        if (to.meta.role.indexOf( storage.get("role")) !== -1) {
+          next();
+        }else {
+          Message({
+            message: "暂无权限访问",
+            type: 'error'
+          })
+        }
+      } else {
+        next();
+      }
     }
   }
 });

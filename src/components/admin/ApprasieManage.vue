@@ -225,11 +225,11 @@ export default {
       grade : 0,
       weightPage: "主任",
       weightTabs :[
-        {id:2, name : "主任"},
-        {id:3, name : "经理"},
-        {id:4, name : "设总"},
-        {id:5, name : "主设人"},
-        {id:6, name : "设计人"},
+        {id:1, name : "主任"},
+        {id:2, name : "经理"},
+        {id:3, name : "设总"},
+        {id:4, name : "主设人"},
+        {id:5, name : "设计人"},
       ],
       weightList : [],
     }
@@ -382,7 +382,7 @@ export default {
     getWeight() {
       this.$axios
         .post(this.$baseUrl + 'position/queryByWeight',{},
-          {headers : {"id" : 2}})
+          {headers : {"id" : 1}})
         .then(res => {
           this.weightList = res.data.data;
           this.weightVisible = true

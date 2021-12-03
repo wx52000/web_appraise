@@ -10,10 +10,10 @@
     <el-descriptions-item label="卷册工时">
       <span>{{information.volume}}</span>
     </el-descriptions-item>
-    <el-descriptions-item label="可研项目工时">
+    <el-descriptions-item label="前期项目工时">
       <span>{{information.virtual}}</span>
     </el-descriptions-item>
-    <el-descriptions-item label="业务建设工时">
+    <el-descriptions-item label="其它项目工时">
       <span>{{information.activity}}</span>
     </el-descriptions-item>
   </el-descriptions>
@@ -59,7 +59,7 @@ const type = [{id :1, explain : "卷册工时"},
   {id :3, explain : "卷册发放剩余"},
   {id :4, explain : "备用工时"},
   {id :5, explain : "初设项目工时"},
-  {id :6, explain : "业务建设工时"}]
+  {id :6, explain : "其它项目工时"}]
 export default {
 name: "Self",
   data(){
@@ -91,9 +91,13 @@ name: "Self",
           this.information.name = data.user.name;
           this.information.technology = data.user.technology;
           this.information.department = data.user.department;
-          this.information.volume = data.volume.designer + data.backup +
-            data.volume.checker + data.volume.principal + data.volume.headman;
-          this.information.workday = this.information.volume + data.virtual + data.activity
+          data.backup = this.$myMethod.nullTo0(data.backup)
+          this.information.volume = Number(data.volume.designer) + Number(data.backup) +
+            Number(data.volume.checker) + Number(data.volume.principal) + Number(data.volume.headman);
+          data.activity = this.$myMethod.nullTo0(data.activity);
+          data.virtual = this.$myMethod.nullTo0(data.virtual);
+          console.log(data.virtual)
+          this.information.workday = Number(this.information.volume) + Number(data.virtual) + Number(data.activity)
           this.information.virtual = data.virtual
           this.information.activity = data.activity
           console.log(this.information)
@@ -106,7 +110,7 @@ name: "Self",
           console.log(this.logList)
         })
         .catch(res => (console.log(res)));
-    }
+    },
   },
 }
 </script>

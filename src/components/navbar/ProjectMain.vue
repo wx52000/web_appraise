@@ -9,15 +9,22 @@
       <el-menu-item index="/projectMain/projectVolume"
                     @click="toPage('/projectMain/projectVolume')">卷册列表</el-menu-item>
 
-      <el-submenu index="/workday/">
-        <template slot="title">工时管理</template>
+      <el-submenu index="/workday/" v-if="show">
+        <template slot="title">工时分配</template>
         <el-menu-item index="/projectMain/projectWorkday"
-                      @click="toPage('/projectMain/projectWorkday')">项目工时管理</el-menu-item>
+                      @click="toPage('/projectMain/projectWorkday')">项目工时分配</el-menu-item>
         <el-menu-item index="/projectMain/majorWorkday"
-                      @click="toPage('/projectMain/majorWorkday')">专业工时管理</el-menu-item>
+                      @click="toPage('/projectMain/majorWorkday')">专业工时分配</el-menu-item>
         <el-menu-item index="/projectMain/backupWorkday"
-                      @click="toPage('/projectMain/backupWorkday')">备用工时管理</el-menu-item>
+                      @click="toPage('/projectMain/backupWorkday')">备用工时分配</el-menu-item>
       </el-submenu>
+      <el-submenu index="/log/" v-if="show">
+      <template slot="title">工时日志</template>
+      <el-menu-item index="/projectMain/WorkdayLog"
+                    @click="toPage('/projectMain/WorkdayLog')">专业工时日志</el-menu-item>
+      <el-menu-item index="/projectMain/BackupLog"
+                    @click="toPage('/projectMain/BackupLog')">备用工时日志</el-menu-item>
+    </el-submenu>
     </el-menu>
   </div>
   <div style="position:absolute;right: 0;top:15px;width: 25%;">
@@ -69,10 +76,12 @@ name: "ProjectMain",
     projectId : "",
     activeIndex : "/projectMain/project",
     project : {},
+    show : false,
     }
   },
   mounted() {
     this.getParams();
+    this.getLogIn();
     this.activeIndex = this.$route.path
   },
   methods:{
@@ -90,10 +99,14 @@ name: "ProjectMain",
       this.projectId = this.$route.query.project_id;
       this.$axios.post(this.$baseUrl + "project/queryById",
         {},{headers: {id : this.projectId}})
-        .then(res => {this.project = res.data.data;})
+        .then(res => {this.project = res.data.data;
+        this.show = res.data.data.show
+          this.$nextTick(() =>{
+            console.log(this.project)
+            document.title = this.project.name
+          },10)})
         .catch(res => console.log(res.data))
     },
-
     toPage(path) {
       this.$router.replace(
         {

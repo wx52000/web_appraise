@@ -1,7 +1,7 @@
 <template>
     <div style="width:80%;text-align: center;margin-left: 10%">
       <el-row align="center" style="text-align: center;margin-top: 1%">
-        <span style="font-size: 18px;">专业工时管理</span>
+        <span style="font-size: 18px;">专业工时分配</span>
       </el-row>
           <el-form ref="form" :model="form"  style="width:80%;margin-top: 1%;margin-left: 10%">
             <el-row style="width: 80%">
@@ -88,10 +88,10 @@ export default {
   },
   methods:{
     AmountHandle(item){
-      item.ratio = item.workday/this.form.tec*100
+      item.ratio = Math.round(item.workday/this.form.tec*1000)/10
     },
     RatioHandle(item){
-      item.workday = this.form.tec*item.ratio*100
+      item.workday = this.form.tec*(item.ratio/100)
     },
     getData(){
       this.form.tecWorkday = [];
@@ -102,7 +102,10 @@ export default {
           this.form.tec = res.data.data.major;
           this.form.usable = res.data.data.major;
           res.data.data.workday.forEach(item => {
-            this.form.tecWorkday.push({name : item.name,ratio : item.amount/this.form.tec*100,
+            if (item.amount === undefined || item.amount === ''){
+              item.amount = 0
+            }
+            this.form.tecWorkday.push({name : item.name,ratio : item.amount/this.form.tec*100 || 0,
               workday : item.amount})
           })
         })

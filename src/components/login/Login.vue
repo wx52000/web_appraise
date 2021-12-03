@@ -44,20 +44,17 @@ export default{
             paw : this.password,
           })
           .then(res => {
-            let userToken = 'Bearer ' + res.data.access_token;
-            let refresh_token = res.data.refresh_token;
+            let userToken = 'Bearer ' + res.data.data.access_token;
+            let refresh_token = res.data.data.refresh_token;
+            let userString = decodeURIComponent(escape(window.atob(userToken.split('.')[1].replace(/-/g, "+").replace(/_/g, "/"))))
+            let role = JSON.parse(userString).authorities[0].trim()
             this.$storage.set('Authorization',userToken);
             this.$storage.set('refresh_token', refresh_token);
+            this.$storage.set('role',role)
             // 将用户token保存到vuex中
             this.$router.push('/appraiseMain')
           })
           .catch(res => {
-            // console.log(res)
-            // if (res.data.status === 500) {
-            //   this.$message.error("用户名或密码错误");
-            // }else {
-            //   this.$message.error("服务器出错");
-            // }
             console.log(res)
           });
       }
