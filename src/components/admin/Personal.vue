@@ -304,7 +304,11 @@ export default {
             tid : row.technology,
             did : row.department
           })
-        .then()
+        .then(
+          res =>{
+            this.getData()
+          }
+        )
         .catch(res => (console.log(res)));
     },
     pwdReset(row){

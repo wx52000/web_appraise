@@ -118,8 +118,6 @@
         </el-table>
       </template>
     </el-dialog>
-    <news-dialog class="news">
-    </news-dialog>
   </div>
 </template>
 

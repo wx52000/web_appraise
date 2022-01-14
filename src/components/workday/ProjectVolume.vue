@@ -14,7 +14,7 @@
           <el-form-item label="设计人：">
             <span>{{scope.row.designer}}</span>
           </el-form-item>
-          <el-form-item label="互校人：">
+          <el-form-item label="校核人：">
             <span>{{scope.row.checker}}</span>
           </el-form-item>
           <el-form-item label="计划出手日期：">
@@ -23,7 +23,7 @@
           <el-form-item label="出手日期：">
             <span>{{scope.row.shot_date}}</span>
           </el-form-item>
-          <el-form-item label="互校人完成时间：">
+          <el-form-item label="校核人完成时间：">
             <span>{{scope.row.proofreading_date}}</span>
           </el-form-item>
           <el-form-item label="计划出版时间：">
@@ -48,7 +48,7 @@
     <u-table-column prop="designer" label="设计人" min-width="6%" align="center"
                      :filters="designerList" :filter-method="filterHandler">
     </u-table-column>
-    <u-table-column prop="designer" label="互校人" min-width="6%" align="center"
+    <u-table-column prop="designer" label="校核人" min-width="6%" align="center"
                     :filters="checkerList" :filter-method="filterHandler">
     </u-table-column>
     <u-table-column prop="workday" label="工时" min-width="6%" align="center"
@@ -61,8 +61,8 @@
     </u-table-column>
     <u-table-column prop="state" min-width="9%"  label="状态" align="center"
                      :filters="[{text:'尚未开展',value:'尚未开展'},{text:'正在设计',value:'正在设计'},
-                          {text:'正在校审',value:'正在校审'},{text:'代送出版',value:'代送出版'},
-                          {text:'正在出版',value:'正在出版'},{text:'代送业主',value:'代送业主'},
+                          {text:'正在校审',value:'正在校审'},{text:'待送出版',value:'待送出版'},
+                          {text:'正在出版',value:'正在出版'},{text:'待送业主',value:'待送业主'},
                           {text:'已完成',value:'已完成'},{text:'院交出',value:'院交出'}]"
                      :filter-method="filterHandler">
     </u-table-column>

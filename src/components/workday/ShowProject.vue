@@ -20,9 +20,6 @@
         </el-input>
           <el-button  size="mini" style="margin-left: 15%"  type="primary" @click="getData">查询</el-button>
         </el-col>
-        <el-col :span="6">
-          <el-button size="mini" style="margin-right: 50px"  type="primary" @click="proHandler">抓取项目列表</el-button>
-        </el-col>
       </el-row>
       <el-table border size="mini" :data="list" class="el-table" :header-cell-style="{background:'#F5F5F5'}"
                 :default-sort = "{prop: 'date', order: 'descending'}"
@@ -47,7 +44,9 @@
         </el-table-column>
         <el-table-column prop="designer" min-width="11%" label="设计人" sortable>
         </el-table-column>
-        <el-table-column prop="checker" min-width="11%" label="互校人" sortable >
+        <el-table-column prop="checker" min-width="11%" label="校核人" sortable >
+        </el-table-column>
+        <el-table-column prop="headman" min-width="14%" label="组长工程师" sortable >
         </el-table-column>
         <el-table-column
           align="center"  min-width="13%" >
@@ -75,8 +74,6 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
-    </news-dialog>
   </div>
 </template>
 
@@ -113,24 +110,9 @@ name: "ShowProject",
         })
         .catch(res => (console.log(res)));
     },
-    getProject() {
-      this.$axios
-        .post(this.$baseUrl + 'project/queryByAdmin', {
-            "id": this.id
-          }
-        )
-        .then(res => {
-          this.projectList = res.data.data
-          this.projectVisible = true;
-        })
-        .catch(res => (console.log(res)));
-    },
     tableRowClassName({row, rowIndex}) {
       //把每一行的索引放进row
       row.index = rowIndex;
-    },
-    proHandler(){
-      this.getProject();
     },
     remoteMethod(query) {
       if (query !== '') {

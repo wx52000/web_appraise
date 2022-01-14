@@ -25,32 +25,32 @@
               </template>
             </el-col>
           </el-row>
-          <el-table use-virtual :row-height="50" border ref="table1" :data="list" style="width:85%"
+          <u-table use-virtual :row-height="50" border ref="table1" :data="list"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
-                    @sort-change="changeSort">
-            <u-tablecolumn prop="gname" label="评价人"
+                    @sort-change="changeSort" size = "mini">
+            <u-table-column prop="gname" label="评价人"
                              sortable="custom" min-width="10%">
-            </u-tablecolumn>
-            <u-tablecolumn prop="sname" label="得分人"
+            </u-table-column>
+            <u-table-column prop="sname" label="得分人"
                              sortable="custom" min-width="10%">
-            </u-tablecolumn>
-            <u-tablecolumn prop="technology" label="得分人专业" min-width="15%"
+            </u-table-column>
+            <u-table-column prop="technology" label="得分人专业" min-width="15%"
                              column-key="technology"
                              :filters="technologyList"
                              :filter-method="filterMethod">
-            </u-tablecolumn>
-            <u-tablecolumn prop="department" label="得分人部门" min-width="30%"
+            </u-table-column>
+            <u-table-column prop="department" label="得分人部门" min-width="30%"
                              column-key="department"
                              :filters="departmentList"
                              :filter-method="filterMethod">
-            </u-tablecolumn>
-            <u-tablecolumn prop="designer" label="质量得分" min-width="9%">
-            </u-tablecolumn>
-            <u-tablecolumn prop="personal" label="进度得分" min-width="9%">
-            </u-tablecolumn>
-            <u-tablecolumn prop="coordinate" label="配合得分" min-width="9%">
-            </u-tablecolumn>
-          </el-table>
+            </u-table-column>
+            <u-table-column prop="designer" label="质量得分" min-width="9%">
+            </u-table-column>
+            <u-table-column prop="personal" label="进度得分" min-width="9%">
+            </u-table-column>
+            <u-table-column prop="coordinate" label="配合得分" min-width="9%">
+            </u-table-column>
+          </u-table>
         </el-row>
       </el-row>
     </el-row>
@@ -98,8 +98,6 @@
         </el-main>
       </el-container>
     </el-dialog>
-    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
-    </news-dialog>
   </div>
 </template>
 
@@ -190,20 +188,6 @@ export default {
             })})
         .catch(res => (console.log(res)));
     },
-    // getOtherData(){
-    //   this.$axios
-    //     .post(this.$baseUrl + 'technology/queryNotUser',{},{headers: {'id': this.id}})
-    //     .then(res => {this.technologyList = res.data.data;
-    //       this.technologyList = JSON.parse(JSON.stringify(this.technologyList).replace(/id/g,"value").replace(
-    //         /name/g,"text"));})
-    //     .catch(res => (console.log(res)));
-    //   this.$axios
-    //     .post(this.$baseUrl + 'department/queryNotUser',{},{headers: {'id': this.id}})
-    //     .then(res => {this.departmentList = res.data.data;
-    //       this.departmentList = JSON.parse(JSON.stringify(this.departmentList).replace(/id/g,"value").replace(
-    //         /name/g,"text"));})
-    //     .catch(res => (console.log(res)));
-    // },
     filterMethod(value, row, column){
       const property = column['property'];
       return row[property] === value;

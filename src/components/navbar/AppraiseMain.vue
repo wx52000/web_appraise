@@ -4,15 +4,17 @@
   <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
     <el-menu-item index="/appraiseMain/showProject" @click="toPage('/appraiseMain/showProject')">卷册查询</el-menu-item>
     <el-submenu index="2" >
-    <template slot="title" >我的评价</template>
+    <template slot="title" >评价</template>
     <el-menu-item index="/appraiseMain/appraise" @click="toPage('/appraiseMain/appraise')">个人评价</el-menu-item>
     <el-menu-item index="/appraiseMain/tecAppraise" @click="toPage('/appraiseMain/tecAppraise')">专业评价</el-menu-item>
     </el-submenu>
-      <el-menu-item index="/appraiseMain/construction" @click="toPage('/appraiseMain/construction')">施工图项目</el-menu-item>
-    <el-menu-item index="/appraiseMain/prophase" @click="toPage('/appraiseMain/prophase')">可研项目和业务建设</el-menu-item>
+      <el-menu-item index="/appraiseMain/construction" @click="toPage('/appraiseMain/construction')">项目</el-menu-item>
 <!--      <el-menu-item v-if="position !== null && position.indexOf(`1`) != -1" index="/appraiseMain/headmanProject" @click="toPage('/appraiseMain/headmanProject')">组长管理</el-menu-item>-->
 <!--    <el-menu-item index="/home/main" @click="toPage('/home/main')"-->
 <!--                  style="float: right" v-if="pid == 1">系统管理</el-menu-item>-->
+    <el-menu-item index="/appraiseMain/managerWorkday"
+                  @click="toPage('/appraiseMain/managerWorkday')"
+      v-if="managerRole">工时查看</el-menu-item>
     <el-menu-item  style="float: right" >
       <span style="color: #dd6161">欢迎使用:</span>
       <span style="color: #e6a23c">{{name}}</span>
@@ -23,6 +25,8 @@
           command="1">管理员管理</el-dropdown-item>
             <el-dropdown-item
                               command="2">个人信息页面</el-dropdown-item>
+          <el-dropdown-item
+            command="3">密码修改</el-dropdown-item>
           <el-dropdown-item>退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -39,8 +43,9 @@
       width="40%"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
-      :showClose="false">
-      <div style="width:100%;text-align:center">
+      :showClose="false"
+      >
+      <div style="width:100%;text-align:center" @keyup.enter="updPaw">
       <el-form id="paw" :model="paw" :rules="ruleValidate" label-width="100px"  >
         <el-form-item prop="paw1" label="新密码"  style="width: 60%; padding-left: 15%">
           <el-input pro v-model="paw.paw1" type="password"  autocomplete="off"
@@ -54,10 +59,13 @@
       </el-form>
       </div>
     </el-dialog>
+      <news class="news"/>
   </div>
 </template>
 
 <script>
+
+import storage from "../../store";
 
 const power_id = [1,2,3]
 
@@ -102,6 +110,7 @@ export default {
         paw1 :"",
         paw2 :""
       },
+      managerRole : false,
       paw1Check : 0,
       paw2Check : 1,
       ruleValidate: {
@@ -115,6 +124,9 @@ export default {
     };
   },
   mounted() {
+    this.managerRole = storage.get("role") === "经理";
+    // this.managerRole = true;
+    console.log(storage.get("role") === "经理")
     this.getLogIn()
     this.activeIndex = this.$route.path
   },
@@ -129,21 +141,23 @@ export default {
           this.showadmin = power_id.find(obj =>{
             return obj === this.pid;
           })
-          if (res.data.data.paw_state === 0) {
+          if (res.data.data.pawState === 0) {
             this.visible = true;
           }
         })
         .catch(res => (console.log(res)));
     },
-
     handleCommand(command){
       if (command === "1"){
         this.$router.push('/home')
       }else if (command === "2"){
         this.activeIndex = "";
         this.$router.replace('/appraiseMain/self')
+      }else if (command === "3"){
+        this.visible = true
       }else {
-
+        this.$storage.removeAll();
+        this.$router.push('/login')
       }
     },
     toPage(path) {
@@ -162,7 +176,7 @@ export default {
           .then(res => {
             if (res.data.code === 0) {
               this.$message("密码修改成功，请重新登录");
-              setTimeout(function () { window.location.href = "/" }, 1000)
+              setTimeout(function () { window.location.href = "/#/login" }, 1000)
 
             }
           })

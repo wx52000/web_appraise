@@ -26,7 +26,7 @@
             </el-col>
           </el-row>
           <div>
-          <el-table border ref="table1" :data="list" style="width:85%"
+          <el-table border ref="table1" :data="list" size = "mini"
                     v-loading.lock="loading"  element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
@@ -119,11 +119,6 @@ name: "Score",
     getData() {
       this.$axios
         .post(this.$baseUrl + 'userScore/queryScore', {
-          "id": this.id,
-          "selectName" : this.selectName,
-          "selectType" : this.selectType,
-          "tIds": this.queryByt,
-          "dIds" : this.queryByd,
           "thisMonth"  : this.quarterNumber
         })
         .then(res => {this.list = res.data.data;
@@ -142,20 +137,6 @@ name: "Score",
     filterMethod(value, row, column){
       const property = column['property'];
       return row[property] === value;
-    },
-
-    changeSort(v){
-      if(v.order == null){
-        this.selectName = "";
-        this.selectType = ""
-      }else if(v.order === "ascending"){
-        this.selectName = v.prop
-        this.selectType = ""
-      }else if(v.order === "descending"){
-        this.selectName = v.prop
-        this.selectType = 1
-      }
-      this.getData()
     },
     setListMonth(){
       let MonthData1 = { value : this.quarterNumber, label : "本季度"};
@@ -176,10 +157,6 @@ name: "Score",
       this.listMonth.push(MonthData3);
     },
     selectData(){
-      this.selectName = "";
-      this.selectType =  "";
-      this.queryByd = null;
-      this.queryByt = null;
       this.$refs.table1.clearFilter()
       this.list = [];
       this.getData()

@@ -25,8 +25,9 @@
                 </template>
               </el-col>
             </el-row>
-          <u-table use-virtual :row-height="50" border :data="list" style="width:85%"
-                    :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne">
+          <u-table use-virtual :row-height="50" border  :data="list"
+                    :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
+          size = "mini">
 
             <u-table-column prop="department" label="部门">
             </u-table-column>

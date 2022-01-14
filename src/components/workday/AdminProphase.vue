@@ -34,8 +34,8 @@
       <template slot="header">
         <el-switch
           v-model="type"
-          active-text="业务建设"
-          inactive-text="可研项目"
+          active-text="其它项目"
+          inactive-text="前期项目"
           @change="getData()">
         </el-switch>
       </template>
@@ -71,8 +71,8 @@
       <template slot="header">
         <el-switch
           v-model="type"
-          active-text="业务建设"
-          inactive-text="可研项目"
+          active-text="其它项目"
+          inactive-text="前期项目"
           @change="getData()">
         </el-switch>
       </template>
@@ -95,13 +95,13 @@
       <el-row style="margin-right: 50px">
         <el-col :span="12">
           <el-form-item label-width="120px" :label=formLabel.number>
-            <el-input :disabled="disabled" v-model="form.number" oninput="value=value.replace(/[^\d.]/g,'')"  >
+            <el-input :disabled="disabled" v-model="form.number"  >
             </el-input>
           </el-form-item >
         </el-col>
         <el-col :span="12">
           <el-form-item label-width="120px" :label=formLabel.name>
-            <el-input :disabled="disabled" v-model="form.name" oninput="value=value.replace(/[^\d.]/g,'')">
+            <el-input :disabled="disabled" v-model="form.name">
             </el-input>
           </el-form-item>
         </el-col>
@@ -115,7 +115,6 @@
                        multiple
                        value-key="id"
                        :loading="nameLoading"
-                       @change="selectGeneral($event)"
                        placeholder="请输入人员姓名或工号">
               <el-option
                 v-for="(item,index) in nameList"
@@ -146,22 +145,30 @@
       </template>
       </el-form-item>
       <el-row v-for="(item,index) in form.principal " style="margin-top: 5px" :key="index ">
-        <el-col :span="12">
+        <el-col :span="7">
+          {{formLabel.tec}}<el-select v-model="item.tec" size="mini"
+                                            style="width: 50%"
+                                            placeholder="请输入人员姓名或工号"
+                                            @change="selectTec($event,index)">
+          <el-option
+            v-for="item in tecList"
+            :key="item.id"
+            :label="item.name"
+            :value="item">
+          </el-option></el-select>
+        </el-col>
+        <el-col :span="7">
           {{formLabel.principal}}<el-select v-model="item.name" size="mini"
-                     :filterable="true"  :remote="true"
-                     :remote-method="remoteMethod"
-                     :loading="nameLoading"
                      style="width: 50%"
-                     placeholder="请输入人员姓名或工号"
-                      @change="selectPrincipal($event,index)">
+                     placeholder="请输入人员姓名或工号" @change="selectPrincipal($event,index)">
             <el-option
-              v-for="item in nameList"
+              v-for="item in item.nameList"
               :key="item.id"
               :label="item.name"
               :value="item">
             </el-option></el-select>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="10">
           可分配工时:<el-input type="type" size="mini" style="width: 50%" v-model="item.workday"></el-input>
           <el-button icon="el-icon-circle-plus-outline"
                      size="mini" circle @click="addItem(index)"></el-button>
@@ -188,11 +195,14 @@ name: "Virtual",
       type : false,
       date : "",
       month : "",
-      vList : [],
+      vList : [
+
+      ],
       bList : [],
       disabled : false,
       visible : false,
       title : "",
+      tecLoading : false,
       nameLoading : false,
       nameList : [],
       formLabel : {},
@@ -202,8 +212,14 @@ name: "Virtual",
         workday : "",
         general : [],
         date : [],
-        principal : [],
-      }
+        principal : [{
+          tec : "",
+          name : "",
+          tid : "",
+          workday : 0}
+        ],
+      },
+      tecList : [],
   }
   },
   mounted() {
@@ -230,6 +246,7 @@ name: "Virtual",
       }
     },
     dialogSubmit(){
+      console.log(this.form)
       this.form.createDate = this.date;
       this.$axios
         .post(this.$baseUrl + 'user/queryById'
@@ -246,6 +263,7 @@ name: "Virtual",
               })
               .catch(res => (console.log(res.data)))
           }else {
+            this.form.month = this.month
             this.$axios
               .post(this.$baseUrl + 'virtual/setProject',this.form)
               .then(res => {
@@ -291,27 +309,37 @@ name: "Virtual",
     },
     openNewProject(){
         if (!this.type) {
-          this.title = "新增可研项目"
+          this.title = "新增前期项目"
           this.formLabel = {
             number : "项目编号",
             name : "项目名称",
+            tec : "专业",
             workday : "项目工时",
             general : "项目设总",
-            principal : "项目主设人:",
+            principal : "专业主设人:",
             date : false,
           }
         }else {
-          this.title = "新增业务建设"
+          this.title = "新增其它项目"
           this.formLabel = {
             number : "活动编号",
             name : "活动名称",
+            tec : "专业",
             workday : "活动工时",
             general : "活动主管",
-            principal : "活动管理员:",
+            principal : "专业活动管理员:",
             date : true,
           }
         }
-        this.visible = true;
+        if ( this.tecList.length <= 0) {
+          this.$axios
+            .post(this.$baseUrl + 'technology/queryAll')
+            .then(res => {
+              this.tecList = res.data.data
+            })
+            .catch(res => (console.log(res.data)))
+        }
+      this.visible = true;
     },
     closeDialog(){
       this.disabled = false;
@@ -322,22 +350,42 @@ name: "Virtual",
         workday : "",
         general : [],
         date : [],
-        principal : [],
-        month : this.month,
+        principal : [{
+          tec : "",
+          name : "",
+          tid : "",
+          workday : 0}
+        ],
+        month : this.month
       };
       this.visible = false;
       this.getData()
     },
     addItem(index){
-      this.form.principal.push({name : "", workday : 0})
+      this.form.principal.push({
+        tec : "",
+        name : "",
+        tid : "",
+        workday : 0})
     },
     removeItem(index){
       this.form.principal.splice(index,1)
     },
-    selectGeneral(val) {
-      val.forEach(item => {
-        this.form.principal.push2({id : item.id , name : item.name})
-      })
+    // selectGeneral(val) {
+    //   val.forEach(item => {
+    //     this.form.principal.push2({id : item.id , name : item.name})
+    //   })
+    // },
+    selectTec(val,index){
+      this.form.principal[index].tec = val.name;
+      this.form.principal[index].tid = val.id;
+        this.$axios
+          .post(this.$baseUrl + 'user/queryByTid',{},{headers :{ id : val.id}})
+          .then(res => {
+            this.form.principal[index].nameList = res.data.data
+            this.$forceUpdate();
+          })
+          .catch(res => (console.log(res.data)))
     },
     selectPrincipal(val,index){
       this.form.principal[index].name = val.name;

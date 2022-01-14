@@ -11,22 +11,22 @@
           </el-col>
         </el-row>
         <!-- 导航 -->
-        <el-row style="margin-top: 20px; ">
+        <el-row style="margin-top: 10px; ">
           <el-menu  default-active="1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
             <el-menu-item index="home/workday" @click="toPage(toPage('/home/workday'))">
               工时信息
             </el-menu-item>
-            <el-submenu index="1">
+              <el-menu-item index="/home/adminProject" @click="toPage(toPage('/home/adminProject'))">项目管理
+              </el-menu-item>
+            <!-- <el-submenu index="1">
               <template slot="title">
                 <el-row >项目管理</el-row>
               </template>
-            <el-menu-item-group>
-              <el-menu-item class="nav2" index="1-1" @click="toPage(toPage('/home/adminProject'))">施工图项目进度管理
+            <el-menu-item-group> -->
+              <!-- <el-menu-item class="nav2" index="1-2" @click="toPage('/home/adminProphase')">前期项目和其他项目
               </el-menu-item>
-              <el-menu-item class="nav2" index="1-2" @click="toPage('/home/virtual')">可研项目和业务建设
-              </el-menu-item>
-            </el-menu-item-group>
-            </el-submenu>
+            </el-menu-item-group> -->
+            <!-- </el-submenu> -->
             <el-submenu index="2">
               <template slot="title">
                 <el-row >个人评价</el-row>
@@ -78,7 +78,7 @@
               </el-row>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item @click.native=logOut()>退出登录</el-dropdown-item>
-                <el-dropdown-item @click.native=logApp()>返回评价</el-dropdown-item>
+                <el-dropdown-item @click.native=logApp()>返回个人信息</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </el-row>
@@ -89,6 +89,7 @@
         </el-main>
       </el-container>
     </el-container>
+      <news class="news"/>
   </div>
 </template>
 
@@ -132,7 +133,8 @@ name: "Home",
         .catch(res => (console.log(res)));
     },
     logOut() {
-      this.getLogIn();
+      this.$storage.removeAll();
+      this.$router.push('/login')
     },
     logApp() {
       this.$router.replace("/appraiseMain");

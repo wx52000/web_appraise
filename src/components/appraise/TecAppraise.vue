@@ -28,6 +28,8 @@
                             v-model="scope.row.designer"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.designer,'designer',scope.$index)"
+                            @select="appraise(scope.row)"
+                            @change="appraise(scope.row)"
                             ></el-input>
                 </template>
               </u-table-column>
@@ -38,6 +40,8 @@
                             v-model="scope.row.personal"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.personal,'personal',scope.$index)"
+                            @select="appraise(scope.row)"
+                            @change="appraise(scope.row)"
                             ></el-input>
                 </template>
               </u-table-column>
@@ -48,15 +52,14 @@
                             v-model="scope.row.coordinate"
                             oninput="value=value.replace(/[^\d.]/g,'')"
                             @blur="judge(scope.row.coordinate,'coordinate',scope.$index)"
+                            @select="appraise(scope.row)"
+                            @change="appraise(scope.row)"
                             ></el-input>
                 </template>
               </u-table-column>
 
             </u-table>
           </el-row>
-        </el-row>
-        <el-row style="padding: 20px 0 0 0;text-align: center;">
-          <el-button type="primary" @click="appraise">确认评价</el-button>
         </el-row>
       </el-row>
     </el-form>
@@ -87,6 +90,7 @@ name: "TecAppraise",
       list: [],
       form: {},
       show : false,
+      isRouterAlive : true,
       appraiseData: {}
     }
   },
@@ -95,31 +99,12 @@ name: "TecAppraise",
       reload:this.reload
     }
   },
-  date(){
-    return{
-      isRouterAlive : true
-    }
-  },
   mounted() {
-    this.getLogIn();
+    this.getData()
   },
   methods: {
     update(e) {
       this.$forceUpdate(e);
-    },
-    search() {
-      this.getData();
-    },
-    reset() {
-      this.search1 = "";
-      this.search2 = "";
-      this.search3 = "";
-      this.getData();
-    },
-    getLogIn() {
-      let i = JSON.parse(sessionStorage.getItem("appraise"));
-      this.id = i.id;
-      this.getData();
     },
     getData() {
       this.$axios
@@ -139,18 +124,9 @@ name: "TecAppraise",
         })
         .catch(res => (console.log(res)));
       this.$axios
-        .post(this.$baseUrl + 'technology/evaluate',{},{headers: {'id': this.id}})
+        .post(this.$baseUrl + 'technology/evaluate')
         .then(res => (
           res.data.data.forEach((item,index)=>{
-          // if (item.designer !== undefined ){
-          //   item.designer = item.designer.toString();
-          // }
-          // if (item.personal !== undefined ){
-          //   item.personal = item.personal.toString();
-          // }
-          // if (item.coordinate !== undefined ){
-          //   item.coordinate = item.coordinate.toString();
-          // }
           this.list.push(item);
         })
         ))
@@ -160,22 +136,15 @@ name: "TecAppraise",
         .then(res => {this.max = res.data.data.max ; this.min = res.data.data.min})
         .catch(res => (console.log(res)));
     },
-    appraise() {
-      for (let i = this.list.length-1; i >= 0; i--) {
-        this.list[i].gradeId = this.id;
-        this.list[i].date = new Date().getTime()
-        // if (this.list[i].designer == null || this.list[i].personal == null || this.list[i].coordinate == null) {
-          if (this.list[i].designer == null && this.list[i].personal == null && this.list[i].coordinate == null) {
-            this.list.splice(i ,1 )
-          }
-      // else {
-            // alert("评价应要么三项全评价，要么全不评价");
-            // return;
-          // }
-        // }
-      }
+    appraise(row) {
         this.$axios
-          .post(this.$baseUrl + 'tecScore/appraise',this.list)
+          .post(this.$baseUrl + 'tecScore/appraise',{
+            tecId : row.id,
+            designer : row.designer,
+            personal : row.personal,
+            coordinate : row.coordinate,
+            role : row.role
+          })
           .then(res => {
             if (0 === res.data.code) {
               alert("操作成功")
