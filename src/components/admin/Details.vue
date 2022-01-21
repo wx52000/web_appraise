@@ -142,6 +142,7 @@ export default {
   mounted() {
     let quarter = ["一","二","三","四"]
     let quarterNumber = [3, 6, 9, 12 ]
+    console.log(this.month)
     if (this.month%3 === 0){
       if (this.nowDay>=25){
         this.quarter = quarter[Math.floor(this.month/3)]
@@ -159,10 +160,12 @@ export default {
       if (this.month<3){
         this.quarter = "四"
         this.quarterNumber = 12
+      }else {
+        this.quarter = quarter[Math.floor(this.month/3)-1]
+        this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
       }
-      this.quarter = quarter[Math.floor(this.month/3)-1]
-      this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
     }
+    console.log(this.quarterNumber)
     this.setListMonth();
     this.getData();
   },

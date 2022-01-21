@@ -1,6 +1,7 @@
 <template>
   <div>
   <u-table use-virtual :row-height="28" border :data="volumeList" class="u-table"
+            :height="pageHeight"
             :header-cell-style="{background:'#F5F5F5' } "
             :row-class-name="tableRowClassName"
             :row-key="getRowKeys"
@@ -37,6 +38,12 @@
           </el-form-item>
         </el-form>
       </template>
+    </u-table-column>
+    <u-table-column prop="type" width="100px"
+                    :filters="[{text:'卷册',value:'卷册'},{text:'管理',value:'管理'},
+                            {text:'备用',value:'备用'},{text:'设总备用',value:'设总备用'},{text:'设总管理',value:'设总管理'}]"
+                    :filter-method="filterHandler"
+                    label="类型" align="center"  >
     </u-table-column>
     <u-table-column prop="number" min-width="13  %" label="卷册号" sortable align="center"  >
     </u-table-column>
@@ -78,6 +85,7 @@ export default {
       getRowKeys(row) {
         return row.id;
       },
+      pageHeight : document.body.scrollHeight,
       id: "",
       pid: "",
       tid : "",
@@ -157,21 +165,6 @@ export default {
           this.expands.push(row.id);
         }
       }
-    },
-    pickerEvent(){
-      this.$axios
-        .post(this.$baseUrl + 'volume/queryByProjectId', {
-            "id" : this.projectId,
-            "month": new Date().getMonth()+1,
-            "pickerDate" : this.pickerValue
-          },
-        )
-        .then(res => {
-          this.volumeList = res.data.data;
-          this.volumeLoading = false;
-        })
-        .catch(res => (console.log(res)));
-      this.volumeVisible = true
     },
   }
 }

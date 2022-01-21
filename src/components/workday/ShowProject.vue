@@ -59,6 +59,7 @@
       </el-table>
     </div>
     <el-dialog
+      v-el-drag-dialog
       title="项目管理"
       :visible.sync="projectVisible"
       width="90%"

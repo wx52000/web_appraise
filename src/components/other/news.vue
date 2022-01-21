@@ -149,13 +149,23 @@
         </u-table-column>
         <u-table-column
           label="审核类型"
-          width="150px"
+          width="100px"
           prop="type">
           <template slot-scope="scope">
             <span>
             {{scope.row.type | typeFilter}}
             </span>
           </template>
+        </u-table-column>
+        <u-table-column
+          label="发起人"
+          width="100px"
+          prop="handler">
+        </u-table-column>
+        <u-table-column
+          label="专业"
+          width="100px"
+          prop="tec">
         </u-table-column>
         <u-table-column
           label="项目编号"

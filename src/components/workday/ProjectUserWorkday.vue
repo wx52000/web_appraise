@@ -9,12 +9,19 @@
 
       </el-row>
     </el-row>
-    <ux-grid use-virtual border :data="workdayList" class="ux-table"
+    <ux-grid ref="plxTable" use-virtual border :data="workdayList" class="ux-table"
              :max-height=pageHeight
+             show-summary
+             :summary-method="arraySpanMethod"
              size = "mini" :cell-style="this.CellStyleOne">
         <ux-table-column field="username" width="10%" fixed sortable title="工号" align="center"  >
         </ux-table-column>
         <ux-table-column field="name" width="10%" fixed sortable title="姓名" align="center"  >
+        </ux-table-column>
+        <ux-table-column field="tec" width="10%" fixed title="专业"
+                         align="center"
+                          :filters="[{}]"
+                         :filter-method="filterMethod">
         </ux-table-column>
         <ux-table-column field="workday"  min-width="10%" sortable title="总工时" align="center">
         </ux-table-column>
@@ -48,14 +55,15 @@
         </ux-table-column>
       </ux-grid>
     <el-dialog
+      v-el-drag-dialog
       :visible.sync="visible"
       width="60%">
       <u-table key="logList" use-virtual :row-height="28" :data="logList" class="u-table"
                size = "mini" :border="false" :cell-style="this.CellStyleOne"
                height="360px">
-        <u-table-column prop="number" min-width="15%" label="任务编号" align="center" style="word-break: break-all;">
+        <u-table-column prop="number" min-width="15%" show-overflow="tooltip" label="任务编号" align="center" style="word-break: break-all;">
         </u-table-column>
-        <u-table-column prop="name" min-width="15%" label="任务名称" align="center" style="word-break: break-all;">
+        <u-table-column prop="name" min-width="15%" show-overflow="tooltip" label="任务名称" align="center" style="word-break: break-all;">
         </u-table-column>
         <u-table-column prop="handler" min-width="10%" label="主设人/发放人" align="center"  >
         </u-table-column>
@@ -97,6 +105,7 @@ export default {
       pageHeight : document.body.clientHeight-50,
       workdayList : [],
       logList : [],
+      tecList : [],
     }
   },
   filters:{
@@ -126,14 +135,28 @@ export default {
         )
         .then(res => {
           this.workdayList = res.data.data
+          res.data.data.forEach(item =>{
+            this.tecList.push2({label: item.tec, value : item.tec})
+          })
+          console.log(this.tecList)
+          const column = this.$refs.plxTable.getColumnByField('tec')
+          // 修改筛选列表，并默认设置为选中状态
+          this.$refs.plxTable.setFilter(column,this.tecList)
+          // 修改条件之后，需要手动调用 updateData 处理表格数据
+          this.$refs.plxTable.updateData()
         })
         .catch(res => (console.log(res)));
+    },
+    filterMethod ({ value, row, column }) {
+      const property = column['property'];
+      return row[property] === value;
     },
     openLog(row){
       this.$axios
         .post(this.$baseUrl + 'user/logByGeneral',{
           userId : row.id,
           id : this.projectId,
+          tec : row.tec,
           date : this.nowMonth
         })
         .then(res =>{
@@ -147,7 +170,7 @@ export default {
       let that = this;
       this.$message.success("即将开始下载");
       let xhr = new XMLHttpRequest();
-      let u =  this.$baseUrl + 'projectExcel/workdayByGeneral?date=' + that.nowMonth + '&id='+ that.projectId
+      let u =  this.$baseUrl + 'projectExcel/userByGeneral?date=' + that.nowMonth + '&id='+ that.projectId
       xhr.open("get", u, true); // get、post都可
       xhr.responseType = "blob";  // 转换流
       xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
@@ -163,6 +186,35 @@ export default {
         }
       }
       xhr.send();
+    },
+    arraySpanMethod({  columns, data }) {
+      const means = [] // 合计
+      columns.forEach((column, columnIndex) => {
+        if (columnIndex === 0) {
+          means.push('合计')
+        } else {
+          const values = data.map(item => Number(item[column.property]));
+          // 合计
+          if (!values.every(value => isNaN(value))) {
+            means[columnIndex] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+                return prev + curr;
+              } else {
+                return prev;
+              }
+            }, 0);
+            // 改变了ele的合计方式，扩展了合计场景
+            // 你以为就只有上面这样玩吗？错啦，你还可以自定义样式哦
+            // means[columnIndex] = '<span style="color: red">' + means[columnIndex] + '元</span>'
+            means[columnIndex] = means[columnIndex]
+          } else {
+            means[columnIndex] = '';
+          }
+        }
+      })
+      // 返回一个二维数组的表尾合计(不要平均值，你就不要在数组中添加)
+      return [means]
     },
   }
 }

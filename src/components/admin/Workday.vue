@@ -11,6 +11,8 @@
   </el-row>
       <ux-grid use-virtual border :data="workdayList" class="ux-table"
            :max-height=pageHeight
+               show-summary
+               :summary-method="arraySpanMethod"
            size = "mini" :cell-style="this.CellStyleOne">
         <ux-table-column field="username" width="10%" fixed sortable title="工号" align="center"  >
         </ux-table-column>
@@ -50,14 +52,15 @@
         </ux-table-column>
   </ux-grid>
   <el-dialog
+    v-el-drag-dialog
     :visible.sync="visible"
     width="60%">
     <u-table key="logList" use-virtual :row-height="28" :data="logList" class="u-table"
              size = "mini" :border="false" :cell-style="this.CellStyleOne"
              height="360px">
-      <u-table-column prop="pnum" min-width="10%" label="项目编号" align="center"  >
+      <u-table-column prop="pnum" min-width="10%" show-overflow="tooltip" label="项目编号" align="center"  >
       </u-table-column>
-      <u-table-column prop="pname" min-width="10%" label="项目名称" align="center"  >
+      <u-table-column prop="pname" min-width="10%" show-overflow="tooltip" label="项目名称" align="center"  >
       </u-table-column>
       <u-table-column prop="number" min-width="15%" label="任务编号" align="center" style="word-break: break-all;">
       </u-table-column>
@@ -144,6 +147,35 @@ name: "workday",
           this.visible  = true
         })
         .catch(res => (console.log(res)));
+    },
+    arraySpanMethod({  columns, data }) {
+      const means = [] // 合计
+      columns.forEach((column, columnIndex) => {
+        if (columnIndex === 0) {
+          means.push('合计')
+        } else {
+          const values = data.map(item => Number(item[column.property]));
+          // 合计
+          if (!values.every(value => isNaN(value))) {
+            means[columnIndex] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+                return prev + curr;
+              } else {
+                return prev;
+              }
+            }, 0);
+            // 改变了ele的合计方式，扩展了合计场景
+            // 你以为就只有上面这样玩吗？错啦，你还可以自定义样式哦
+            // means[columnIndex] = '<span style="color: red">' + means[columnIndex] + '元</span>'
+            means[columnIndex] = means[columnIndex]
+          } else {
+            means[columnIndex] = '';
+          }
+        }
+      })
+      // 返回一个二维数组的表尾合计(不要平均值，你就不要在数组中添加)
+      return [means]
     },
     downExcel(){
       // 工时日志

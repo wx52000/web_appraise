@@ -1,12 +1,12 @@
 <template>
 <div style="box-sizing: border-box">
-  <div style="width: 100%;height: 300px;box-sizing: border-box;"
+  <div style="width: 100%;height: 450px;box-sizing: border-box;"
        align="center">
-    <div style="float:left;width: 30%;height: 300px;box-sizing: border-box;"
-         align="center">
-      <el-button @click="downExcel" style="margin-top: 70px">专业工时使用情况汇总下载</el-button>
-      <el-button @click="downExcel1" style="margin-top: 20px">个人卷册完成情况汇总下载</el-button>
-      <el-button @click="downExcel2" style="margin-top: 20px">卷册详情汇总下载</el-button>
+<!--    <div style="float:left;width: 30%;height: 300px;box-sizing: border-box;"-->
+<!--         align="center">-->
+<!--      <el-button @click="downExcel" style="margin-top: 70px">专业工时使用情况汇总下载</el-button>-->
+<!--      <el-button @click="downExcel1" style="margin-top: 20px">个人卷册完成情况汇总下载</el-button>-->
+<!--      <el-button @click="downExcel2" style="margin-top: 20px">卷册详情汇总下载</el-button>-->
 <!--      <el-upload-->
 <!--        class="upload-demo"-->
 <!--        ref="upload"-->
@@ -17,23 +17,23 @@
 <!--        accept=".xls,.xlsx">-->
 <!--        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>-->
 <!--      </el-upload>-->
-    </div>
-    <div style="float:right;width: 70%;height: 300px;box-sizing: border-box;"
+<!--    </div>-->
+    <div style="width: 100%;height: 450px;box-sizing: border-box;"
          align="center">
     <span>各专业工时使用情况</span>
-    <div ref="myChart2" id="myChart2" align="center" style="width: 500px;height: 300px;"></div>
+    <div ref="myChart2" id="myChart2" align="center" style="width: 66%;height: 400px;"></div>
+    </div>
+    <div style="width: 100%;height: 300px;box-sizing: border-box;"
+         align="center;">
+      <span>项目进度</span>
+      <div ref="myChart1" id="myChart1" align="center" style="height: 300px;"></div>
     </div>
   </div>
-  <div style="float:left;width: 50%;height: 300px;border: 1px solid #3B6273;box-sizing: border-box;"
-       align="center">
-    <span>工时分配</span>
-  <div ref="myChart" id="myChart" align="center" style="width: 500px;height: 300px;"></div>
-  </div>
-  <div style="float:right;width: 50%;height: 300px;;border: 1px solid #3B6273;box-sizing: border-box;"
-       align="center;">
-    <span>项目进度</span>
-    <div ref="myChart1" id="myChart1" align="center" style="width: 500px;height: 300px;margin-left: 10%"></div>
-  </div>
+<!--  <div style="float:left;width: 50%;height: 300px;box-sizing: border-box;"-->
+<!--       align="center">-->
+<!--    <span>工时分配</span>-->
+<!--  <div ref="myChart" id="myChart" align="center" style="width: 80%;height: 300px;"></div>-->
+<!--  </div>-->
 </div>
 </template>
 
@@ -52,7 +52,7 @@ name: "Project",
     this.projectId = this.$route.query.project_id;
     this.$nextTick(() => {
       //  执行echarts方法
-      this.drawLine();
+      // this.drawLine();
       this.drawLine1();
       this.drawLine2();
     })
@@ -65,99 +65,99 @@ name: "Project",
     //观察option的变化
   },
   methods: {
-    drawLine() {
-      let proWorkDay = [];
-      let tecWorkDay = [];
-      let sum = 0;
-      this.$axios.post(this.$baseUrl + 'projectWorkDay/drawLine', {},
-        {headers: {"id": this.projectId}})
-        .then(res => {
-          proWorkDay.push({name :"设总管理工时",value : res.data.data.proWorkDay.manage})
-          proWorkDay.push({name :"专业工时",value : res.data.data.proWorkDay.tec})
-          proWorkDay.push({name :"备用工时",value : res.data.data.proWorkDay.backup})
-          tecWorkDay = res.data.data.tecWorkDay;
-          sum = res.data.data.proWorkDay.manage +
-            res.data.data.proWorkDay.tec + res.data.data.proWorkDay.backup;
-          // let myChart = this.$echarts.init(document.getElementById('myChart'))
-          let myChart = this.$refs.myChart
-          if (myChart) {
-            const thisChart = this.$echarts.init(myChart)
-            const option = {
-              tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b}: {c} ({d}%)'
-              },
-              // legend: {
-              //   data: []
-              // },
-              series: [
-                {
-                  name: '总工时分配',
-                  type: 'pie',
-                  selectedMode: 'single',
-                  radius: [0, '30%'],
-                  label: {
-                    position: 'inner',
-                    fontSize: 8,
-                    width: 30,
-                  },
-                  labelLine: {
-                    show: false
-                  },
-                  data: proWorkDay
-                },
-                {
-                  name: '设计工时分配',
-                  type: 'pie',
-                  radius: ['45%', '60%'],
-                  labelLine: {
-                    length: 30,
-                  },
-                  label: {
-                    formatter: '{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ',
-                    backgroundColor: '#F6F8FC',
-                    borderColor: '#8C8D8E',
-                    borderWidth: 1,
-                    borderRadius: 4,
-
-                    rich: {
-                      a: {
-                        color: '#6E7079',
-                        lineHeight: 22,
-                        align: 'center'
-                      },
-                      hr: {
-                        borderColor: '#8C8D8E',
-                        width: '100%',
-                        borderWidth: 1,
-                        height: 0
-                      },
-                      b: {
-                        color: '#4C5058',
-                        fontSize: 14,
-                        fontWeight: 'bold',
-                        lineHeight: 33
-                      },
-                      per: {
-                        color: '#fff',
-                        backgroundColor: '#4C5058',
-                        padding: [3, 4],
-                        borderRadius: 4
-                      }
-                    }
-                  },
-                  data: tecWorkDay
-                },
-              ],
-            };
-            thisChart.setOption(option)
-            window.addEventListener("resize", function () {
-              thisChart.resize();  //页面大小变化后Echarts也更改大小
-            });
-          }
-        })
-        .catch(res => (console.log(res.data)))
-    },
+    // drawLine() {
+    //   let proWorkDay = [];
+    //   let tecWorkDay = [];
+    //   let sum = 0;
+    //   this.$axios.post(this.$baseUrl + 'projectWorkDay/drawLine', {},
+    //     {headers: {"id": this.projectId}})
+    //     .then(res => {
+    //       proWorkDay.push({name :"设总管理工时",value : res.data.data.proWorkDay.manage})
+    //       proWorkDay.push({name :"专业工时",value : res.data.data.proWorkDay.tec})
+    //       proWorkDay.push({name :"备用工时",value : res.data.data.proWorkDay.backup})
+    //       tecWorkDay = res.data.data.tecWorkDay;
+    //       sum = res.data.data.proWorkDay.manage +
+    //         res.data.data.proWorkDay.tec + res.data.data.proWorkDay.backup;
+    //       // let myChart = this.$echarts.init(document.getElementById('myChart'))
+    //       let myChart = this.$refs.myChart
+    //       if (myChart) {
+    //         const thisChart = this.$echarts.init(myChart)
+    //         const option = {
+    //           tooltip: {
+    //             trigger: 'item',
+    //             formatter: '{a} <br/>{b}: {c} ({d}%)'
+    //           },
+    //           // legend: {
+    //           //   data: []
+    //           // },
+    //           series: [
+    //             {
+    //               name: '总工时分配',
+    //               type: 'pie',
+    //               selectedMode: 'single',
+    //               radius: [0, '30%'],
+    //               label: {
+    //                 position: 'inner',
+    //                 fontSize: 8,
+    //                 width: 30,
+    //               },
+    //               labelLine: {
+    //                 show: false
+    //               },
+    //               data: proWorkDay
+    //             },
+    //             {
+    //               name: '设计工时分配',
+    //               type: 'pie',
+    //               radius: ['45%', '60%'],
+    //               labelLine: {
+    //                 length: 30,
+    //               },
+    //               label: {
+    //                 formatter: '{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ',
+    //                 backgroundColor: '#F6F8FC',
+    //                 borderColor: '#8C8D8E',
+    //                 borderWidth: 1,
+    //                 borderRadius: 4,
+    //
+    //                 rich: {
+    //                   a: {
+    //                     color: '#6E7079',
+    //                     lineHeight: 22,
+    //                     align: 'center'
+    //                   },
+    //                   hr: {
+    //                     borderColor: '#8C8D8E',
+    //                     width: '100%',
+    //                     borderWidth: 1,
+    //                     height: 0
+    //                   },
+    //                   b: {
+    //                     color: '#4C5058',
+    //                     fontSize: 14,
+    //                     fontWeight: 'bold',
+    //                     lineHeight: 33
+    //                   },
+    //                   per: {
+    //                     color: '#fff',
+    //                     backgroundColor: '#4C5058',
+    //                     padding: [3, 4],
+    //                     borderRadius: 4
+    //                   }
+    //                 }
+    //               },
+    //               data: tecWorkDay
+    //             },
+    //           ],
+    //         };
+    //         thisChart.setOption(option)
+    //         window.addEventListener("resize", function () {
+    //           thisChart.resize();  //页面大小变化后Echarts也更改大小
+    //         });
+    //       }
+    //     })
+    //     .catch(res => (console.log(res.data)))
+    // },
     drawLine1() {
       let data = [];
       this.$axios.post(this.$baseUrl + 'project/drawLine',{},
@@ -182,7 +182,7 @@ name: "Project",
           // },
           series: [
             {
-              name: '访问来源',
+              name: '卷册状态',
               type: 'pie',
               radius: '65%',
               data: data,
@@ -209,8 +209,8 @@ name: "Project",
       let data = [];
       let data1 = [];
       let data2 = [];
-      this.$axios.post(this.$baseUrl + 'projectWorkDay/queryUsedTecWorkDay',{},
-        {headers : { "id" : this.projectId, type : 3}})
+      this.$axios.post(this.$baseUrl + 'projectWorkday/queryUsedTecWorkday',{},
+        {headers : { "id" : this.projectId}})
         .then( res => { data = res.data.data;
         data.forEach((item,index) => {
           xAxisData.push(item.tec)

@@ -104,8 +104,10 @@ name: "Score",
         this.quarter = "四"
         this.quarterNumber = 12
       }
-      this.quarter = quarter[Math.floor(this.month/3)-1]
-      this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
+      else {
+        this.quarter = quarter[Math.floor(this.month/3)-1]
+        this.quarterNumber = quarterNumber[Math.floor(this.month/3)-1]
+      }
     }
     this.setListMonth();
     this.getData()

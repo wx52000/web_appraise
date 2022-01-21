@@ -16,6 +16,7 @@
       <el-input label="项目总工时" :disabled="numDisabled"  v-model="form.num" oninput="value=value.replace(/[^\d.]/g,'')"
                 type="text" placeholder="请输入工时数量">
       </el-input>
+      <el-button size="mini" v-if="!this.numDisabled" :disabled="this.form.check === 1" @click="onSubmitTotal">确认</el-button>
     </el-form-item>
     <el-form-item label="总备用工时"  style="white-space:nowrap" label-width="100px">
       <el-input label="总备用工时" disabled v-model="form.backup" oninput="value=value.replace(/[^\d.]/g,'')"
@@ -386,6 +387,26 @@ export default {
           }
         })
         .catch( res => console.log(res))
+    },
+    onSubmitTotal(){
+      if (this.form.num !==  null && this.form.num !==  "") {
+        this.$axios
+          .post(this.$baseUrl + 'projectWorkday/setProWorkdayTotal', {
+            "project_id": this.projectId,
+            "num": this.form.num,
+          })
+          .then(res => {
+            if (res.data.code === 0) {
+              this.$message({
+                message: '修改成功',
+                type: 'success'
+              });
+            }
+          })
+          .catch(res => (console.log(res)));
+      }else {
+        this.$message.warning("不能为空")
+      }
     },
     onSubmit(val){
       if (this.form.checkerId === undefined){

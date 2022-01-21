@@ -50,14 +50,15 @@
       </ux-table-column>
     </ux-grid>
     <el-dialog
+      v-el-drag-dialog
       :visible.sync="visible"
       width="60%">
       <u-table key="logList" use-virtual :row-height="28" :data="logList" class="u-table"
                size = "mini" :border="false" :cell-style="this.CellStyleOne"
                height="360px">
-        <u-table-column prop="pnum" min-width="10%" label="项目编号" align="center"  >
+        <u-table-column prop="pnum" min-width="10%" show-overflow="tooltip" label="项目编号" align="center"  >
         </u-table-column>
-        <u-table-column prop="pname" min-width="10%" label="项目名称" align="center"  >
+        <u-table-column prop="pname" min-width="10%" show-overflow="tooltip" label="项目名称" align="center"  >
         </u-table-column>
         <u-table-column prop="number" min-width="15%" label="任务编号" align="center" style="word-break: break-all;">
         </u-table-column>
@@ -150,7 +151,7 @@ export default {
       let that = this;
       this.$message.success("即将开始下载");
       let xhr = new XMLHttpRequest();
-      let u =  this.$baseUrl + 'projectExcel/managerWorkday?date=' + this.nowMonth
+      let u =  that.$baseUrl + 'projectExcel/userByManage?date=' + that.nowMonth
       xhr.open("get", u, true); // get、post都可
       xhr.responseType = "blob";  // 转换流
       xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对

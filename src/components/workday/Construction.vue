@@ -1,26 +1,5 @@
 <template>
 <div>
-<!--  <el-row style="margin-top: 1%; margin-bottom: 1%">-->
-<!--    <el-col :span="16">-->
-<!--      <template>-->
-<!--        <el-date-picker-->
-<!--          v-model="showDate"-->
-<!--          type="daterange"-->
-<!--          value-format="yyyy-MM-dd"-->
-<!--          unlink-panels-->
-<!--          range-separator="至"-->
-<!--          start-placeholder="开始日期"-->
-<!--          end-placeholder="结束日期"-->
-<!--          size = "mini"-->
-<!--          style="margin-right: 10%; margin-left: 5%"-->
-<!--          @change="getData">-->
-<!--        </el-date-picker>-->
-<!--      </template>-->
-<!--    </el-col>-->
-<!--    <el-col :span="8">-->
-<!--      <el-button size="mini" @click="openExcel">Excel 下载</el-button>-->
-<!--    </el-col>-->
-<!--  </el-row>-->
   <ux-grid ref="uxGrid" key="projectList" use-virtual border :data="projectList" class="ux-table"
                 @expand-change="toggleExpandChangeEvent"           @row-click="clickRowHandle"
               size = "mini" :header-cell-style="{color:'#000000'}">
@@ -49,9 +28,9 @@
                       <span v-else>{{scope.row.type}}</span>
                     </template>
           </ux-table-column>
-          <ux-table-column fixed="left" field="number" width="140"  title="任务编号" sortable align="center">
+          <ux-table-column fixed="left" field="number" width="140" show-overflow="tooltip" title="任务编号" sortable align="center">
           </ux-table-column>
-          <ux-table-column field="name" width="220" title="任务名称" align="center" sortable>
+          <ux-table-column field="name" width="220" title="任务名称" show-overflow="tooltip" align="center" sortable>
           </ux-table-column>
           <ux-table-column field="state"  width="80" title="状态" align="center"
                            :filters="[{label:'尚未开展',value:'尚未开展'},{label:'正在设计',value:'正在设计'},
@@ -104,7 +83,7 @@
           <ux-table-column field="workday_state" width="100" title="工时状态"  align="center"
                            sortable>
             <template slot-scope="scope">
-              <span>{{scope.row.workday_state | workdayStateFilter}}</span>
+              <span>{{scope.row.workday_state}}</span>
             </template>
           </ux-table-column>
           <ux-table-column field="grant" width="120" title="已发放工时"  align="center"
@@ -430,32 +409,6 @@
           </el-row>
         </el-main>
     </el-container>
-  </el-dialog>
-  <el-dialog
-    title="Excel导出"
-    :visible.sync="excelDialog"
-    width="40%" style="text-align: center">
-    <el-row align="center">
-      <el-button @click="downExcel()" style="width: 250px">工时日志表</el-button>
-    </el-row>
-    <el-row style="margin-top: 20px">
-      <el-col :span="24" align="center">
-        <template>
-          <el-date-picker
-            v-model="downMonth"
-            type="daterange"
-            value-format="yyyy-MM-dd"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期">
-          </el-date-picker>
-        </template>
-      </el-col>
-    </el-row>
-    <el-row align="center" style="margin-top: 20px">
-      <el-button @click="downExcel1()" style="width: 250px">完成卷册汇总表</el-button>
-    </el-row>
   </el-dialog>
   <el-dialog
       v-el-drag-dialog
@@ -812,7 +765,7 @@
       </el-row>
     </el-form>
         <span slot="footer">
-          <el-button @click="this.taskVisible =false">取消</el-button>
+          <el-button @click="taskVisible = false">取消</el-button>
           <el-button @click="taskSubmit" type ="primary">
             <span v-if="!task.show && !taskType">报审</span>
           <span v-else>确认</span></el-button>`
@@ -873,9 +826,9 @@
     <ux-grid use-virtual border :data="user.log" class="ux-table"
              :max-height=pageHeight
              size = "mini" :cell-style="this.CellStyleOne">
-      <ux-table-column field="number" min-width="10%" fixed sortable title="任务编号" align="center"  >
+      <ux-table-column field="number" min-width="10%" fixed show-overflow="tooltip" sortable title="任务编号" align="center"  >
       </ux-table-column>
-      <ux-table-column field="name" min-width="10%" fixed sortable title="任务名称" align="center"  >
+      <ux-table-column field="name" min-width="10%" fixed show-overflow="tooltip" sortable title="任务名称" align="center"  >
       </ux-table-column>
       <ux-table-column field="workday"  min-width="10%" sortable title="工时" align="center">
       </ux-table-column>
@@ -1068,10 +1021,6 @@ name: "UserScore",
   }
   },
   filters:{
-    workdayStateFilter(state){
-      const s = workdayState.find(obj => obj.type === state)
-      return s ? s.name : null;
-    },
     typeFilter(value){
       let  obj = type.find(value1 => {
         return value1.id === value
