@@ -8,12 +8,12 @@
                     @click="toPage('/projectMain/project')">项目详情</el-menu-item>
       <el-menu-item index="/projectMain/projectVolume"
                     @click="toPage('/projectMain/projectVolume')">卷册列表</el-menu-item>
-
-        <template slot="title">工时分配</template>
-        <el-menu-item index="/projectMain/projectWorkday"  v-if="show"
-                      @click="toPage('/projectMain/projectWorkday')">工时分配</el-menu-item>
+      <el-menu-item index="/projectMain/projectSumWorkday"  v-if="show"
+                    @click="toPage('/projectMain/projectSumWorkday')">项目工时详情</el-menu-item>
+      <el-menu-item index="/projectMain/projectWorkday"  v-if="show"
+                      @click="toPage('/projectMain/projectWorkday')">项目工时分配</el-menu-item>
       <el-menu-item index="/projectMain/projectUserWorkday"  v-if="show"
-                    @click="toPage('/projectMain/projectUserWorkday')">工时查看</el-menu-item>
+                    @click="toPage('/projectMain/projectUserWorkday')">个人工时详情</el-menu-item>
       <el-submenu index="/log/" v-if="show">
       <template slot="title">工时日志</template>
       <el-menu-item index="/projectMain/WorkdayLog"

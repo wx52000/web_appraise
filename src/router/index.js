@@ -22,7 +22,7 @@ import Project from "../components/workday/Project";
 import ProjectVolume from "../components/workday/ProjectVolume";
 import ProjectWorkday from "../components/workday/ProjectWorkday";
 import AdminProphase from "../components/workday/AdminProphase";
-import news from "../components/other/news";
+import news from "../components/other/News";
 import store from '@/store'
 import Self from "../components/Self";
 import Workday from "../components/admin/Workday";
@@ -32,6 +32,7 @@ import WorkdayLog from "../components/workday/WorkdayLog";
 import BackupLog from "../components/workday/BackupLog";
 import ManagerWorkday from "../components/workday/ManagerWorkday";
 import ProjectUserWorkday from "../components/workday/ProjectUserWorkday";
+import ProjectSumWorkday from "../components/workday/ProjectSumWorkday";
 
 Vue.use(Router)
 
@@ -206,6 +207,11 @@ const router = new Router({
           path: 'projectVolume',
           name: 'projectVolume',
           component: ProjectVolume
+        },
+        {
+          path: 'projectSumWorkday',
+          name: 'projectSumWorkday',
+          component: ProjectSumWorkday
         },
         {
           path: 'projectWorkday',

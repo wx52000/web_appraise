@@ -11,7 +11,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import './assets/css/suspension.css'
 import 'babel-polyfill';
 import tableText from './assets/js/tableText'
-import news from "./components/other/news";
+import news from "./components/other/News";
 import axios from "./store/httpRequest"
 import storage from "./store/index"
 import myMethod from "./store/myMethod";
@@ -33,10 +33,10 @@ Vue.directive('elDragDialog',elDragDialog)
 Vue.prototype.$echarts = Echarts
 Vue.prototype.$storage = storage;
 Vue.prototype.$myMethod = myMethod;
-// Vue.prototype.$baseUrl = 'http://localhost:9999/api/';
+Vue.prototype.$baseUrl = 'http://localhost:9999/api/';
 // Vue.prototype.$baseUrl = 'http://192.168.137.87:9999/api/';
 Vue.prototype.$axios = axios;
-Vue.prototype.$baseUrl = 'http://10.136.238.22:9999/api/';
+// Vue.prototype.$baseUrl = 'http://10.136.238.22:9999/api/';
 Array.prototype.push2 =function(){
   for(let i=0; i<arguments.length; i++){
     let ele =  arguments[i];

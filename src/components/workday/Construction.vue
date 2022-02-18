@@ -386,7 +386,7 @@
             </ux-table-column>
             <ux-table-column field="workday"  min-width="10%" sortable title="工时" align="center">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.workday" size="mini"  oninput="value=value.replace(/[^\d.]/g,'')"></el-input>
+                <el-input v-model="scope.row.workday" size="mini" :disabled="scope.row.submit === 1 || scope.row.submit === 2" oninput="value=value.replace(/[^\d.]/g,'')"></el-input>
               </template>
             </ux-table-column>
           </ux-grid>
@@ -930,7 +930,7 @@ const role = [{id :0, explain : "设计"},
 
 import virtualList  from 'vue-virtual-scroll-list'
 import chinapy from '@/assets/js/chinapy.js'
-import News from '../other/news.vue'
+import News from '../other/News.vue'
 export default {
 name: "UserScore",
   components: { 'virtual-list': virtualList },
@@ -1121,6 +1121,7 @@ name: "UserScore",
         this.declareMonth.push2(this.nowMonth);
         const c = new Date(new Date().getTime()-3600*24*day*1000)
         this.declareMonth.push2(c.getFullYear() + "-" + (Number(c.getMonth()) + 1).toString().padStart(2,0));
+        this.declareMonth.push2("2021-12");
       })
       .catch(res => (console.log(res)));
   },
@@ -1139,21 +1140,23 @@ name: "UserScore",
       this.delMenu = false
       this.updMenu = false
       if (row.principal === this.$parent.name) {
-        if (row.submit === 0) {
+        if (row.submit === 0 || row.submit === 3) {
           if (row.spider && ( row.state === "尚未开展" || row.state === "尚未确定")) {
             this.delMenu = true
           }
           if (row.spider === 0){
             this.delMenu = true
           }
-          if (row.spider && row.submit === 0) {
+          if (row.spider) {
             this.updMenu = true
           }
-          this.menuVisible = true // 显示模态窗口，跳出自定义菜单栏
-          event.preventDefault() //关闭浏览器右键默认事件
-          this.CurrentRow = row
-          let menu = document.querySelector('#rightMenu');
-          this.styleMenu(menu)
+          if (this.delMenu || this.updMenu) {
+            this.menuVisible = true // 显示模态窗口，跳出自定义菜单栏
+            event.preventDefault() //关闭浏览器右键默认事件
+            this.CurrentRow = row
+            let menu = document.querySelector('#rightMenu');
+            this.styleMenu(menu)
+          }
         }
       }
     },
@@ -1239,15 +1242,15 @@ name: "UserScore",
     releasableStateFilterSum(row,type){
       if (type) {
         if (row.spider === 1) {
-          if (row.submit === 0 || row.submit === 3) {
-            return false;
-          } else return true;
+          if (row.submit === 1 || row.submit === 2) {
+            return true;
+          } else return false;
         }else {return true;}
       }else {
         if (row.spider === 0) {
-          if (row.submit === 0 || row.submit === 3) {
-            return false;
-          } else return true;
+          if (row.submit === 1 || row.submit === 2) {
+            return true;
+          } else return false;
         }else {return true;}
       }
     },
@@ -1598,7 +1601,7 @@ name: "UserScore",
             this.workdayData.principal = res.data.data[0].principal
             this.workdayData.headman = res.data.data[0].headman
             this.workdayData.checkerId = res.data.data[0].checkerId
-            this.workdayData.completeUsed = res.data.data[0].completeUsed
+            // this.workdayData.completeUsed = res.data.data[0].completeUsed
             this.workdayData.list = res.data.data[0].list
             this.workdayData.used = Number(res.data.data[0].backupUsed) + Number(res.data.data[0].manageUsed)
               + Number(res.data.data[0].volumeUsed)
@@ -1643,7 +1646,7 @@ name: "UserScore",
                   this.workdayData.principal = val.principal
                   this.workdayData.headman = val.headman
                   this.workdayData.checkerId = val.checkerId
-                  this.workdayData.completeUsed = val.completeUsed
+                  // this.workdayData.completeUsed = val.completeUsed
                   this.workdayData.list = val.list
                   this.workdayData.used = Number( val.backupUsed) + Number( val.manageUsed)
                   + Number(val.volumeUsed)
@@ -1669,7 +1672,8 @@ name: "UserScore",
           return 0;
         }
       }
-      if (this.volumeUsed > (Number(this.workdayData.volume) - Number(this.workdayData.completeUsed))){
+      // if (this.volumeUsed > (Number(this.workdayData.volume) - Number(this.workdayData.completeUsed))){
+         if (this.volumeUsed > (Number(this.workdayData.volume))){
         this.$message.warning("卷册分配工时超出上限，请修改")
         return 0;
       }

@@ -1,9 +1,12 @@
 <template xmlns:el-="http://www.w3.org/1999/html">
   <div align="center" style="width: 80%;margin-left: 10%">
     <el-row align="center" style="text-align: center;margin-top: 1%">
-      <el-col :span="20" ><span style="font-size: 18px;margin-left: 150px">项目工时分配</span>
-        <span style="font-size: 12px;">-{{form.check | checkFilter}}</span></el-col>
-      <el-button @click="openNewForm" size="mini" style="float: right"> 额外工时申请</el-button>
+      <span style="float: left;position: relative; margin-left: 30%">
+      <span style="font-size: 18px;margin-left: 150px">项目工时分配</span>
+        <span style="font-size: 12px;">-{{form.check | checkFilter}}</span>
+      </span>
+      <el-button @click="openNewForm" size="mini" style="margin-left: 50px">额外工时申请</el-button>
+      <el-button @click="openDeduct" size="mini" style="margin-left: 10px">工时扣除</el-button>
     </el-row>
   <el-form ref="form" :model="form" style="width:70%;margin-top: 1%">
     <el-form-item label="项目名称" label-width="100px">
@@ -43,7 +46,7 @@
                 </el-form-item>
               </el-col>
     </el-row>
-     <el-row  >
+     <el-row>
             </el-row>
             <el-row v-for="(item,index) in form.tecWorkday" :key="index">
               <el-col :span="6">
@@ -98,7 +101,7 @@
             </el-row>
                 <el-divider content-position="center">
                   <el-button  type="text" @click="addTecWorkday()">专业缺少，点此添加</el-button></el-divider>
-    <el-form-item v-if="!disabled">
+    <el-form-item v-if="!disabled && form.check !== 1">
       审核人
       <el-select v-model="form.checkerId" placeholder="请选择" style="width: 100px" size="mini"
                  @change="selectChecker">
@@ -234,6 +237,89 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <el-dialog
+      v-el-drag-dialog
+      :visible.sync="deductVisible"
+      width="60%">
+      扣除记录选择:<el-select v-model="deductForm.id" placeholder="请选择" size="mini">
+      <el-option
+        v-for="item in deductList"
+        :key="item.id"
+        :label="item.reason"
+        :value="item.id">
+        <span style="float: left">{{ item.handler_time }}</span>
+        <span style="float: right; color: #8492a6; font-size: 13px">{{ item.reason}}</span>
+      </el-option>
+    </el-select>
+      <el-button size="mini" @click="openDeduct">重置</el-button>
+      <el-button size="mini" type="primary" @click="deductLogSubmit" >确认</el-button>
+      <el-form :model="deductForm" size="mini" label-width="100px" style="margin-top: 10px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="专业">
+              <el-select v-model="deductForm.tec" @change="getUsable()" style="width: 160px" placeholder="请选择" size="mini">
+                <el-option
+                  v-for="item in form.tecWorkday"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.name">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="总工时">
+              <el-input style="width: 160px" disabled v-model="deductForm.num"></el-input>
+            </el-form-item>
+          </el-col>
+          </el-row>
+        <el-row>
+          <el-col :span="12">
+              <el-form-item label="可扣管理工时">
+                <el-input style="width: 160px" disabled v-model="deductForm.manageUsable"></el-input>
+              </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="扣除管理工时">
+              <el-input style="width: 160px"  v-model="deductForm.manage"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="可扣卷册工时">
+              <el-input style="width: 160px" disabled v-model="deductForm.volumeUsable"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="扣除卷册工时">
+              <el-input style="width: 160px" v-model="deductForm.volume"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="可扣备用工时">
+              <el-input style="width: 160px" disabled v-model="deductForm.backupUsable"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="扣除备用工时">
+              <el-input style="width: 160px" v-model="deductForm.backup"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+            <el-form-item label="原因">
+              <el-input style="width: 520px" v-model="deductForm.reason"></el-input>
+            </el-form-item>
+        </el-row>
+        <el-row style="text-align: center">
+          <el-button size="mini" @click="deductVisible = false">取消</el-button>
+          <el-button size="mini" type="primary" @click="deductSubmit" >确认</el-button>
+        </el-row>
+      </el-form>
+    </el-dialog>
 </div>
 </template>
 
@@ -265,7 +351,17 @@ export default {
         backup : 0,
         tecWorkday : []
       },
+      deductVisible : false,
+      deductForm : {
+        tec : "",
+        num : 0,
+        manage: 0,
+        volume : 0,
+        backup : 0,
+        reason : ""
+      },
       checkerList : [],
+      deductList : [],
     }
   },
   filters:{
@@ -344,25 +440,18 @@ export default {
             this.form.tec = res.data.data.tec;
             this.form.check = res.data.data.check
           this.form.checkerId = res.data.data.checkerId
-          if (this.name === res.data.data.general){
-            this.disabled = false
-          }
-        })
-        .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'projectWorkday/queryMajorWorkday', {},
-          {headers:{"id" : this.projectId}})
-        .then(res => {
-          res.data.data.workday.forEach(item => {
+          res.data.data.list.forEach(item => {
             if (item.amount === undefined || item.amount === ''){
               item.amount = 0
             }
             this.form.tecWorkday.push({project_id : item.project_id,
               name : item.name,ratio : item.amount/this.form.tec*100 || 0,
               workday : item.amount, principal : item.principalId, type:item.type,
-               principalList : [{id : item.principalId,name: item.principal}]},)
+              principalList : [{id : item.principalId,name: item.principal}]},)
           })
-          console.log(this.form)
+          if (this.name === res.data.data.general){
+            this.disabled = false
+          }
         })
         .catch(res => (console.log(res)));
         this.$axios
@@ -436,7 +525,7 @@ export default {
           .then(res => {
             if (res.data.code === 0) {
               this.$message({
-                message: '修改成功',
+                message: '操作成功',
                 type: 'success'
               });
             }
@@ -563,22 +652,15 @@ export default {
           this.visible = true;
         })
       .catch(res => console.log(res))
-      this.$axios
-        .post(this.$baseUrl + 'projectWorkday/queryMajorWorkday', {},
-          {headers:{"id" : this.projectId}})
-        .then(res => {
-          res.data.data.workday.forEach(item => {
-            if (item.amount === undefined || item.amount === ''){
-              item.amount = 0
-            }
-            this.newForm.tecWorkday.push({project_id : item.project_id,
-              name : item.name,ratio :  0,
-              workday : 0, principal : item.principalId, type:item.type,
-              principalList : [{id : item.principalId,name: item.principal}]},)
-          })
-          console.log(this.form)
-        })
-        .catch(res => (console.log(res)));
+      this.form.tecWorkday.forEach(item => {
+        if (item.amount === undefined || item.amount === ''){
+          item.amount = 0
+        }
+        this.newForm.tecWorkday.push({project_id : item.project_id,
+          name : item.name,ratio :  0,
+          workday : 0, principal : item.principal, type:item.type,
+          principalList : item.principalList},)
+      })
     },
     selectAddId(){
       if (this.newForm.addId != null) {
@@ -618,7 +700,75 @@ export default {
           backup : 0,
           tecWorkday : []
       }
-    }
+    },
+    openDeduct(){
+      this.deductForm = {
+          tec : "",
+          manage: 0,
+          volume : 0,
+          backup : 0,
+          reason : ""
+      };
+        this.$axios
+          .post(this.$baseUrl + 'deduct/queryLog',{},{headers: {id : this.projectId}})
+          .then(res => {
+            this.deductList = res.data.data;
+            this.deductVisible = true;
+          })
+          .catch(res => console.log(res))
+    },
+    getUsable(){
+      this.$axios
+        .post(this.$baseUrl + 'project/queryUsableByTec',{
+          id : this.projectId,
+          tec : this.deductForm.tec
+        })
+        .then(res => {
+          let resDate = res.data.data;
+          this.deductForm.num  = resDate.amount;
+          this.deductForm.manageUsable  = resDate.manageUsable;
+          this.deductForm.volumeUsable  = resDate.volumeUsable;
+          this.deductForm.backupUsable  = resDate.backupUsable;
+          this.$forceUpdate();
+        })
+        .catch(res => console.log(res))
+    },
+    deductSubmit(){
+      this.$axios
+        .post(this.$baseUrl + 'deduct/add',{
+          id : this.projectId,
+          tec : this.deductForm.tec,
+          manage : this.deductForm.manage,
+          volume : this.deductForm.volume,
+          backup : this.deductForm.backup,
+          reason : this.deductForm.reason,
+          manageUsable : this.deductForm.manageUsable,
+          volumeUsable : this.deductForm.volumeUsable,
+          backupUsable : this.deductForm.backupUsable,
+          num : this.deductForm.num
+        })
+        .then(res => {
+          if (res.data.code === 0){
+            this.$message.success("操作成功")
+            this.deductVisible = false;
+          }
+        })
+        .catch(res => console.log(res))
+    },
+    deductLogSubmit(){
+      this.$axios
+        .post(this.$baseUrl + 'deduct/queryLogId',{}, {headers: {id : this.deductForm.id}})
+        .then(res => {
+          if (res.data.code === 0){
+            this.deductForm.num  = "NAN"
+            this.deductForm.manageUsable  = "NAN"
+            this.deductForm.volumeUsable  = "NAN"
+            this.deductForm.backupUsable  = "NAN"
+            this.deductForm = res.data.data
+          }
+        })
+        .catch(res => console.log(res))
+    },
   }
 }
 </script>

@@ -209,7 +209,7 @@ name: "Project",
       let data = [];
       let data1 = [];
       let data2 = [];
-      this.$axios.post(this.$baseUrl + 'projectWorkday/queryUsedTecWorkday',{},
+      this.$axios.post(this.$baseUrl + 'projectWorkday/drawLine',{},
         {headers : { "id" : this.projectId}})
         .then( res => { data = res.data.data;
         data.forEach((item,index) => {
