@@ -5,6 +5,9 @@
             :header-cell-style="{background:'#F5F5F5' } "
             :row-class-name="tableRowClassName"
             :row-key="getRowKeys"
+           showBodyOverflow="title"
+           showHeaderOverflow="title"
+           :data-changes-scroll-top="false"
             :expand-row-keys="expands"
             @row-click="clickRowHandle"
             :default-sort = "{prop: 'date', order: 'descending'}"
@@ -12,11 +15,17 @@
     <u-table-column type="expand" >
       <template  slot-scope="scope">
         <el-form label-position="left" inline class="demo-table-expand">
-          <el-form-item label="设计人：">
+          <el-form-item label="设计：">
             <span>{{scope.row.designer}}</span>
           </el-form-item>
-          <el-form-item label="校核人：">
+          <el-form-item label="校核：">
             <span>{{scope.row.checker}}</span>
+          </el-form-item>
+          <el-form-item label="主设：">
+            <span>{{scope.row.principal}}</span>
+          </el-form-item>
+          <el-form-item label="组长：">
+            <span>{{scope.row.headman}}</span>
           </el-form-item>
           <el-form-item label="计划出手日期：">
             <span>{{scope.row.planned_shot_date}}</span>
@@ -49,24 +58,21 @@
     </u-table-column>
     <u-table-column prop="name" min-width="20" label="卷册名称" sortable align="center" style="word-break: break-all;">
     </u-table-column>
-    <u-table-column prop="principal" label="主设人" min-width="6%" align="center"
-                     :filters="principalList" :filter-method="filterHandler">
+    <u-table-column prop="tec" label="专业" min-width="6%" align="center"
+                     :filters="tecList" :filter-method="filterHandler">
     </u-table-column>
-    <u-table-column prop="designer" label="设计人" min-width="6%" align="center"
-                     :filters="designerList" :filter-method="filterHandler">
-    </u-table-column>
-    <u-table-column prop="designer" label="校核人" min-width="6%" align="center"
-                    :filters="checkerList" :filter-method="filterHandler">
-    </u-table-column>
-    <u-table-column prop="workday" label="工时" min-width="6%" align="center"
+    <u-table-column prop="workday" label="工时" width="100px" align="center"
                      sortable>
     </u-table-column>
-    <u-table-column prop="workday" label="工时状态" min-width="6%" align="center"
+    <u-table-column prop="workday_state" label="工时状态" width="120px" align="center"
                     :filters="[{text:'未发放',value:0},{text:'已发放',value:1},
                           {text:'部分发放',value:2}]"
                     :filter-method="filterHandler">
     </u-table-column>
-    <u-table-column prop="state" min-width="9%"  label="状态" align="center"
+    <u-table-column prop="grant" label="已预发工时" width="140px" align="center"
+                    sortable>
+    </u-table-column>
+    <u-table-column prop="state" width="100px"  label="状态" align="center"
                      :filters="[{text:'尚未开展',value:'尚未开展'},{text:'正在设计',value:'正在设计'},
                           {text:'正在校审',value:'正在校审'},{text:'待送出版',value:'待送出版'},
                           {text:'正在出版',value:'正在出版'},{text:'待送业主',value:'待送业主'},
@@ -92,11 +98,9 @@ export default {
       isShow : false,
       projectId : null,
       volumeList: [],
+      tecList : [],
       expands: [],
       volumeLoading : true,
-      principalList:[],
-      designerList:[],
-      checkerList: [],
       pickerOptions: {
         shortcuts: [{
           text: '最近一周',
@@ -142,9 +146,7 @@ export default {
           this.volumeList = res.data.data;
           this.volumeLoading = false;
           this.volumeList.forEach((item)=>{
-            this.principalList.push2({value:item.principal,text:item.principal});
-            this.designerList.push2({value:item.designer,text:item.designer});
-            this.checkerList.push2({value:item.checker, text: item.checker});
+            this.tecList.push2({value:item.tec,text:item.tec});
           })
         })
         .catch(res => (console.log(res)));

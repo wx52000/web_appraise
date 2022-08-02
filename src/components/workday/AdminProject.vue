@@ -7,33 +7,62 @@
           <el-row>
             <el-row style="margin-left:-10px;text-align: center; align-content: center;">
               <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-                施工图工时管理
+                项目管理
                 <i class="el-icon-document-copy" @click="openExcel()"></i>
               </el-col>
             </el-row>
             <el-row style="margin-left:-10px; align-content: center;">
-              <el-col  align="right">
-                审核日:<el-input size="mini" @change="setDeclareDay" style="width: 60px" v-model="declareDay"></el-input>
-                      <el-button style="margin-right: 50px"  type="primary" @click="openNewProject">新增项目</el-button>
-                <el-button style="margin-right: 50px"  type="primary" @click="proHandler">抓取项目列表</el-button>
+
+              <el-col align="right">
+                每月申报截止日期:<el-input size="mini" @change="setDeclareDay" style="width: 60px" v-permission="'declare:update'" v-model="declareDay"></el-input>
+                      <el-button style="margin-right: 20px" size="mini" type="primary" v-permission="'project:add'" @click="openNewProject">新增项目</el-button>
+                      <el-button style="margin-right: 50px" size="mini" type="info" @click="getCompleteData">完成项目列表</el-button>
               </el-col>
             </el-row>
-
-            <u-table border :data="list" class="u-table" :row-class-name="tableRowClassName"
-                      :header-cell-style="{background:'#F5F5F5'}" :cell-style="this.CellStyleOne">
-              <u-table-column prop="number" min-width="18%" label="项目编号" align="center"  >
+            <div>
+            <u-table use-virtual :row-height="28" border size="mini" :data="list.filter(data =>{
+            return  !search || (data.number.toLowerCase().includes(search.toLowerCase())
+            || data.projectName.toLowerCase().includes(search.toLowerCase())
+             || data.general.toLowerCase().includes(search.toLowerCase())
+              || data.state === search) })"
+                     class="u-table" :row-class-name="tableRowClassName"
+                     :row-style="projectError"
+                     :height="pageHeight"
+                     showBodyOverflow="title"
+                     showHeaderOverflow="title"
+                     :data-changes-scroll-top="false"
+                     show-summary
+                     :summary-method="arraySpanMethod"
+                     :header-cell-style="{background:'#F5F5F5'}" :cell-style="this.CellStyleOne">
+              <u-table-column
+                type="index"
+                align="center"
+                width="50">
               </u-table-column>
-              <u-table-column prop="projectName" min-width="30%" label="项目名称" align="center">
+              <u-table-column prop="number" sortable min-width="120px" show-overflow-tooltip label="项目编号" align="center"  >
               </u-table-column>
-              <u-table-column prop="director" min-width="8%" label="主管设总" align="center"  >
+              <u-table-column prop="projectName" sortable min-width="210px" show-overflow-tooltip label="项目名称" align="center">
+                <template slot-scope="scope" >
+                  <el-button type="text" @click="getChildren(scope.row)"
+                             v-if="scope.row.type === 2" size="mini">{{scope.row.projectName}}</el-button>
+                  <span v-else>{{scope.row.projectName}}</span>
+                </template>
               </u-table-column>
-              <u-table-column prop="general" min-width="8" label="设总" align="center" style="word-break: break-all;">
+              <u-table-column prop="workday" sortable width="70px" label="总工时"  align="center">
               </u-table-column>
-              <u-table-column prop="state" min-width="8%" label="项目状态" align="center">
+              <u-table-column prop="used" sortable width="80px" label="已用工时"  align="center">
               </u-table-column>
-              <u-table-column prop="amount"  min-width="8%" label="卷册总数"  align="center">
+              <u-table-column prop="have" sortable width="80px" label="可用工时"  align="center">
               </u-table-column>
-              <u-table-column  min-width="20%" align="center">
+              <u-table-column prop="general" sortable width="80px" label="设总" align="center" style="word-break: break-all;">
+              </u-table-column>
+              <u-table-column prop="state" sortable width="70px" label="状态" align="center">
+              </u-table-column>
+              <u-table-column  width="180px" align="center" fixed="right">
+                <template slot-scope="scope" slot="header">
+                  <el-input  size="mini" v-model="search"
+                             placeholder="请输入需要查询的项目编号或项目名称" />
+                </template>
                 <template slot-scope="scope">
                   <el-row>
                     <el-col :span="12">
@@ -44,17 +73,17 @@
                     <el-col :span="12">
                   <el-button
                     size="mini"
-                    @click="openVolume(scope.row.projectPhaseID)">卷册目录</el-button>
+                    @click="openProject(scope.row)" v-permission="'project_update'">修改</el-button>
                     </el-col>
                   </el-row>
                 </template>
               </u-table-column>
             </u-table>
+            </div>
           </el-row>
         </el-row>
       </el-row>
     </el-form>
-
     <el-dialog
         v-el-drag-dialog
       title="Excel导出"
@@ -86,35 +115,43 @@
       :visible.sync="projectVisible"
       width="90%"
     >
-      <el-row style="text-align: center">
-        <el-col :span="16" >项目编号<el-input v-model="proNum" placeholder="项目编号须与院网项目门户中一致"
-                                          style="width: 50%" ></el-input></el-col>
-        <el-col :span="8" style="text-align: left;">
-          <el-button type="primary" @click="addNumber()">添加</el-button>
-        </el-col>
-      </el-row>
-      <u-table border :data="list" class="u-table"
-                :header-cell-style="{background:'#F5F5F5' } "
-                :row-class-name="tableRowClassName"
-                :default-sort = "{prop: 'date', order: 'descending'}"
-                >
-        <u-table-column prop="number" min-width="13  %" label="项目号" sortable align="center"  >
-        </u-table-column>
-        <u-table-column prop="projectName" min-width="24" label="项目名称" sortable align="center" style="word-break: break-all;">
-        </u-table-column>
-        <u-table-column min-width="24" label="蜘蛛状态" sortable align="center">
-          <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.spider"
-            :active-value=0
-            :inactive-value=1
-            active-text="继续抓取"
-            inactive-text="取消抓取"
-            @change="spiderHandler(scope.row)">
-          </el-switch>
-          </template>
-        </u-table-column>
-      </u-table>
+      <u-table use-virtual :row-height="28" border size="mini" :data="completeList.filter(data =>{
+            return  !search1 || (data.number.toLowerCase().includes(search1.toLowerCase())
+            || data.projectName.toLowerCase().includes(search.toLowerCase()))})"
+               class="u-table" :row-class-name="tableRowClassName"
+               :row-style="projectError"
+               :height="pageHeight"
+               show-summary
+               :summary-method="arraySpanMethod"
+               :header-cell-style="{background:'#F5F5F5'}" :cell-style="this.CellStyleOne">
+      <u-table-column prop="number" sortable width="200px" show-overflow-tooltip label="项目编号" align="center"  >
+      </u-table-column>
+      <u-table-column prop="projectName" sortable width="260px" show-overflow-tooltip label="项目名称" align="center">
+      </u-table-column>
+      <u-table-column prop="workday" sortable width="100px" label="总工时"  align="center">
+      </u-table-column>
+      <u-table-column prop="used" sortable width="100px" label="已用工时"  align="center">
+      </u-table-column>
+      <u-table-column prop="have" sortable width="100px" label="可用工时"  align="center">
+      </u-table-column>
+      <u-table-column prop="general" sortable width="100px" label="设总" align="center" style="word-break: break-all;">
+      </u-table-column>
+      <u-table-column prop="state" sortable width="100px" label="状态" align="center">
+      </u-table-column>
+      <u-table-column  width="200px" align="center" fixed="right">
+        <template slot-scope="scope" slot="header">
+          <el-input  size="mini" v-model="search"
+                     placeholder="请输入需要查询的项目编号或项目名称" />
+        </template>
+        <template slot-scope="scope">
+          <el-row>
+              <el-button
+                size="mini"
+                @click="openVolumeList(scope.row)">项目主页</el-button>
+          </el-row>
+        </template>
+      </u-table-column>
+    </u-table>
     </el-dialog >
     <el-dialog
         v-el-drag-dialog
@@ -127,13 +164,13 @@
       <el-row style="margin-right: 50px">
         <el-col :span="12">
           <el-form-item label-width="120px" label="项目编号">
-            <el-input v-model="form.number"  >
+            <el-input size="mini" v-model="form.number" style="width: 100%">
             </el-input>
           </el-form-item >
         </el-col>
         <el-col :span="12">
           <el-form-item label-width="120px" label="项目名称">
-            <el-input v-model="form.name">
+            <el-input size="mini" v-model="form.name">
             </el-input>
           </el-form-item>
         </el-col>
@@ -141,43 +178,177 @@
       <el-row style="margin-right: 50px">
         <el-col :span="12">
           <el-form-item label-width="120px" label="设总">
-            <el-select v-model="form.general"
+            <el-select v-model="form.general" size="mini"
                        :filterable="true"  :remote="true"
-                       :remote-method="remoteMethod"
+                       :remote-method="(e) => remoteMethod(e,form)"
+                       @change="(e) => selectGeneral(e,form)"
                        value-key="id"
+                       style="width: 100%"
                        :loading="nameLoading"
                        placeholder="请输入人员姓名或工号">
               <el-option
                 v-for="(item,index) in form.generalList"
                 :key="item.id"
                 :label="item.name"
-                :value="item.name">
+                :value="item">
+                <span style="float: left">{{ item.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
               </el-option></el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label-width="120px" label="工时总数">
+          <el-form-item label-width="120px" label="工时总数" size="mini">
             <el-input v-model="form.workday" oninput="value=value.replace(/[^\d.]/g,'')">
             </el-input>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item>
-      <el-switch
-        v-model="form.spider"
-        active-text="关联"
-        inactive-text="不关联"
-        active-value=0
-        inactive-value=1>
-      </el-switch>
-      </el-form-item>
-      <el-form-item style="margin-left: -50px;text-align: center;margin-top: 20px">
-        <el-button @click=" closeDialog ">取消</el-button>
-        <el-button @click="dialogSubmit" type="primary">确认</el-button>
-      </el-form-item>
+      <el-row>
+        <el-col :span="10">
+        <el-form-item>
+          <el-switch
+            v-model="form.spider"
+            active-text="关联"
+            inactive-text="不关联"
+            :active-value = "0"
+            :inactive-value= "1" >
+          </el-switch>
+        </el-form-item>
+        </el-col>
+        <el-col :span="12">
+        <el-form-item style="margin-left: -50px;text-align: center">
+          <el-button @click="closeDialog" size="mini">取消</el-button>
+          <el-button @click="dialogSubmit" size="mini" type="primary">确认</el-button>
+        </el-form-item>
+        </el-col>
+      </el-row>
     </el-row>
   </el-form>
 </el-dialog>
+    <el-dialog
+      v-el-drag-dialog
+      title="修改项目"
+      :visible.sync="updateVisible"
+      width="60%" style="text-align: center"
+      >
+      <el-form :model="project" >
+        <el-row>
+          <el-row style="margin-right: 50px">
+            <el-col :span="12">
+              <el-form-item label-width="120px" label="项目编号">
+                <el-input size="mini" v-model="project.number" style="width: 100%">
+                </el-input>
+              </el-form-item >
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label-width="120px" label="项目名称">
+                <el-input size="mini" v-model="project.name">
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row style="margin-right: 50px">
+            <el-col :span="12">
+              <el-form-item label-width="120px" label="设总">
+                <el-select v-model="project.general" size="mini"
+                           :filterable="true"  :remote="true"
+                           :remote-method="(e) => remoteMethod(e,project)"
+                           value-key="id"
+                           style="width: 100%"
+                           :loading="nameLoading"
+                           @change="(e) => selectGeneral(e,form)"
+                           placeholder="请输入人员姓名或工号">
+                  <el-option
+                    v-for="(item,index) in project.generalList"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item">
+                    <span style="float: left">{{ item.name }}</span>
+                    <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
+                  </el-option></el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label-width="120px" label="工时总数" size="mini">
+                <el-input v-model="project.workday" :disabled="project.workdayState !== 0" oninput="value=value.replace(/[^\d.]/g,'')">
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="10">
+              <el-form-item>
+                <el-switch
+                  v-model="project.spider"
+                  active-text="关联"
+                  inactive-text="不关联"
+                  :active-value = "0"
+                  :inactive-value = "1">
+                </el-switch>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item style="margin-left: -50px;text-align: center">
+                <el-button @click="renewError"
+                           style="color: #13ce66;border-color: #13ce66" size="mini" circle icon="el-icon-refresh"></el-button>
+                <el-button @click="closeUpdateDialog" size="mini">取消</el-button>
+                <el-button @click="updateSubmit" size="mini" type="primary">确认</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-row>
+      </el-form>
+    </el-dialog>
+    <el-dialog
+      v-el-drag-dialog
+      :visible.sync="childrenVisible"
+      width="66%" style="text-align: center"
+      title="子项目列表">
+      <u-table key="tecWorkdayLog" use-virtual :row-height="30"
+               :data="children" size="mini"
+               height="180">
+        <u-table-column
+          label="编号"
+          show-overflow-tooltip
+          prop="number">
+        </u-table-column>
+        <u-table-column
+          label="名称"
+          show-overflow-tooltip
+          prop="name">
+        </u-table-column>
+        <u-table-column
+          label="阶段"
+          show-overflow-tooltip
+          prop="stage">
+        </u-table-column>
+        <u-table-column
+          label="范围"
+          show-overflow-tooltip
+          prop="scope">
+        </u-table-column>
+        <u-table-column
+          label="产值"
+          show-overflow-tooltip
+          prop="money">
+        </u-table-column>
+        <u-table-column
+          label="比例"
+          show-overflow-tooltip
+          prop="ratio">
+        </u-table-column>
+        <u-table-column
+          label="专业"
+          show-overflow-tooltip
+          prop="tec">
+        </u-table-column>
+        <u-table-column
+          label="其他专业"
+          show-overflow-tooltip
+          prop="other_tec">
+        </u-table-column>
+      </u-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -191,17 +362,19 @@ export default {
       getRowKeys(row) {
         return row.id;
       },
+      pageHeight : document.body.scrollHeight,
       // 要展开的行，数值的元素是row的key值
       expands: [],
       id: "",
-      pid: "",
-      isShow : false,
+      search : "",
+      search1 : "",
       list: [],
-      project: {
-      },
+      completeList :[],
       loading : false,
       nameLoading : null,
       volume: {},
+      childrenVisible : false,
+      children : [],
       projectVisible:false,
       options: [],
       fileList : [],
@@ -217,18 +390,10 @@ export default {
         }
       ],
       general : [],
-      newVolume : {},
-      new_pid: null,
-      newProject : {
-        volumes : []
-      },
       declareDay : null,
-      addProject : false,
       excelDialog : false,
       downMonth : "",
       volumeMonth:new Date().getMonth()+1,
-      principalList:[],
-      designerList:[],
       nowWeek : "",
       visible : false,
       form : {
@@ -238,7 +403,14 @@ export default {
         general : [],
         spider : 0,
       },
-      tecList : [],
+      updateVisible : false,
+      project: {
+        number : "",
+        name : "",
+        workday : "",
+        general : [],
+        spider : 0,
+      },
     }
   },
   mounted() {
@@ -264,9 +436,23 @@ export default {
         })
         .catch(res => (console.log(res)));
     },
+    getCompleteData() {
+      this.completeList = [];
+      this.$axios
+        .post(this.$baseUrl + 'project/queryCompleteByAdmin', {
+            "id": this.id
+          }
+        )
+        .then(res => {
+          this.completeList = res.data.data
+          this.projectVisible = true
+        })
+        .catch(res => (console.log(res)));
+    },
     setDeclareDay(){
       this.$axios
-        .post(this.$baseUrl + 'project/setDeclareDay',{},{headers:{day : this.declareDay}})
+        .post(this.$baseUrl + 'project/setDeclareDay',{},
+          {headers:{day : this.declareDay}})
         .then(res => {
           if (res.data.code === 0){
             this.$message.success("操作成功")
@@ -293,7 +479,19 @@ export default {
       //把每一行的索引放进row
       row.index = rowIndex;
     },
-    remoteMethod(query) {
+    getChildren(row){
+      this.$axios.
+      post(this.$baseUrl + 'project/queryChildren',{
+        id : row.id,
+        type : row.type})
+        .then( res => {
+          if ( res.data.code === 0){
+            this.children = res.data.data;
+            this.childrenVisible = true }
+        })
+        .catch(res => console.log(res))
+    },
+    remoteMethod(query,data) {
       if (query !== '') {
         this.loading = true;
         setTimeout(() => {
@@ -304,7 +502,7 @@ export default {
             )
             .then(res => {
               if (res.data.data != null) {
-                this.form.generalList = res.data.data
+                data.generalList = res.data.data
               }
           });
           this.loading = false;
@@ -332,6 +530,17 @@ export default {
         }
       }
     },
+    projectError({row, rowIndex}) {
+      let rowBackground = {};
+      if (row.error === 1) {
+        rowBackground.color = "#bd2626";
+      }else {
+        if (row.distributeState !== 1){
+          rowBackground.color = "#cba313";
+        }
+      }
+      return rowBackground
+    },
     proHandler(){
       this.projectVisible = true;
       console.table(this.list)
@@ -345,29 +554,81 @@ export default {
         spider : 0,
         generalList : [],
       };
-        if ( this.tecList.length <= 0) {
-          this.$axios
-            .post(this.$baseUrl + 'technology/queryAll')
-            .then(res => {
-              this.tecList = res.data.data
-            })
-            .catch(res => (console.log(res.data)))
-        }
       this.visible = true;
     },
     dialogSubmit(){
+      if (this.form.general === null || this.form.general === ''){
+        return this.$message.warning("请选择设总")
+      }
       this.$axios
-        .post(this.$baseUrl + 'project/setProject',this.form)
+        .post(this.$baseUrl + 'project/setProject',{
+          number : this.form.number,
+          name : this.form.name,
+          general  : this.form.general.name,
+          generalId  : this.form.generalId,
+          num : this.form.workday,
+          spider : this.form.spider,
+        })
         .then(res => {
         if (res.data.code === 0){
           this.closeDialog()
                 }
               })
         .catch(res => (console.log(res.data)))
-        },
+    },
     closeDialog(){
       this.visible = false;
       this.getData()
+    },
+    openProject(row){
+      this.project = {
+        id : row.id,
+        number : row.number,
+        name : row.projectName,
+        workday : row.workday,
+        workdayState : row.workdayState,
+        general : row.general,
+        generalId : row.generalId,
+        spider : row.spider,
+        generalList : [],
+      }
+      this.updateVisible = true;
+    },
+    selectGeneral(v,data){
+      data.generalId = v.id
+    },
+    updateSubmit(){
+      if (this.form.general === null || this.form.general === ''){
+        return this.$message.warning("请选择设总")
+      }
+      this.$axios
+        .post(this.$baseUrl + 'project/renewProject',{
+          project_id : this.project.id,
+          number : this.project.number,
+          name : this.project.name,
+          general  : this.project.general.name,
+          generalId  : this.project.generalId,
+          num : this.project.workday,
+          spider : this.project.spider,
+      })
+        .then(res => {
+          if (res.data.code === 0){
+            this.$message.success("操作成功")
+            this.closeUpdateDialog();
+          }
+        })
+        .catch(res => (console.log(res.data)))
+    },
+    closeUpdateDialog(){
+      this.updateVisible = false;
+      // this.getData()
+    },
+    renewError(){
+      this.$axios
+        .post(this.$baseUrl + 'project/renewError',{},{headers : {id : this.project.id}})
+        .then(res =>{this.getData()
+        this.$message.success("操作成功")})
+        .catch(res => (console.log(res)));
     },
     spiderHandler(r){
       console.log(r)
@@ -443,26 +704,10 @@ export default {
       }
       xhr.send();
     },
-    addNumber(){
-      this.$axios
-        .post(this.$baseUrl + 'project/addNumber',{
-          number : this.proNum
-        })
-        .then(res => {
-          if (res.data.data.code === 0){
-            this.$message({
-              type: "success",
-              message : "已成功添加"
-            })
-          }
-          this.getData();
-        })
-        .catch(res => (console.log(res)));
-    },
-    openVolume(p){
-      window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/RollEntityBill.aspx?' +
-        'OrganizationId=' + p + '&secid=00000000-0000-0000-0000-000000000000&IsPortal=True')
-    },
+    // openVolume(p){
+    //   window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/RollEntityBill.aspx?' +
+    //     'OrganizationId=' + p + '&secid=00000000-0000-0000-0000-000000000000&IsPortal=True')
+    // },
     openVolumeList(project){
       console.log(project)
       const href = this.$router.resolve(
@@ -475,6 +720,35 @@ export default {
         }
       )
       window.open( href.href,project.id)
+    },
+    arraySpanMethod({  columns, data }) {
+      const means = [] // 合计
+      columns.forEach((column, columnIndex) => {
+        if (columnIndex === 0) {
+          means.push('合计')
+        } else {
+          const values = data.map(item => Number(item[column.property]));
+          // 合计
+          if (!values.every(value => isNaN(value))) {
+            means[columnIndex] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+                return (prev * 100 + curr * 100)/100;
+              } else {
+                return prev;
+              }
+            }, 0);
+            // 改变了ele的合计方式，扩展了合计场景
+            // 你以为就只有上面这样玩吗？错啦，你还可以自定义样式哦
+            // means[columnIndex] = '<span style="color: red">' + means[columnIndex] + '元</span>'
+            means[columnIndex] = means[columnIndex].toFixed(2)
+          } else {
+            means[columnIndex] = '';
+          }
+        }
+      })
+      // 返回一个二维数组的表尾合计(不要平均值，你就不要在数组中添加)
+      return [means]
     },
     getWeek(){
       // date = formatTimebytype(date, 'yyyy-MM-dd');//将日期转换成yyyy-mm-dd格式

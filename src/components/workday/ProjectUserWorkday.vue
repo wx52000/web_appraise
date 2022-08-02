@@ -63,9 +63,9 @@
       <u-table key="logList" use-virtual :row-height="28" :data="logList" class="u-table"
                size = "mini" :border="false" :cell-style="this.CellStyleOne"
                height="360px">
-        <u-table-column prop="number" min-width="15%" show-overflow="tooltip" label="任务编号" align="center" style="word-break: break-all;">
+        <u-table-column prop="number" min-width="15%" show-overflow-tooltip  label="任务编号" align="center" style="word-break: break-all;">
         </u-table-column>
-        <u-table-column prop="name" min-width="15%" show-overflow="tooltip" label="任务名称" align="center" style="word-break: break-all;">
+        <u-table-column prop="name" min-width="15%" show-overflow-tooltip  label="任务名称" align="center" style="word-break: break-all;">
         </u-table-column>
         <u-table-column prop="handler" min-width="10%" label="主设人/发放人" align="center"  >
         </u-table-column>
@@ -127,9 +127,17 @@ export default {
   },
   mounted(){
     this.projectId = this.$route.query.project_id;
-    let  a = new Date();
-    this.nowMonth = a.getFullYear() + "-" + (Number(a.getMonth()) + 1).toString().padStart(2,0)
-    this.getData()
+    this.$axios
+      .post(this.$baseUrl + 'project/declareDay'
+      )
+      .then(res => {
+        let day = res.data.data
+        const c = new Date(new Date().getTime()-3600*24*day*1000)
+        let month1 = c.getFullYear() + "-" + (Number(c.getMonth()) + 1).toString().padStart(2,0)
+        this.nowMonth = month1
+        this.getData()
+      })
+      .catch(res => (console.log(res)));
   },
   methods:{
     getData(){
@@ -202,7 +210,7 @@ export default {
             means[columnIndex] = values.reduce((prev, curr) => {
               const value = Number(curr);
               if (!isNaN(value)) {
-                return prev + curr;
+                return (prev * 100 + curr * 100)/100;
               } else {
                 return prev;
               }
@@ -210,7 +218,7 @@ export default {
             // 改变了ele的合计方式，扩展了合计场景
             // 你以为就只有上面这样玩吗？错啦，你还可以自定义样式哦
             // means[columnIndex] = '<span style="color: red">' + means[columnIndex] + '元</span>'
-            means[columnIndex] = means[columnIndex]
+            means[columnIndex] = means[columnIndex].toFixed(2)
           } else {
             means[columnIndex] = '';
           }

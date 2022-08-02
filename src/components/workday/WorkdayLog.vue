@@ -15,6 +15,9 @@
     </el-row>
   <u-table use-virtual :row-height="28" border :data="list" class="u-table"
            :header-cell-style="{background:'#F5F5F5' } "
+           showBodyOverflow="title"
+           showHeaderOverflow="title"
+           :data-changes-scroll-top="false"
            :default-sort = "{prop: 'date', order: 'descending'}"
            v-loading="loading" size = "mini">
     <u-table-column prop="number" min-width="13  %" label="卷册号" sortable align="center"  >

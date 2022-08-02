@@ -2,19 +2,21 @@
   <div>
     <el-row style="margin:0 auto;text-align: center; align-content: center">
       <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-        中国能建人员管理表
+        人员管理表
       </el-col>
     </el-row>
     <el-row style="text-align: right" >
-        <el-col :span="4" >姓名<el-input v-model="search1" @keyup.enter.native="search" size="mini" style="width: 50%" ></el-input></el-col>
-        <el-col :span="4" >工号<el-input v-model="search2" @keyup.enter.native="search" size="mini"   style="width: 50%" ></el-input></el-col>
+        <el-col :span="4" >姓名
+          <el-input v-model="search1" @keyup.enter.native="getData" size="mini" style="width: 50%" ></el-input></el-col>
+        <el-col :span="4" >工号
+          <el-input v-model="search2" @keyup.enter.native="getData" size="mini"   style="width: 50%" ></el-input></el-col>
         <el-col :span="4" style="text-align: right;">
           <el-button type="primary" size="mini" @click="getData">查询</el-button>
           <el-button  size="mini"  @click="reset()">重置</el-button>
         </el-col>
       <el-col :span="3" style="text-align: left;">
       <el-button style="text-align: center; margin-left: 30px"
-                 @click="handleOpenAdd" size="mini">人员添加</el-button>
+                 @click="handleOpenAdd" size="mini" v-permission="'user:add'">人员添加</el-button>
       </el-col>
       <el-col :span="2" >
         <el-upload
@@ -110,8 +112,8 @@
           icon="el-icon-info"
           icon-color="red"
           title="确定要删除这个用户吗？"
-        style="margin-left: 8px"
-          @confirm="deleteRow(scope.row)">
+          style="margin-left: 8px"
+          @confirm="deleteRow(scope.row,scope.rowIndex)">
           <el-button
             type="text"
             slot="reference"
@@ -125,16 +127,25 @@
     </el-row>
     <el-dialog
       title="人员新增"
+      v-el-drag-dialog
       :visible.sync="addVisible"
-      width="50%"
-      :before-close="handleClose">
-      <el-form id="add" style="text-align: left">
+      width="50%">
+      <el-form id="add" style="text-align: left" size="mini">
         <el-row>
-          <el-col :span="12">姓&nbsp;名&nbsp;<el-input v-model="add.name" style="width: 50%" ></el-input></el-col>
-          <el-col :span="12">工&nbsp;号&nbsp;<el-input v-model="add.username" style="width: 50%" ></el-input></el-col>
+          <el-col :span="12">
+            <el-form-item label-width="80px" label="姓名">
+              <el-input v-model="add.name" ></el-input>
+            </el-form-item>
+        </el-col>
+          <el-col :span="12">
+            <el-form-item label-width="80px" label="工号">
+              <el-input v-model="add.username"></el-input>
+            </el-form-item>
+          </el-col>
         </el-row>
-        <el-row style="margin-top: 10px">
-          <el-col :span="12">部&nbsp;门&nbsp;
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label-width="80px" label="部门">
             <template>
               <el-select v-model="add.did" placeholder="请选择" @change="getTecSelect">
                 <el-option
@@ -145,8 +156,10 @@
                 </el-option>
               </el-select>
             </template>
+            </el-form-item>
           </el-col>
-          <el-col :span="12">专&nbsp;业&nbsp;
+          <el-col :span="12">
+            <el-form-item label-width="80px" label="专业">
             <template>
               <el-select v-model="add.tid" placeholder="请选择" @change="$forceUpdate">
                 <el-option
@@ -157,14 +170,14 @@
                 </el-option>
               </el-select>
             </template>
+            </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
-        </el-row>
-        <el-row>
-          <el-col :span="12">职位&nbsp;
+        <el-row >
+          <el-col :span="12">
+            <el-form-item label-width="80px" label="职位">
             <template>
-              <el-select v-model="add.pid" placeholder="请选择" style="width: 60%" >
+              <el-select v-model="add.pid" placeholder="请选择">
                 <el-option
                   v-for="item in positionList"
                   :key="item.id"
@@ -173,13 +186,16 @@
                 </el-option>
               </el-select>
             </template>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" style="text-align: right;">
+            <el-form-item>
+            <el-button @click="addVisible = false" size="mini">取 消</el-button>
+            <el-button type="primary" @click="addPer" size="mini">确 定</el-button>
+            </el-form-item>
           </el-col>
         </el-row>
       </el-form>
-      <el-row style="margin-top: 10px">
-        <el-button @click="addVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addPer">确 定</el-button>
-      </el-row>x
     </el-dialog>
   </div>
 
@@ -263,12 +279,13 @@ export default {
       })
 
     },
-    deleteRow(v){
+    deleteRow(row,index){
       this.$axios
-        .post(this.$baseUrl + 'user/del', {},{headers:{id:this.list[v].id}})
+        .post(this.$baseUrl + 'user/del', {},{headers:{id:row.id}})
         .then(res =>{
-          if(res.data.data.code === 0){
-            this.getData();
+          if(res.data.code === 0){
+            this.list.splice(index,1);
+            this.$message.success("操作成功")
           }
         })
         .catch(res => (console.log(res)));
@@ -348,12 +365,15 @@ export default {
       this.$axios
         .post(this.$baseUrl + 'user/add', this.add)
         .then(res =>{
-          if(res.data.data.code === 0){
+          if(res.data.code === 0){
             this.getData();
+            this.addVisible = false;
+            this.$message.success("添加成功")
           }})
         .catch(res => (console.log(res)));
     },
     handleOpenAdd() {
+      this.add = {};
       this.addVisible = true;
     },
     getTecSelect(){
@@ -405,10 +425,6 @@ export default {
         }
       }
     },
-    handleClose(){
-      this.add = {};
-    }
-
   }
 }
 </script>

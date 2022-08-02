@@ -36,24 +36,24 @@
         <u-table key="logList" use-virtual :row-height="28" :data="logList" class="u-table"
                  size = "mini" :border="false" :cell-style="this.CellStyleOne"
                  height="360px">
-          <u-table-column prop="pnum" min-width="10%" label="项目编号" align="center"  >
+          <u-table-column prop="pnum" sortable min-width="10%" label="项目编号" align="center"  >
           </u-table-column>
-          <u-table-column prop="pname" min-width="10%" label="项目名称" align="center"  >
+          <u-table-column prop="pname" sortable min-width="10%" label="项目名称" align="center"  >
           </u-table-column>
-          <u-table-column prop="number" min-width="15%" label="任务编号" align="center" style="word-break: break-all;">
+          <u-table-column prop="number" sortable min-width="15%" label="任务编号" align="center" style="word-break: break-all;">
           </u-table-column>
-          <u-table-column prop="name" min-width="15%" label="任务名称" align="center" style="word-break: break-all;">
+          <u-table-column prop="name" sortable min-width="15%" label="任务名称" align="center" style="word-break: break-all;">
           </u-table-column>
-          <u-table-column prop="handler" min-width="10%" label="主设人/发放人" align="center"  >
+          <u-table-column prop="handler" sortable min-width="10%" label="主设人/发放人" align="center"  >
           </u-table-column>
-          <u-table-column prop="workday" min-width="10%" label="工时数量" align="center">
+          <u-table-column prop="workday" sortable min-width="10%" label="工时数量" align="center">
           </u-table-column>
-          <u-table-column prop="type" min-width="15%" label="类型" align="center"  >
+          <u-table-column prop="type" sortable min-width="15%" label="类型" align="center"  >
             <template slot-scope="scope">
               <span>{{scope.row.type|typeFilter}}</span>
             </template>
           </u-table-column>
-          <u-table-column prop="role" min-width="15%" label="角色" align="center"  >
+          <u-table-column prop="role" sortable min-width="15%" label="角色" align="center"  >
             <template slot-scope="scope">
               <span>{{scope.row.role|roleFilter}}</span>
             </template>
@@ -102,8 +102,17 @@ name: "Self",
   },
   mounted() {
     let a = new Date();
-    this.nowMonth = a.getFullYear() + "-" + (Number(a.getMonth()) + 1).toString().padStart(2,0)
-    this.getData()
+    this.$axios
+      .post(this.$baseUrl + 'project/declareDay'
+      )
+      .then(res => {
+        let day = res.data.data
+        const c = new Date(new Date().getTime()-3600*24*day*1000)
+        let month1 = c.getFullYear() + "-" + (Number(c.getMonth()) + 1).toString().padStart(2,0)
+        this.nowMonth = month1
+        this.getData()
+      })
+      .catch(res => (console.log(res)));
   },
   methods:{
     getData() {
@@ -111,7 +120,6 @@ name: "Self",
         .post(this.$baseUrl + 'user/information',{},{headers :{queryDate: this.nowMonth}})
         .then(res =>{
           let data = res.data.data;
-          console.log(data)
           this.information.name = data.user.name;
           this.information.technology = data.user.technology;
           this.information.department = data.user.department;
@@ -120,11 +128,10 @@ name: "Self",
             Number(data.volume.checker) + Number(data.volume.principal) + Number(data.volume.headman)).toFixed(2);
           data.task = this.$myMethod.nullTo0(data.task) + this.$myMethod.nullTo0(data.advance);
           data.manage = this.$myMethod.nullTo0(data.manage);
-          console.log(data.virtual)
           this.information.workday = (Number(this.information.volume) + Number(data.task) + Number(data.manage)).toFixed(2)
           this.information.task = data.task
           this.information.manage = data.manage
-          console.log(this.information)
+          this.$forceUpdate();
         })
         .catch(res => (console.log(res)));
       this.$axios

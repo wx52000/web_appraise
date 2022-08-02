@@ -8,26 +8,42 @@
     <el-menu-item index="/appraiseMain/appraise" @click="toPage('/appraiseMain/appraise')">个人评价</el-menu-item>
     <el-menu-item index="/appraiseMain/tecAppraise" @click="toPage('/appraiseMain/tecAppraise')">专业评价</el-menu-item>
     </el-submenu>
-      <el-menu-item index="/appraiseMain/construction" @click="toPage('/appraiseMain/construction')">项目</el-menu-item>
+      <el-menu-item index="/appraiseMain/construction" @click="toPage('/appraiseMain/construction')">项目列表</el-menu-item>
 <!--      <el-menu-item v-if="position !== null && position.indexOf(`1`) != -1" index="/appraiseMain/headmanProject" @click="toPage('/appraiseMain/headmanProject')">组长管理</el-menu-item>-->
 <!--    <el-menu-item index="/home/main" @click="toPage('/home/main')"-->
 <!--                  style="float: right" v-if="pid == 1">系统管理</el-menu-item>-->
-    <el-menu-item index="/appraiseMain/managerWorkday"
-                  @click="toPage('/appraiseMain/managerWorkday')"
-      v-if="managerRole">工时查看</el-menu-item>
+    <el-menu-item index="/appraiseMain/selfProject"
+                  @click="toPage('/appraiseMain/selfProject')"
+    >项目申请</el-menu-item>
+    <el-submenu index="3" v-if="managerRole || departmentProgress">
+      <template slot="title" >
+        部门管理
+      </template>
+        <el-menu-item v-if="managerRole" index="/appraiseMain/managerWorkday"
+                      @click="toPage('/appraiseMain/managerWorkday')"
+                      >部门工时</el-menu-item>
+        <el-menu-item v-if="departmentProgress" class="nav2" index="/appraiseMain/manageProgress"
+                      @click="toPage(toPage('/appraiseMain/manageProgress'))">生产任务
+        </el-menu-item>
+      <el-menu-item v-if="departmentProgress" class="nav2" index="/appraiseMain/manageProjectRole"
+                    @click="toPage(toPage('/appraiseMain/manageProjectRole'))">角色任务
+      </el-menu-item>
+    </el-submenu>
     <el-menu-item  style="float: right" >
       <span style="color: #dd6161">欢迎使用:</span>
       <span style="color: #e6a23c">{{name}}</span>
-      <el-dropdown  @command="handleCommand">
+      <el-dropdown >
         <i class="el-icon-setting" style="margin-bottom: 5px"></i>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-if="showadmin > 0"
-          command="1">管理员管理</el-dropdown-item>
-            <el-dropdown-item
-                              command="2">个人信息页面</el-dropdown-item>
           <el-dropdown-item
-            command="3">密码修改</el-dropdown-item>
-          <el-dropdown-item>退出登录</el-dropdown-item>
+          command="1" v-if="showAdmin" @click.native="home">管理员管理</el-dropdown-item>
+          <el-dropdown-item
+                              command="2" @click.native="self">个人信息页面</el-dropdown-item>
+          <el-dropdown-item
+            command="4" @click.native="projectListManage()">项目列表管理</el-dropdown-item>
+          <el-dropdown-item
+            command="3" @click.native="replacePassword">密码修改</el-dropdown-item>
+          <el-dropdown-item @click.native="signOut">退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </el-menu-item>
@@ -46,6 +62,7 @@
       :showClose="false"
       >
       <div style="width:100%;text-align:center" @keyup.enter="updPaw">
+        <el-row style="margin-bottom: 10px"><span>为开展好网络安全加固工作，请把密码改为强密码</span></el-row>
       <el-form id="paw" :model="paw" :rules="ruleValidate" label-width="100px"  >
         <el-form-item prop="paw1" label="新密码"  style="width: 60%; padding-left: 15%">
           <el-input pro v-model="paw.paw1" type="password"  autocomplete="off"
@@ -59,6 +76,123 @@
       </el-form>
       </div>
     </el-dialog>
+    <el-dialog
+      v-el-drag-dialog
+      title="卷册人员重名确认"
+      :visible.sync="sameNameVisible"
+      width="80%"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-row style="font-size: 14px;color: #dd6161">该列表中卷册表示在系统中存在重名人员参与卷册，请选择实际参与人员</el-row>
+      <u-table key="list" use-virtual :row-height="28" :data="list" class="u-table"
+               size = "mini" :border="false" :cell-style="this.CellStyleOne"
+               height="360px">
+        <u-table-column prop="pnumber" min-width="15%" show-overflow-tooltip  label="项目编号" align="center" style="word-break: break-all;">
+        </u-table-column>
+        <u-table-column prop="pname" min-width="15%" show-overflow-tooltip  label="项目名称" align="center" style="word-break: break-all;">
+        </u-table-column>
+        <u-table-column prop="number" min-width="15%" show-overflow-tooltip  label="任务编号" align="center" style="word-break: break-all;">
+        </u-table-column>
+        <u-table-column prop="name" min-width="15%" show-overflow-tooltip  label="任务名称" align="center" style="word-break: break-all;">
+        </u-table-column>
+        <u-table-column prop="designer" min-width="15%" show-overflow-tooltip  label="设计" align="center" style="word-break: break-all;">
+          <template slot-scope="scope" >
+            <el-select v-model="scope.row.designerId" placeholder="请选择" style="width: 100px"
+                        size="mini" @focus="getUser(scope.row,'designer')"  :loading="loading"
+                       @change="sameNameInsert(scope.row)" v-if="scope.row.sameDesigner === 1">
+              <el-option
+                v-for="item in scope.row.designerList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+                <span style="float: left">{{ item.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
+              </el-option>
+            </el-select>
+            <span v-else>{{scope.row.designer}}</span>
+          </template>
+        </u-table-column>
+        <u-table-column prop="checker" min-width="15%" show-overflow-tooltip  label="校核" align="center" style="word-break: break-all;">
+          <template slot-scope="scope">
+            <el-select v-model="scope.row.checkerId" placeholder="请选择" style="width: 100px"
+                        size="mini" @change="sameNameInsert(scope.row)"  v-if="scope.row.sameChecker=== 1"
+                       @focus="getUser(scope.row,'checker')"  :loading="loading">
+              <el-option
+                v-for="item in scope.row.checkerList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              <span style="float: left">{{ item.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
+              </el-option>
+            </el-select>
+            <span v-else>{{scope.row.checker}}</span>
+          </template>
+        </u-table-column>
+        <u-table-column prop="principal" min-width="15%" show-overflow-tooltip  label="主设" align="center" style="word-break: break-all;">
+          <template slot-scope="scope" >
+            <el-select v-model="scope.row.principalId" placeholder="请选择" style="width: 100px"
+                       size="mini" @change="sameNameInsert(scope.row)" v-if="scope.row.samePrincipal === 1"
+                       @focus="getUser(scope.row,'principal')"  :loading="loading">
+              <el-option
+                v-for="item in scope.row.principalList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              <span style="float: left">{{ item.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
+              </el-option>
+            </el-select>
+            <span v-else>{{scope.row.principal}}</span>
+          </template>
+        </u-table-column>
+        <u-table-column prop="headman" min-width="15%" show-overflow-tooltip  label="组长" align="center" style="word-break: break-all;">
+          <template slot-scope="scope" >
+            <el-select v-model="scope.row.headmanId" placeholder="请选择" style="width: 100px"
+                       size="mini" @change="sameNameInsert(scope.row)" v-if="scope.row.sameHeadman === 1"
+                       @focus="getUser(scope.row,'headman')"  :loading="loading">
+              <el-option
+                v-for="item in scope.row.headmanList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              <span style="float: left">{{ item.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
+              </el-option>
+            </el-select>
+            <span v-else>{{scope.row.headman}}</span>
+          </template>
+        </u-table-column>
+      </u-table>
+    </el-dialog>
+    <el-drawer
+      title="管理项目列表"
+      size ="40%"
+      :visible.sync="drawer"
+      >
+      <u-table use-virtual :row-height="28" border :data="projectList"
+               :height = "height"
+               :default-sort = "{prop: 'date', order: 'descending'}"
+               v-loading="loading" size = "mini">
+        <u-table-column prop="number" min-width="13%" label="项目编号" sortable align="center"  >
+        </u-table-column>
+        <u-table-column prop="name" min-width="20" label="项目名称" sortable align="center" style="word-break: break-all;">
+        </u-table-column>
+        <u-table-column prop="name" label="状态" min-width="6%" align="center">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.show"
+              active-value = "1"
+              inactive-value = "0"
+              @change="setShow(scope.row)"
+              active-color="#13ce66"
+              inactive-color="#ff4949">
+            </el-switch>
+          </template>
+        </u-table-column>
+      </u-table>
+    </el-drawer>
       <news class="news"/>
   </div>
 </template>
@@ -66,19 +200,27 @@
 <script>
 
 import storage from "../../store";
+import {resetRouter} from "../../router/index"
 
-const power_id = [1,2,3]
-
+// const testPassword =
+//   "/^(?![a-zA-Z]+$)" +
+//   "(?![A-Z0-9]+$)(?![A-Z\W_!@#$%^&*`~()-+=]+$)(?![a-z0-9]+$)" +
+//   "(?![a-z\W_!@#$%^&*`~()-+=]+$)(?![0-9\W_!@#$%^&*`~()-+=]+$)" +
+//   "[a-zA-Z0-9\W_!@#$%^&*`~()-+=]{8,16}$/";
+const testPassword =/^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)(?=.*?[<>!#@*&$%^()/~`\\=_\?+-.])[a-zA-Z\d<>!#@*&$%^()\?/~`\\=_+-.]*$/;
 export default {
   name: "AppraiseMain",
   data() {
     const pawRule1 = async(rule, value, callback) => {
       if (value.length < 6) {
         this.paw1Check = 1
-        return callback(new Error('密码不能少于6位！'));
+        return callback(new Error('密码不能少于8位！'));
       } else if (value.length > 16) {
         this.paw1Check = 1
         return callback(new Error('密码最长不能超过16位！'));
+      } else if (!testPassword.test(value)){
+        this.paw1Check = 1
+        return callback(new Error('请同时包含大小写，数字和特殊字符组合'));
       } else {
         this.paw1Check = 0
         callback()
@@ -97,37 +239,52 @@ export default {
       }
     };
     return {
+      height : document.body.scrollHeight,
       logIn : false,
       activeIndex: '1',
       visible : false ,
+      loading : true,
       id : "",
       name : "",
       pid : "",
-      showadmin : 0,
+      showAdmin : 0,
       position : "",
       grade : "",
       paw : {
         paw1 :"",
         paw2 :""
       },
+      list : [],
+      drawer: false,
+      projectList : [],
+      sameNameVisible : false,
       managerRole : false,
+      departmentProgress : false,
       paw1Check : 0,
       paw2Check : 1,
       ruleValidate: {
         paw1: [
-          { required: true, validator: pawRule1, trigger: 'blur' }
+          { required: true, validator: pawRule1, trigger: 'change' }
         ],
         paw2: [
-          { required: true, validator: pawRule2, trigger: 'blur' }
+          { required: true, validator: pawRule2, trigger: 'change' }
         ]
       }
     };
   },
   mounted() {
-    this.managerRole = storage.get("role") === "经理";
-    // this.managerRole = true;
-    console.log(storage.get("role") === "经理")
+    let menus = storage.get("menus")
+    this.managerRole = menus.find(item =>{
+      return item.router === "managerWorkday"
+    });
+    this.departmentProgress = menus.find(item =>{
+      return item.router === "manageProgress"
+    });
+    this.showAdmin = menus.length > 0 && menus.find(item =>{
+      return item.router === "workday"
+    });
     this.getLogIn()
+    this.getData()
     this.activeIndex = this.$route.path
   },
   methods: {
@@ -137,28 +294,94 @@ export default {
         )
         .then(res => {
           this.name = res.data.data.name;
-        this.pid = res.data.data.pid
-          this.showadmin = power_id.find(obj =>{
-            return obj === this.pid;
-          })
+          this.pid = res.data.data.pid
           if (res.data.data.pawState === 0) {
             this.visible = true;
           }
         })
         .catch(res => (console.log(res)));
     },
-    handleCommand(command){
-      if (command === "1"){
-        this.$router.push('/home')
-      }else if (command === "2"){
-        this.activeIndex = "";
-        this.$router.replace('/appraiseMain/self')
-      }else if (command === "3"){
-        this.visible = true
-      }else {
-        this.$storage.removeAll();
-        this.$router.push('/login')
-      }
+    getData() {
+      this.$axios
+        .post(this.$baseUrl + 'project/sameName')
+        .then(res => {
+          if (res.data.data.length > 0) {
+            this.list = res.data.data
+            this.sameNameVisible = true;
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
+    getUser(row, t) {
+      console.log(t+"List")
+      setTimeout(() => {
+        this.loading = true;
+        this.$axios
+          .post(this.$baseUrl + 'user/queryByName', {
+              "name": row[t]
+            }
+          )
+          .then(res => {
+              row[t+'List'] = res.data.data
+              this.$forceUpdate()
+              this.loading = false;
+          },);
+      }, 100);
+    },
+    sameNameInsert(row){
+      this.$axios
+        .post(this.$baseUrl + 'project/sameNameInsert', {
+          id : row.id,
+          designerId : row.designerId,
+          checkerId : row.checkerId,
+          principalId : row.principalId,
+          headmanId : row.headmanId
+        })
+        .then(res => {
+          if (res.data.code === 0) {
+            this.$message.success("操作成功")
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
+    home(){
+      this.$router.push('/home')
+    },
+    projectListManage(){
+      this.drawer = true
+      this.loading = true;
+      this.$axios
+        .post(this.$baseUrl + 'project/PersonalProject')
+        .then(res => {
+            this.projectList = res.data.data
+            this.loading = false;
+        })
+        .catch(res => (console.log(res)));
+    },
+    setShow(row){
+      this.$axios
+        .post(this.$baseUrl + 'project/setShowProject',{
+          id : row.id,
+          show : row.show
+        })
+        .then(res => {
+          if (res.data.code === 0){
+            this.$message.success("操作成功")
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
+    self(){
+      this.activeIndex = "";
+      this.$router.replace('/appraiseMain/self')
+    },
+    replacePassword(){
+      this.visible = true
+    },
+    signOut(){
+      resetRouter();
+      this.$storage.removeAll();
+      this.$router.push('/login')
     },
     toPage(path) {
       this.$router.replace(path);
@@ -166,8 +389,8 @@ export default {
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
     },
-    updPaw(){
-      if (this.paw1Check ===0 && this.paw2Check ===0 ) {
+    updPaw() {
+      if (this.paw1Check === 0 && this.paw2Check === 0) {
         this.$axios
           .post(this.$baseUrl + "user/paw", {
             "id": this.id,
@@ -176,13 +399,15 @@ export default {
           .then(res => {
             if (res.data.code === 0) {
               this.$message("密码修改成功，请重新登录");
-              setTimeout(function () { window.location.href = "/#/login" }, 1000)
+              setTimeout(function () {
+                window.location.href = "http://10.136.238.22:8080/#/login"
+              }, 500)
 
             }
           })
           .catch(res => console.log(res))
 
-      }else {
+      } else {
         this.$message.error("密码输入有误")
         return 0;
       }

@@ -2,7 +2,7 @@
   <div>
     <el-row style="margin:0 auto;text-align: center; align-content: center">
       <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-        中国能建部门管理
+        部门管理
       </el-col>
     </el-row>
     <el-row style="text-align: left;height: 100%;padding-left: 10%">

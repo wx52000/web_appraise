@@ -84,6 +84,7 @@
                width="60%"
                :title="dialogTitle"
                :before-close="closeDialog"
+               v-el-drag-dialog
     >
       <template>
         <el-table

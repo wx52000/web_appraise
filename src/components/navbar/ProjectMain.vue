@@ -5,13 +5,15 @@
           align="center">{{this.project.name}}</el-row>
     <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
       <el-menu-item index="/projectMain/project"
-                    @click="toPage('/projectMain/project')">项目详情</el-menu-item>
+                    @click="toPage('/projectMain/project')">项目主页</el-menu-item>
       <el-menu-item index="/projectMain/projectVolume"
-                    @click="toPage('/projectMain/projectVolume')">卷册列表</el-menu-item>
+                    @click="toPage('/projectMain/projectVolume')">任务列表</el-menu-item>
+      <el-menu-item index="/projectMain/projectProgressDetails"
+                    @click="toPage('/projectMain/projectProgressDetails')">生产任务</el-menu-item>
       <el-menu-item index="/projectMain/projectSumWorkday"  v-if="show"
-                    @click="toPage('/projectMain/projectSumWorkday')">项目工时详情</el-menu-item>
+                    @click="toPage('/projectMain/projectSumWorkday')">总分配工时详情</el-menu-item>
       <el-menu-item index="/projectMain/projectWorkday"  v-if="show"
-                      @click="toPage('/projectMain/projectWorkday')">项目工时分配</el-menu-item>
+                      @click="toPage('/projectMain/projectWorkday')">工时分配与专业管理</el-menu-item>
       <el-menu-item index="/projectMain/projectUserWorkday"  v-if="show"
                     @click="toPage('/projectMain/projectUserWorkday')">个人工时详情</el-menu-item>
       <el-submenu index="/log/" v-if="show">

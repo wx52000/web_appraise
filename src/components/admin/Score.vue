@@ -30,7 +30,7 @@
                     v-loading.lock="loading"  element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading"
                     :header-cell-style="this.CellStyleOne" :cell-style="this.CellStyleOne"
-                    @sort-change="changeSort">
+                    >
 
             <el-table-column prop="name" label="姓名" sortable="custom">
             </el-table-column>
@@ -53,8 +53,6 @@
         </el-row>
       </el-row>
     </el-row>
-    <news-dialog class="news" :is-show="isShow" @click.native="isShow = !isShow">
-    </news-dialog>
   </div>
 </template>
 

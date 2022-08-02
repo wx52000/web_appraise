@@ -45,7 +45,8 @@ name: "Project",
   data(){
   return{
     isShow : false,
-    project:null,
+    project : null,
+    children : [],
   }
   },
   mounted() {

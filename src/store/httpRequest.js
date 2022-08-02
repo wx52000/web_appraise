@@ -29,7 +29,7 @@ axios.interceptors.request.use(
       config.headers.Authorization = tokenInfo
       config.headers.refresh_token = storage.get('refresh_token')
     }
-    console.log(config)
+    // console.log(config)
     return config
   },
   error => {

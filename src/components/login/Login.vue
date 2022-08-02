@@ -1,5 +1,5 @@
 <template id="main">
-  <div style="height: 100vh;text-align: center ;margin: auto" @keyup.enter="logIn">
+  <div style="height: 100vh;text-align: center ;margin: auto" @keyup.enter="logIn" >
     <div style="top: 50%;left:50%;position: absolute;margin-top: -130px;margin-left: -125px">
             <el-row style="line-height: 50px;font-size: 16px;font-weight: bold;color: #999;">用户登录 / USER
               LOGIN</el-row>
@@ -17,11 +17,13 @@
             </el-row>
       <el-link style="top: 90%" @click="down" > 请使用360浏览器急速内核，点击下载</el-link>
     </div>
+    <canvas id="mySpace">
+    </canvas>
   </div>
 </template>
 
 <script>
-
+import myBackGroundImg from '../../assets/js/backGroundImg/myBackGroundImg'
 export default{
   name: 'Login',
   data() {
@@ -30,7 +32,9 @@ export default{
       password: "",
     }
   },
-  mounted() { },
+  mounted() {
+    myBackGroundImg.setBackGroundImg();
+  },
   methods: {
     logIn() {
       if (this.name === "") {
@@ -51,10 +55,21 @@ export default{
             this.$storage.set('Authorization',userToken);
             this.$storage.set('refresh_token', refresh_token);
             this.$storage.set('role',role)
-            // 将用户token保存到vuex中
-            this.$router.push('/appraiseMain')
-          })
-          .catch(res => {
+            if (role !== "外部门"){
+            this.$axios
+              .post(this.$baseUrl + "position/queryByRoleId",{})
+            .then(data => {
+              this.$storage.set('menus', data.data.data.menus);
+              this.$storage.set('button',data.data.data.button);
+              this.$router.replace('/')
+            })
+              .catch(res => {
+              console.log(res)})
+            }else {
+              this.$router.replace('otherCheck')
+            }
+              })
+            .catch(res => {
             console.log(res)
           });
       }

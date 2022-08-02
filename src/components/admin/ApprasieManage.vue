@@ -2,7 +2,7 @@
   <div>
     <el-row style="margin:0 auto;text-align: center; align-content: center">
       <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-        中国能建评价管理
+        评价管理
       </el-col>
     </el-row>
         <el-form id="user">
@@ -14,9 +14,9 @@
               <el-button size="mini" @click="reset()">重置</el-button>
             </el-col>
             <el-col :span="10">
-            <el-button type="primary" size="mini" style="text-align: center; " @click="getRange" >评价取值范围管理</el-button>
-              <el-button type="primary" size="mini" style="text-align: center; " @click="getRangeDate" >评价时间管理</el-button>
-              <el-button type="primary" size="mini" style="text-align: center; " @click="getWeight" >权重管理</el-button>
+            <el-button type="primary" size="mini" style="text-align: center; " v-permission="'range:update'" @click="getRange" >评价取值范围管理</el-button>
+              <el-button type="primary" size="mini" style="text-align: center; " v-permission="'dateRange:update'" @click="getRangeDate" >评价时间管理</el-button>
+              <el-button type="primary" size="mini" style="text-align: center; " v-permission="'weigth:update'" @click="getWeight" >权重管理</el-button>
             </el-col>
           </el-row >
         <el-row style="width: 100%;text-align: center;">
@@ -75,7 +75,8 @@
                 <el-button
                   @click="handle(scope.row)"
                   type="text"
-                  size="small">
+                  size="small"
+                v-permission="'appraise:update'">
                   管理
                 </el-button>
               </template>

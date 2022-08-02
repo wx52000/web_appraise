@@ -5,7 +5,7 @@
       <el-aside width="20%" heigth="100%" >
         <!-- logo名字 -->
         <el-row @click.native="back()" style="padding: 10px 0 0 20px ; text-align: center">
-          <el-col :span="22">
+          <el-col :span="24">
             <el-row style="margin-top: 35px;text-align: center;color: #000000;font-size: 16px;font-weight: bold;">发电工程公司综合管理
             </el-row>
           </el-col>
@@ -16,18 +16,28 @@
             <el-menu-item index="home/workday" @click="toPage(toPage('/home/workday'))">
               工时信息
             </el-menu-item>
-              <el-menu-item index="/home/adminProject" @click="toPage(toPage('/home/adminProject'))">项目管理
-              </el-menu-item>
-            <!-- <el-submenu index="1">
-              <template slot="title">
-                <el-row >项目管理</el-row>
-              </template>
-            <el-menu-item-group> -->
-              <!-- <el-menu-item class="nav2" index="1-2" @click="toPage('/home/adminProphase')">前期项目和其他项目
-              </el-menu-item>
-            </el-menu-item-group> -->
-            <!-- </el-submenu> -->
+            <el-menu-item index="/home/adminProject" @click="toPage(toPage('/home/adminProject'))">项目管理
+            </el-menu-item>
+            <el-menu-item index="/home/projectRole"
+                          @click="toPage(toPage('/home/projectRole'))">角色任务
+            </el-menu-item>
             <el-submenu index="2">
+              <template slot="title">
+                <el-row >生产任务</el-row>
+              </template>
+            <el-menu-item-group>
+              <el-menu-item class="nav2" index="/home/projectProgress"
+                            @click="toPage(toPage('/home/projectProgress'))">项目列表
+              </el-menu-item>
+              <el-menu-item class="nav2" index="/home/tecProgress"
+                            @click="toPage(toPage('/home/tecProgress'))">专业列表
+              </el-menu-item>
+            </el-menu-item-group>
+            </el-submenu>
+            <el-menu-item index="/home/plannedPublicTask"
+                          @click="toPage(toPage('/home/plannedPublicTask'))">计划任务
+            </el-menu-item>
+            <el-submenu index="3">
               <template slot="title">
                 <el-row >个人评价</el-row>
               </template>
@@ -38,7 +48,7 @@
                 </el-menu-item>
               </el-menu-item-group>
             </el-submenu>
-            <el-submenu index="3">
+            <el-submenu index="4">
               <template slot="title">
                 <el-row >专业评价</el-row>
               </template>
@@ -50,7 +60,7 @@
               </el-menu-item-group>
             </el-submenu>
 
-            <el-submenu index="4">
+            <el-submenu index="5">
               <template slot="title">
                 <el-row >系统管理</el-row>
               </template>
@@ -60,6 +70,10 @@
                 <el-menu-item class="nav2" index="4-2" @click="toPage('/home/department')">部门管理
                 </el-menu-item>
                 <el-menu-item class="nav2" index="4-3" @click="toPage('/home/appraiseManage')">评价管理
+                </el-menu-item>
+                <el-menu-item class="nav2" index="4-4" @click="toPage('/home/roleManage')">权限管理
+                </el-menu-item>
+                <el-menu-item class="nav2" index="4-5" @click="toPage(toPage('/home/checkerManage'))">审核管理
                 </el-menu-item>
               </el-menu-item-group>
             </el-submenu>
@@ -94,6 +108,8 @@
 </template>
 
 <script>
+import {resetRouter} from "../../router";
+
 export default {
 name: "Home",
   provide () {    //父组件中通过provide来提供变量，在子组件中通过inject来注入变量。
@@ -133,11 +149,12 @@ name: "Home",
         .catch(res => (console.log(res)));
     },
     logOut() {
+      resetRouter();
       this.$storage.removeAll();
       this.$router.push('/login')
     },
     logApp() {
-      this.$router.replace("/appraiseMain");
+      this.$router.replace("/");
       this.getLogIn();
     },
     back() {
@@ -160,6 +177,7 @@ name: "Home",
 
 
 .nav2 {
-  padding: 0px 0px 0px 30px;
+  margin-left: 36px;
+  /*padding-left: 30px;*/
 }
 </style>

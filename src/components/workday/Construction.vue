@@ -9,12 +9,12 @@
               <ux-grid key="volumeList" :ref="'gird'+row.id" use-virtual border :data="row.list" class="ux-table" :header-cell-style="{color:'#000000'}"
                   :default-sort = "{prop: 'date', order: 'descending'}"
                   size="mini"
-                  max-height="300"
-                  :row-style="completeState" @row-contextmenu="rightClick">
+                  max-height="300" :row-style="completeState"
+                   @row-contextmenu="(rowThis, column, event) => rightClick(rowThis, column, event, row)">
           <ux-table-column  fixed="left" field="type" width="130" title="任务类型" align="center"
                       :filters="[{label:'卷册',value:'卷册'},{label:'管理',value:'管理'},
                             {label:'备用',value:'备用'},{label:'设总备用',value:'设总备用'},{label:'设总管理',value:'设总管理'}]"
-                      :filter-method="filterHandler">
+                      :filter-method="filterHandler" >
                    <template slot-scope="scope">
                       <el-select v-model="scope.row.type" placeholder="请选择" size="mini"
                       v-if="scope.row.spider && (scope.row.state ==='正在设计' || scope.row.state === '正在校审')">
@@ -28,9 +28,9 @@
                       <span v-else>{{scope.row.type}}</span>
                     </template>
           </ux-table-column>
-          <ux-table-column fixed="left" field="number" width="140" show-overflow="tooltip" title="任务编号" sortable align="center">
+          <ux-table-column fixed="left" field="number" width="140" show-overflow-tooltip title="任务编号" sortable align="center">
           </ux-table-column>
-          <ux-table-column field="name" width="220" title="任务名称" show-overflow="tooltip" align="center" sortable>
+          <ux-table-column field="name" width="220" title="任务名称" show-overflow-tooltip align="center" sortable>
           </ux-table-column>
           <ux-table-column field="state"  width="80" title="状态" align="center"
                            :filters="[{label:'尚未开展',value:'尚未开展'},{label:'正在设计',value:'正在设计'},
@@ -43,39 +43,39 @@
           <ux-table-column field="scope" width="80" title="工时"  align="center"
                            sortable>
             <template slot-scope="scope">
-              <el-input v-model.lazy="scope.row.workday" size="mini" :disabled="releasableStateFilterSum(scope.row,true)"
+              <el-input v-model.lazy="scope.row.workday" size="mini" :disabled="releasableStateFilterSum(scope.row,true, row)"
                @change="changeWorkday(scope.row)"></el-input>
             </template>
           </ux-table-column>
-            <ux-table-column field="scope" width="80" title="设计工时"  align="center"
+            <ux-table-column field="scope" width="80" title="设计工时"  align="center" sortable
                            >
             <template slot-scope="scope">
-              <el-input v-model.lazy="scope.row.designer_workday" size="mini" :disabled="releasableStateFilterSum(scope.row, false)"
+              <el-input v-model.lazy="scope.row.designer_workday" size="mini" :disabled="releasableStateFilterSum(scope.row, false, row)"
                @change="changeWorkday(scope.row)"></el-input>
             </template>
           </ux-table-column>
-            <ux-table-column field="scope" width="80" title="校核工时"  align="center"
+            <ux-table-column field="scope" width="80" title="校核工时"  align="center" sortable
                            >
             <template slot-scope="scope">
-              <el-input v-model.lazy="scope.row.checker_workday" size="mini" :disabled="releasableStateFilterSum(scope.row, false)"
+              <el-input v-model.lazy="scope.row.checker_workday" size="mini" :disabled="releasableStateFilterSum(scope.row, false, row)"
                @change="changeWorkday(scope.row)"></el-input>
             </template>
           </ux-table-column>
-            <ux-table-column field="scope" width="80" title="主设工时"  align="center"
+            <ux-table-column field="scope" width="80" title="主设工时"  align="center" sortable
                            >
             <template slot-scope="scope">
-              <el-input v-model.lazy="scope.row.principal_workday" size="mini" :disabled="releasableStateFilterSum(scope.row, false)"
+              <el-input v-model.lazy="scope.row.principal_workday" size="mini" :disabled="releasableStateFilterSum(scope.row, false, row)"
                @change="changeWorkday(scope.row)"></el-input>
             </template>
           </ux-table-column>
-            <ux-table-column field="scope" width="80" title="组长工时"  align="center"
+            <ux-table-column field="scope" width="80" title="组长工时"  align="center" sortable
                            >
             <template slot-scope="scope">
-              <el-input v-model.lazy="scope.row.headman_workday" size="mini" :disabled="releasableStateFilterSum(scope.row, false)"
+              <el-input v-model.lazy="scope.row.headman_workday" size="mini" :disabled="releasableStateFilterSum(scope.row, false, row)"
                @change="changeWorkday(scope.row)"></el-input>
             </template>
           </ux-table-column>
-          <ux-table-column field="designer" width="100"  title="设计人"
+          <ux-table-column field="designer" width="100"  title="设计人" sortable
                             :filters="row.designerList"
                            align="center"
                           :filter-method="filterHandler">
@@ -86,7 +86,7 @@
               <span>{{scope.row.workday_state}}</span>
             </template>
           </ux-table-column>
-          <ux-table-column field="grant" width="120" title="已发放工时"  align="center"
+          <ux-table-column field="grant" width="120" title="已预发工时"  align="center"
                            sortable>
           </ux-table-column>
           <ux-table-column field="shot_date" width="120"  title="出手日期" sortable align="center">
@@ -148,22 +148,22 @@
           <ux-table-column field="complete_time" width="100"  title="完成日期" sortable align="center">
           </ux-table-column>
           <ux-table-column field="checker" width="100"  title="校核人"
-                           align="center"
+                           align="center" sortable
                           :filter-method="filterHandler">
           </ux-table-column>
                 <ux-table-column field="headman" width="120"  title="组长工程师"
-                                 align="center"
+                                 align="center" sortable
                                  :filter-method="filterHandler">
                 </ux-table-column>
           <ux-table-column
             align="center" width="100px" fixed="right">
             <template slot-scope="scope">
               <el-button v-if="scope.row.spider === 1 "
-                         :disabled="scope.row.workday === undefined || scope.row.check !== 1 || scope.row.submit !== 0"
+                         :disabled="(scope.row.workday === undefined || scope.row.check !== 1 || scope.row.submit !== 0) || scope.row.principalRole !== 1"
                 size="mini"
                 @click="openVolumeWorkday(scope.row,true)">预发</el-button>
               <el-button v-if="scope.row.spider === 0 && scope.row.type.indexOf('设总') === -1"
-                         :disabled="scope.row.workday === undefined || scope.row.shot_date !== '' || scope.row.submit !== 0"
+                         :disabled="(scope.row.workday === undefined || scope.row.shot_date !== '' || scope.row.submit !== 0) || scope.row.principalRole !== 1"
                          size="mini"
                          @click="openVolumeWorkday(scope.row,true)">预发</el-button>
             </template>
@@ -172,17 +172,26 @@
           </template>
         </template>
       </ux-table-column>
-      <ux-table-column field="number" min-width="10%" title="项目编号" align="center"  >
+      <ux-table-column field="number" sortable  min-width="10%" title="项目编号" align="center"  >
       </ux-table-column>
-      <ux-table-column field="name" min-width="26%" title="项目名称" align="center">
+      <ux-table-column field="name" sortable min-width="26%" title="项目名称" align="center">
+        <template slot-scope="scope" >
+          <el-button type="text" @click="getChildren(scope.row)"
+                     v-if="scope.row.type === 2" size="mini">{{scope.row.name}}</el-button>
+          <span v-else>{{scope.row.name}}</span>
+        </template>
       </ux-table-column>
-      <ux-table-column field="director" width="80" title="主管设总" align="center"  >
+      <ux-table-column field="director" sortable width="80" title="主管总工" align="center"  >
       </ux-table-column>
-      <ux-table-column field="general" width="80" title="设总" align="center" style="word-break: break-all;">
+      <ux-table-column field="general" sortable width="80" title="设总" align="center" style="word-break: break-all;">
       </ux-table-column>
-      <ux-table-column field="create_time" width="120" title="开始时间" align="center">
+      <ux-table-column field="create_time" sortable width="120" title="开始时间" align="center">
       </ux-table-column>
-      <ux-table-column field="amount"  width="100" title="参与卷册数"  align="center">
+      <ux-table-column field="amount"  width="100" title="申报任务数"  align="center">
+        <template slot-scope="scope" v-if="scope.row.principal === 1">
+          <el-button size="mini" style="width: 60px" type="primary"
+                     @click="openDeclareLog(scope.row.id)">{{scope.row.amount}}</el-button>
+        </template>
       </ux-table-column>
       <ux-table-column  width="400px" align="center">
         <template slot="header" slot-scope="scope">
@@ -201,16 +210,16 @@
         </template>
         <template slot-scope="scope">
           <el-row>
-              <el-button size="mini" @click="newTask(scope.row)"
-               v-if="(scope.row.show === 1 || scope.row.principal === 1)">新增任务</el-button >
-              <el-button
-                size="mini"
-                :disabled = "scope.row.principal !== 1"
-                @click="workdayDistribute(scope.row)">工时分配</el-button>
             <el-button
               size="mini"
-              :disabled = "scope.row.principal !== 1"
-              @click="workdayByPrincipal(scope.row)">工时统计</el-button>
+              :disabled = "scope.row.principal !== 1 || scope.row.frozen === 1"
+              @click="workdayDistribute(scope.row)">工时分配</el-button>
+              <el-button size="mini" @click="newTask(scope.row)"
+               v-if="(scope.row.show === 1 || scope.row.principal === 1) && scope.row.frozen === 0">新增任务</el-button >
+            <el-button
+              size="mini"
+              :disabled = "scope.row.principal !== 1 || scope.row.frozen === 1"
+              @click="tecByPrincipal(scope.row)">工时统计</el-button>
               <el-button
                 size="mini"
                 v-if="scope.row.show === 1"
@@ -223,6 +232,7 @@
     v-el-drag-dialog
     :visible.sync="visible_workday"
     @close="closeDialog"
+    :close-on-click-modal="false"
     width="60%" v-if='visible_workday'>
     <el-container>
       <el-header align="left" style="margin-top: -30px">
@@ -240,7 +250,11 @@
             </el-select>专业工时分配</h4>
           </el-col>
           <el-col :span="7">
-            总专业工时:<span style="color: #66b1ff">{{workdayData.num}}</span>
+            总工时:<span style="color: #66b1ff">{{workdayData.num}}</span>
+                        <span>-{{workdayData.tecCheck|checkFilter}}</span>
+            <el-button size="mini" style="text-align: center;font-size: 10px;padding: 2.5px"
+                       type="primary" @click="openTecWorkdayLog"
+                       >记录</el-button>
           </el-col>
           <el-col :span="7">
             已分配工时:<span style="color: #66b1ff">{{workdayData.used}}</span>
@@ -418,7 +432,7 @@
     <el-form :model="volume_workday" size="mini" :inline="true">
       <el-row v-if="volume_workday.spider">
         <template>
-        <el-radio-group v-model="volume_workday.ratio" @change="setWorkdayAdvance" :disabled="volume_workday.state !== '正在设计' && volume_workday.state !== '正在校审' && volume_workday.state !== '尚未开展'">
+        <el-radio-group v-model="volume_workday.ratio" @change="setWorkdayAdvance" :disabled="volume_workday.workday_state === '已发放'">
           <el-radio :label="0.2" :disabled="volume_workday.max>=0.2">提资完成(20%)</el-radio>
           <el-radio :label="0.5" :disabled="volume_workday.max>=0.5">个人出手(50%)</el-radio>
           <el-radio :label="0">不预发</el-radio>
@@ -444,6 +458,7 @@
   <el-dialog
     v-el-drag-dialog
     title="卷册比例修改"
+    :close-on-click-modal="false"
     :visible.sync="ratioVisible"
     width="60%" style="text-align: center">
     <el-form :model="volume_workday" size="mini">
@@ -473,7 +488,7 @@
                 <template slot="append">
                   %</template>
               </el-input>
-              <el-input v-model="volume_workday.designerNum" @input="numChange('designer')" style="width: 30%" oninput="value=value.replace(/[^\d.]/g,'')">
+              <el-input v-model="volume_workday.designerNum" type="text" @input="numChange('designer')" style="width: 30%" oninput="value=value.replace(/[^\d.]/g,'')">
               </el-input>
             </el-form-item >
           </el-col>
@@ -524,6 +539,7 @@
   </el-dialog>
   <el-dialog
     v-el-drag-dialog
+    :close-on-click-modal="false"
     :visible.sync="taskVisible"
     width="60%" style="text-align: center">
             <span slot="title">
@@ -625,7 +641,7 @@
           <el-form-item
                          label="任务工时:"
                         >
-            <el-input v-model="task.workday" :disabled="!task.check" v-if="!taskType" class="input" oninput="value=value.replace(/[^\d.]/g,'')" style="width: 100%;">
+            <el-input v-model="task.workday" :disabled="task.check !== 1" v-if="!taskType" class="input" oninput="value=value.replace(/[^\d.]/g,'')" style="width: 100%;">
             </el-input>
             <el-input :value.trim="taskWorkday" disabled v-else class="input" oninput="value=value.replace(/[^\d.]/g,'')" style="width: 100%;">
             </el-input>
@@ -644,6 +660,8 @@
                   :key="item.id"
                   :label="item.principal"
                   :value="item.id">
+                  <span style="float: left">{{ item.name }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
                 </el-option>
               </el-select>
           </el-form-item>
@@ -652,7 +670,7 @@
           <el-form-item
                          label="工时:"
                         v-if="taskType" label-width="60px">
-                 <el-input v-model="task.principal_workday" :disabled="!task.check || task.principal === null" size="mini" ></el-input>
+                 <el-input v-model="task.principal_workday" :disabled="task.check !== 1 || task.principal === null" size="mini" ></el-input>
           </el-form-item>
         </el-col>
 
@@ -674,6 +692,8 @@
                 :key="item.id"
                 :label="item.name"
                 :value="item.id">
+                <span style="float: left">{{ item.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
               </el-option></el-select>
           </el-form-item>
         </el-col>
@@ -681,7 +701,7 @@
           <el-form-item
                          label="工时:"
                         v-if="taskType" label-width="60px">
-                 <el-input v-model="task.designer_workday" :disabled="!task.check || task.designer === null" size="mini" ></el-input>
+                 <el-input v-model="task.designer_workday" :disabled="task.check !== 1 || task.designer === null" size="mini" ></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -701,6 +721,8 @@
                 :key="item.id"
                 :label="item.name"
                 :value="item.id">
+                <span style="float: left">{{ item.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
               </el-option></el-select>
           </el-form-item>
         </el-col>
@@ -708,7 +730,7 @@
           <el-form-item
                          label="工时:"
                         v-if="taskType" label-width="60px">
-                 <el-input v-model="task.checker_workday" :disabled="!task.check || task.checker === null" size="mini" ></el-input>
+                 <el-input v-model="task.checker_workday" :disabled="task.check !== 1 || task.checker === null" size="mini" ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -726,6 +748,8 @@
                 :key="item.id"
                 :label="item.name"
                 :value="item.id">
+                <span style="float: left">{{ item.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.username }}</span>
               </el-option></el-select>
           </el-form-item>
         </el-col>
@@ -733,7 +757,7 @@
           <el-form-item
                          label="工时:"
                         v-if="taskType" label-width="60px">
-                 <el-input v-model="task.headman_workday" :disabled="!task.check || task.headman === null"  size="mini" ></el-input>
+                 <el-input v-model="task.headman_workday" :disabled="task.check !== 1 || task.headman === null"  size="mini" ></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -774,14 +798,26 @@
   <el-dialog
     v-el-drag-dialog
     :visible.sync="userVisible"
+    :close-on-click-modal="false"
     width="80%" style="text-align: center">
     <el-row align="center" slot="title">
       工时统计
       <i class="el-icon-document-copy" @click="downExcel()"></i>
+      <el-select v-model="user.tec" placeholder="请选择" style="width: 100px" value-key="tec" size="mini"
+                 @change="workdayByPrincipal">
+        <el-option
+          v-for="item in user.tecList"
+          :key="item.volume_tec"
+          :label="item.volume_tec"
+          :value="item.volume_tec">
+        </el-option>
+      </el-select>
       <el-button size="mini" style="float: right;margin-right: 25px" @click="openDeclare">工时申报</el-button>
     </el-row>
     <ux-grid use-virtual border :data="user.list" class="ux-table"
              :max-height=pageHeight
+             show-summary
+             :summary-method="arraySpanMethod"
              size = "mini" :cell-style="this.CellStyleOne">
       <ux-table-column field="username" width="10%" fixed sortable title="工号" align="center"  >
       </ux-table-column>
@@ -798,12 +834,12 @@
       <ux-table-column  width="200px" align="center"  fixed="right">
         <template slot="header" slot-scope="scope">
           <el-date-picker
-            v-model="nowMonth"
+            v-model="showMonth"
             field="month"
             style="width: 160px"
             size="mini"
             type="month"
-            @change="workdayByPrincipal(user)"
+            @change="workdayByPrincipal()"
             format="yyyy-MM"
             value-format="yyyy-MM"
             placeholder="选择月">
@@ -849,6 +885,7 @@
   <el-dialog
     v-el-drag-dialog
     :visible.sync="declareVisible"
+    :close-on-click-modal="false"
     width="80%" style="text-align: center">
     <el-row align="center" slot="title" style="margin-left: 125px">
       工时申报
@@ -875,6 +912,14 @@
       </ux-table-column>
       <ux-table-column field="workday"  width="80px" sortable title="工时" align="center">
       </ux-table-column>
+      <ux-table-column field="designer"  width="80px" sortable title="设计" align="center">
+      </ux-table-column>
+      <ux-table-column field="checker"  width="80px" sortable title="校核" align="center">
+      </ux-table-column>
+      <ux-table-column field="principal"  width="80px" sortable title="主设" align="center">
+      </ux-table-column>
+      <ux-table-column field="headman"  width="80px" sortable title="组长" align="center">
+      </ux-table-column>
       <ux-table-column field="type" width="80px" title="工时类型" align="center"  >
         <template slot-scope="scope">
           <span>{{scope.row|workdayTypeFilter}}</span>
@@ -888,16 +933,178 @@
     </ux-grid>
     <el-row align="right" style="text-align: right">
       <el-button @click="declareVisible = false" size="mini">取消</el-button>
+      <el-button @click="declareMethod" type="primary" size="mini">申报</el-button>
+    </el-row>
+  </el-dialog>
+  <el-dialog
+    v-el-drag-dialog
+    :visible.sync="declareConfirmVisible"
+    :close-on-click-modal="false"
+    width="50%" style="text-align: center">
+    <el-row align="center" slot="title">
+      <span style="font-weight: bold;color: #000000">{{user.declareDate}}</span>工时申报
+      <span>
+      </span>
+    </el-row>
+    <ux-grid use-virtual border :data="declareUserList" class="ux-table" style="margin-top: -15px"
+             :max-height=pageHeight show-summary
+             :summary-method="arraySpanMethod"
+             size = "mini" :cell-style="this.CellStyleOne">
+      <ux-table-column field="name" min-width="15%" fixed sortable title="姓名" align="center"  >
+      </ux-table-column>
+      <ux-table-column field="workday" sortable title="工时" align="center">
+      </ux-table-column>
+    </ux-grid>
+    <el-row align="right" style="text-align: right">
+      <el-button @click="declareConfirmVisible = false" size="mini">取消</el-button>
       <el-button @click="submitDeclare" type="primary" size="mini">申报</el-button>
     </el-row>
+  </el-dialog>
+  <el-dialog
+    v-el-drag-dialog
+    :visible.sync="tecWorkdayLogVisible"
+    width="50%" style="text-align: center"
+    title="工时记录">
+    <u-table key="tecWorkdayLog" use-virtual :row-height="30"
+             :data="tecWorkdayLog" size="mini"
+             height="180">
+      <u-table-column
+        label="时间"
+        show-overflow-tooltip
+        prop="time">
+      </u-table-column>
+      <u-table-column
+        label="数量"
+        show-overflow-tooltip
+        prop="amount">
+      </u-table-column>
+      <u-table-column
+        label="原因"
+        show-overflow-tooltip
+        prop="reason">
+      </u-table-column>
+    </u-table>
+  </el-dialog>
+  <el-dialog
+    v-el-drag-dialog
+    :visible.sync="declareLogVisible"
+    :close-on-click-modal="false"
+    width="80%" style="text-align: center">
+    <el-row align="center" style="margin-bottom: 15px;margin-top: -30px">
+      <el-date-picker
+        v-model="showMonth"
+        field="month"
+        style="width: 160px"
+        size="mini"
+        type="month"
+        @change="openDeclareLog(declareLog.id)"
+        format="yyyy-MM"
+        value-format="yyyy-MM"
+        placeholder="选择月">
+      </el-date-picker>
+      <el-select v-model="declareLog.tec" placeholder="请选择" style="width: 100px" value-key="index" size="mini">
+        <el-option
+          v-for="(item,index) in declareLog.data"
+          :key="index"
+          :label="item.tec"
+          :value="index">
+        </el-option>
+      </el-select>
+      申报日志
+    </el-row>
+    <ux-grid use-virtual border :data="declareLog.data[declareLog.tec].list" class="ux-table"
+             :max-height=pageHeight
+             size = "mini" :cell-style="this.CellStyleOne">
+      <ux-table-column field="number" width="10%" fixed sortable title="任务编号" align="center"  >
+      </ux-table-column>
+      <ux-table-column field="name" width="10%" fixed sortable title="任务名称" align="center"  >
+      </ux-table-column>
+      <ux-table-column field="submitState" min-width="10%" sortable title="任务状态" align="center">
+      </ux-table-column>
+      <ux-table-column field="workday"  min-width="10%" sortable title="总工时" align="center">
+      </ux-table-column>
+      <ux-table-column field="designer"  min-width="10%" sortable title="设计" align="center"  >
+      </ux-table-column>
+      <ux-table-column field="checker" min-width="10%" sortable title="校核" align="center" style="word-break: break-all;">
+      </ux-table-column>
+      <ux-table-column field="principal" min-width="10%" sortable title="主设" align="center">
+      </ux-table-column>
+      <ux-table-column field="headman" min-width="10%" sortable title="组长" align="center">
+      </ux-table-column>
+      <ux-table-column field="type" min-width="10%" sortable title="工时类型" align="center">
+        <template slot-scope="scope">
+          <span>{{scope.row|workdayTypeFilter}}</span>
+        </template>
+      </ux-table-column>
+      <ux-table-column field="advance" min-width="10%" sortable title="是否预发" align="center">
+        <template slot-scope="scope">
+          <span>{{scope.row.advance|advanceFilter}}</span>
+        </template>
+      </ux-table-column>
+      <ux-table-column fixed="right" width="100px" title="" align="center">
+        <template slot-scope="scope">
+          <el-button size="mini" @click="setbackOff(scope.row)" :disabled="scope.row.submit_date !== declareMonth[0]">申请回退</el-button>
+        </template>
+      </ux-table-column>
+    </ux-grid>
+  </el-dialog>
+  <el-dialog
+    v-el-drag-dialog
+    :visible.sync="childrenVisible"
+    width="66%" style="text-align: center"
+    title="子项目列表">
+    <u-table key="tecWorkdayLog" use-virtual :row-height="30"
+             :data="children" size="mini"
+             height="180">
+      <u-table-column
+        label="编号"
+        show-overflow-tooltip
+        prop="number">
+      </u-table-column>
+      <u-table-column
+        label="名称"
+        show-overflow-tooltip
+        prop="name">
+      </u-table-column>
+      <u-table-column
+        label="阶段"
+        show-overflow-tooltip
+        prop="stage">
+      </u-table-column>
+      <u-table-column
+        label="范围"
+        show-overflow-tooltip
+        prop="scope">
+      </u-table-column>
+      <u-table-column
+        label="产值"
+        show-overflow-tooltip
+        prop="money">
+      </u-table-column>
+      <u-table-column
+        label="比例"
+        show-overflow-tooltip
+        prop="ratio">
+      </u-table-column>
+      <u-table-column
+        label="专业"
+        show-overflow-tooltip
+        prop="tec">
+      </u-table-column>
+      <u-table-column
+        label="其他专业"
+        show-overflow-tooltip
+        prop="other_tec">
+      </u-table-column>
+    </u-table>
   </el-dialog>
   <div id="rightMenu"
        v-show="menuVisible"
        class="menu">
     <div class="contextmenu__item" v-if="updMenu"
-         @click="openVolumeWorkday(CurrentRow,false)">修改</div>
+         @click="openVolumeWorkday(currentRow,false)">修改</div>
     <div class="contextmenu__item" v-if="delMenu"
-         @click="delTask(CurrentRow)">删除</div>
+         @click="delTask(currentRow)">删除</div>
   </div>
 </div>
 </template>
@@ -928,6 +1135,13 @@ const role = [{id :0, explain : "设计"},
   {id :3, explain : "组长"},
   {id :5, explain : "设总"},]
 
+const stateColor = [{state : "未填报", color : "#000000"},
+  {state : "未审核", color : "#ADD8E6"},
+  {state : "未申报", color : "#FFFF00"},
+  {state : "已申报", color : "#CAFF70"},
+  {state : "已发放", color : "#00FF7F"},
+  {state : "申报被拒", color : "#EE6363"},]
+
 import virtualList  from 'vue-virtual-scroll-list'
 import chinapy from '@/assets/js/chinapy.js'
 import News from '../other/News.vue'
@@ -945,7 +1159,9 @@ name: "UserScore",
     delMenu : false,
     updMenu : false,
     declareVisible : false,
-    CurrentRow : null,
+    declareConfirmVisible : false,
+    currentParentRow : null,
+    currentRow : null,
     volume_workday_visible : false,
     loading : true,
     projectList : [],
@@ -973,11 +1189,13 @@ name: "UserScore",
     volume_workday : {
       spider : 0,
       ratio : 0,
-      designerNum : 0,
+      designerNum : 0.00,
+      checkerNum : 0.00,
+      principalNum : 0.00,
+      headmanNum : 0.00
     },
     nameLoading : true,
     nameList : [],
-    excelDialog : false,
     showDate : [],
     downMonth : [],
     ratioVisible : false,
@@ -1007,17 +1225,31 @@ name: "UserScore",
     taskDep : [],
     taskTec : [],
     checkerList : [],
+    childrenVisible : false,
+    children : [],
     taskTypeShow : false,
     user : {
         id : null,
+        tec : null,
+        tecList : [],
         declareDate : null,
         list : [],
         log : []
     },
     userVisible : false,
     logVisible : false,
-    nowMonth : "",
+    showMonth : "",
     declareMonth : [],
+    declareUserList : [],
+    tecWorkdayLogVisible : false,
+    tecWorkdayLog : [],
+    declareLogVisible : false,
+    declareLog : {
+        tec : 0,
+        data : [
+          {list : []}
+        ]
+    },
   }
   },
   filters:{
@@ -1047,6 +1279,24 @@ name: "UserScore",
           return  "卷册"
         }
       }
+
+    },
+    checkFilter(val){
+      if (val === 0){
+        return "待审核"
+      }
+      else if (val === 1){
+        return "审核通过"
+      }
+      else if (val === 2){
+        return "被回退"
+      }
+      else if (val === 4){
+        return "草稿"
+      }
+      else {
+        return "未填写"
+      }
     },
     advanceFilter(value){
       if (value){
@@ -1069,16 +1319,16 @@ name: "UserScore",
       }
     },
     taskWorkday(){
-      return (Number(this.task.designer_workday) + Number(this.task.checker_workday) +
-       Number(this.task.principal_workday) +Number(this.task.headman_workday))
+      return (Number(this.task.designer_workday)*1000 + Number(this.task.checker_workday)*1000 +
+       Number(this.task.principal_workday)*1000 +Number(this.task.headman_workday)*1000)/1000
     },
     backupUable(){
-      return (Number(this.workdayData.num) - Number(this.workdayData.manage) - Number(this.workdayData.volume))
+      return (Number(this.workdayData.num)*1000 - Number(this.workdayData.manage)*1000 - Number(this.workdayData.volume)*1000)/1000
     },
     volumeUsed(){
       return this.workdayData.list.reduce((prev, cur) => {
         if (cur.workday !== undefined && cur.workday !== "") {
-          return Number(prev) + Number(cur.workday);
+          return (Number(prev)*1000 + Number(cur.workday)*1000)/1000
         }
       },0)
     }
@@ -1095,10 +1345,10 @@ name: "UserScore",
     },
     volume_workday:{
       handler(newVal,oldVal){
-        newVal.nowWorkday = Number(newVal.principalNum) +
+        newVal.nowWorkday = (Number(newVal.principalNum) +
           Number(newVal.designerNum) +
           Number(newVal.checkerNum) +
-          Number(newVal.headmanNum);
+          Number(newVal.headmanNum)).toFixed(2);
       },
       deep: true
     }
@@ -1110,7 +1360,7 @@ name: "UserScore",
     const b = new Date(new Date().getTime()-3600*24*30*1000)
     const start =  b.getFullYear() + "-" + (Number(b.getMonth())+1).toString().padStart(2,0) + "-" + b.getDate().toString().padStart(2,0)
     this.nowDate = a.getFullYear() + "-" + (Number(a.getMonth()) + 1).toString().padStart(2,0)
-    this.nowMonth = a.getFullYear() + "-" + (Number(a.getMonth()) + 1).toString().padStart(2,0)
+    let nowMonth = a.getFullYear() + "-" + (Number(a.getMonth()) + 1).toString().padStart(2,0)
     this.showDate = [start,end]
     this.downMonth = [start,end]
     this.$axios
@@ -1118,10 +1368,11 @@ name: "UserScore",
       )
       .then(res => {
         let day = res.data.data
-        this.declareMonth.push2(this.nowMonth);
         const c = new Date(new Date().getTime()-3600*24*day*1000)
-        this.declareMonth.push2(c.getFullYear() + "-" + (Number(c.getMonth()) + 1).toString().padStart(2,0));
-        this.declareMonth.push2("2021-12");
+        let month1 = c.getFullYear() + "-" + (Number(c.getMonth()) + 1).toString().padStart(2,0)
+        this.showMonth = month1;
+        this.declareMonth.push2(month1);
+        this.declareMonth.push2(nowMonth);
       })
       .catch(res => (console.log(res)));
   },
@@ -1130,16 +1381,16 @@ name: "UserScore",
   },
   methods: {
     ratioChange(val){
-      this.volume_workday[val+'Num'] = (this.volume_workday.workday * this.volume_workday[val]/100).toFixed(2)
+      this.volume_workday[val+'Num'] = (Number(this.volume_workday.workday) * Number(this.volume_workday[val])/100).toFixed(2)
     },
     numChange(val){
-      this.volume_workday[val] =  (this.volume_workday[val+'Num']/ this.volume_workday.workday*100).toFixed(2)
+      this.volume_workday[val] =  (Number(this.volume_workday[val+'Num'])/ Number(this.volume_workday.workday)*100).toFixed(2)
     },
-    rightClick(row, column, event) {
+    rightClick(row, column, event, rowParent) {
       this.menuVisible = false // 先把模态框关死，目的是 第二次或者第n次右键鼠标的时候 它默认的是true
       this.delMenu = false
       this.updMenu = false
-      if (row.principal === this.$parent.name) {
+      if (row.principalRole === 1) {
         if (row.submit === 0 || row.submit === 3) {
           if (row.spider && ( row.state === "尚未开展" || row.state === "尚未确定")) {
             this.delMenu = true
@@ -1153,7 +1404,8 @@ name: "UserScore",
           if (this.delMenu || this.updMenu) {
             this.menuVisible = true // 显示模态窗口，跳出自定义菜单栏
             event.preventDefault() //关闭浏览器右键默认事件
-            this.CurrentRow = row
+            this.currentParentRow = rowParent
+            this.currentRow = row
             let menu = document.querySelector('#rightMenu');
             this.styleMenu(menu)
           }
@@ -1190,68 +1442,86 @@ name: "UserScore",
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
+    getChildren(row){
+      this.$axios.
+      post(this.$baseUrl + 'project/queryChildren',{
+        id : row.id,
+        type : row.type})
+        .then( res => {
+          if ( res.data.code === 0){
+          this.children = res.data.data;
+          this.childrenVisible = true}
+        })
+        .catch(res => console.log(res))
+    },
     completeState({row, rowIndex}) {
-      // if (row.planned_shot_date !== undefined && row.planned_shot_date !== "" &&
-      //   (row.state === '正在设计' || row.state === '正在校审')) {
-      //   let days = this.dateDiff(row.planned_shot_date)
+      // console.log("rowStyle")
+      // console.log(row)
+      // if (row.workday_state !== undefined) {
       //   let rowBackground = {};
-      //   if (-1 >= days >= -3){
-      //     row.reasonState = true
-      //     rowBackground.background = "#dede89";
-      //     return rowBackground;
-      //   }else if (days >= -1 ){
-      //     row.reasonState = true
-      //     rowBackground.background = "pink";
-      //     return rowBackground;
-      //   }
+      //   let obj = stateColor.find(value => {
+      //     return value.state === row.workday_state
+      //   })
+      //   rowBackground.color = obj.color;
+      //   return rowBackground
       // }
     },
     clickRowHandle(row, column, event) {
       if(!row.expanded){
-      if (column.property !== undefined) {
-      row.loading = true;
-      this.$axios
-        .post(this.$baseUrl + 'project/queryTaskByUser',{
-          id : row.id,
-          queryStart : this.showDate[0],
-          queryEnd : this.showDate[1]
-        })
-        .then(res => {
-          if(res.data.data != undefined){
-            let depList =[], tecList =[], designerList = [],
-            principalList = [], checkerList = [];
-          this.$nextTick( () => {
-            res.data.data.forEach(item =>{
-              item.general = row.general
-              item.old = item.workday
+      if (column.property !== undefined && column.property !== "amount") {
+        if (row.type !== 2 && column.property !== "name") {
+          row.loading = true;
+          this.$axios
+            .post(this.$baseUrl + 'project/queryTaskByUser', {
+              id: row.id,
+              queryStart: this.showDate[0],
+              queryEnd: this.showDate[1]
             })
-            this.$set(row,'list',res.data.data)
-            row.expanded = true;
-            this.$refs.uxGrid.setRowExpand([row],true)
-            row.loading = false
-          },0)
-          }
-              })
-              .catch(res => (console.log(res.data)))
+            .then(res => {
+              if (res.data.data != undefined) {
+                let depList = [], tecList = [], designerList = [],
+                  principalList = [], checkerList = [];
+                this.$nextTick(() => {
+                  res.data.data.forEach(item => {
+                    item.general = row.general
+                    item.old = item.workday
+                  })
+                  this.$set(row, 'list', res.data.data)
+                  row.expanded = true;
+                  this.$refs.uxGrid.setRowExpand([row], true)
+                  row.loading = false
+                }, 0)
+              }
+            })
+            .catch(res => (console.log(res.data)))
+        }
       }
       }else{
         row.expanded = false;
         this.$refs.uxGrid.setRowExpand([row],false)
       }
     },
-    releasableStateFilterSum(row,type){
-      if (type) {
-        if (row.spider === 1) {
-          if (row.submit === 1 || row.submit === 2) {
+    releasableStateFilterSum(row,type, highRow){
+      if (row.principalRole === 1) {
+        if (type) {
+          if (row.spider === 1) {
+            if (row.submit === 1 || row.submit === 2) {
+              return true;
+            } else return false;
+          } else {
             return true;
-          } else return false;
-        }else {return true;}
-      }else {
-        if (row.spider === 0) {
-          if (row.submit === 1 || row.submit === 2) {
+          }
+        } else {
+          if (row.spider === 0) {
+            if (row.submit === 1 || row.submit === 2) {
+              return true;
+            } else return false;
+          } else {
             return true;
-          } else return false;
-        }else {return true;}
+          }
+        }
+      }else{
+        return true;
       }
     },
     querySearch(queryString, cb) {
@@ -1285,12 +1555,32 @@ name: "UserScore",
           })
           .catch(res => (console.log(res)));
     },
-    workdayByPrincipal(row){
+    tecByPrincipal(row){
       this.$axios
-        .post(this.$baseUrl + 'user/workdayByPrincipal',{},{headers :{id : row.id, queryDate : this.nowMonth}})
+        .post(this.$baseUrl + 'technology/queryByPrincipal',{},{headers :{id : row.id}})
         .then(res => {
           this.user.id = row.id
           this.user.proName = row.name
+          if (res.data.data.length>0) {
+            this.user.tecList = res.data.data
+            this.user.tec = this.user.tecList[0].volume_tec
+            this.workdayByPrincipal(this.user.tec)
+          }else {
+            this.user.teclist = [];
+          }
+          this.$forceUpdate();
+          this.userVisible = true
+        })
+        .catch(res => (console.log(res)));
+    },
+    workdayByPrincipal(){
+      this.$axios
+        .post(this.$baseUrl + 'user/workdayByTec',{
+          id : this.user.id,
+          tec : this.user.tec,
+          date : this.showMonth
+        },)
+        .then(res => {
           if (res.data.data.length>0) {
             this.user.list = res.data.data
           }else {
@@ -1302,7 +1592,7 @@ name: "UserScore",
         .catch(res => (console.log(res)));
     },
     openDeclare(){
-      this.user.declareDate = this.declareMonth[this.declareMonth.length-1]
+      this.user.declareDate = this.declareMonth[0]
       this.$axios
         .post(this.$baseUrl + 'project/queryNotDeclare',{
           id : this.user.id,
@@ -1324,16 +1614,18 @@ name: "UserScore",
           if (res.data.code === 0) {
             this.$message.success("操作成功")
             this.declareVisible = false
+            this.declareConfirmVisible = false
           }
         })
         .catch(res => (console.log(res)));
     },
     openLog(row){
       this.$axios
-        .post(this.$baseUrl + 'user/logByPrincipal',{
+        .post(this.$baseUrl + 'user/logByTec',{
           userId : row.id,
           id : this.user.id,
-          date : this.nowMonth
+          tec : this.user.tec,
+          date : this.showMonth
         })
         .then(res => {
           if (res.data.data.length>0) {
@@ -1427,7 +1719,6 @@ name: "UserScore",
         .catch(res => (console.log(res)));
     },
     setHighMethod(){
-      console.log(this.volume_workday)
       if(Number(this.volume_workday.usable) === Number(this.volume_workday.grant)){
           this.$confirm('是否将任务结束时间置为已完成?', '提示', {
           confirmButtonText: '确定',
@@ -1474,16 +1765,16 @@ name: "UserScore",
           }
         )
         .then(res => {
-          console.log(row.state)
           if(res.data.data !== null){
           this.volume_workday = res.data.data
             let t = ['designer','checker','principal', 'headman'];
             t.forEach(item =>{
-              this.volume_workday[item + 'Num'] = this.volume_workday[item] * this.volume_workday.workday / 100
+              this.$set(this.volume_workday, item+'Num', this.volume_workday[item] * this.volume_workday.workday / 100);
             });
           }
           this.volume_workday.id = row.id
           this.volume_workday.spider = row.spider
+          this.volume_workday.workday_state = row.workday_state
           this.volume_workday.state = row.state
           if(this.volume_workday.ratio === undefined){
             this.volume_workday.ratio = 0;
@@ -1596,6 +1887,7 @@ name: "UserScore",
             this.workdayData.manage = res.data.data[0].manage
             this.workdayData.volume = res.data.data[0].volume
             this.workdayData.check = res.data.data[0].check
+            this.workdayData.tecCheck = res.data.data[0].tecCheck
             this.workdayData.designer = res.data.data[0].designer
             this.workdayData.checker = res.data.data[0].checker
             this.workdayData.principal = res.data.data[0].principal
@@ -1603,8 +1895,8 @@ name: "UserScore",
             this.workdayData.checkerId = res.data.data[0].checkerId
             // this.workdayData.completeUsed = res.data.data[0].completeUsed
             this.workdayData.list = res.data.data[0].list
-            this.workdayData.used = Number(res.data.data[0].backupUsed) + Number(res.data.data[0].manageUsed)
-              + Number(res.data.data[0].volumeUsed)
+            this.workdayData.used = (Number(res.data.data[0].backupUsed) *1000 + Number(res.data.data[0].manageUsed) *1000
+              + Number(res.data.data[0].volumeUsed) *1000) /1000
             this.visible_workday = true;
           })
           .catch(res => (console.log(res)));
@@ -1641,6 +1933,7 @@ name: "UserScore",
                   this.workdayData.manage =  val.manage
                   this.workdayData.volume =  val.volume;
                   this.workdayData.check = val.check;
+                  this.workdayData.tecCheck = val.tecCheck;
                   this.workdayData.designer = val.designer
                   this.workdayData.checker = val.checker
                   this.workdayData.principal = val.principal
@@ -1648,8 +1941,8 @@ name: "UserScore",
                   this.workdayData.checkerId = val.checkerId
                   // this.workdayData.completeUsed = val.completeUsed
                   this.workdayData.list = val.list
-                  this.workdayData.used = Number( val.backupUsed) + Number( val.manageUsed)
-                  + Number(val.volumeUsed)
+                  this.workdayData.used = (Number( val.backupUsed)*1000 + Number( val.manageUsed)*1000
+                  + Number(val.volumeUsed) *1000)/1000
     },
     distributeSubmit(val){
       if (val === 0) {
@@ -1666,7 +1959,6 @@ name: "UserScore",
         t.forEach( item =>{
           ratioSum += Number(this.workdayData[item])
         })
-        console.log(ratioSum)
         if (Number(ratioSum) !== 100){
           this.$message.warning("专业比例和为100")
           return 0;
@@ -1718,9 +2010,6 @@ name: "UserScore",
     }
       this.visible_workday = false
     },
-    openExcel(){
-      this.excelDialog = true;
-    },
     selectDep(val){
       this.task.dep = val.dep
       this.taskTec = val.list
@@ -1755,7 +2044,7 @@ name: "UserScore",
           .catch(res => (console.log(res)));
       }
     },
-    getUasble(val){
+    getUasble(){
       if(this.taskType){
         if(this.task.tec === undefined || this.task.tec === ""){
           this.$message.error("请先选择部门专业")
@@ -1776,10 +2065,8 @@ name: "UserScore",
               this.task.usable = res.data.data.usable;
               this.task.number  = res.data.data.number;
               this.task.check = res.data.data.check;
-              if(!this.task.check){
-                this.$message.warning("工时分配暂未审核，新建任务工时暂不能发放")
-              }else if(this.task.check === 2){
-                this.$message.warning("该专业工时分配被组长回退，新建任务工时暂不能发放")
+              if(this.task.check !== 1){
+                this.$message.warning("工时分配暂未审核时分配被组长回退，新建任务工时暂不能发放")
               }
               this.$forceUpdate
             }
@@ -1837,9 +2124,10 @@ name: "UserScore",
       headman_workday : 0,
       show : val.show};
     if(val.show){
-      this.task.designer = this.$parent.name;
+      this.task.designer = this.$parent.name
       this.taskInActivity = "设总发放";
       this.taskType = false;
+      this.getUasble();
     }else {
       this.taskType = true;
       this.taskInActivity = "申请备用";
@@ -1871,6 +2159,11 @@ name: "UserScore",
     this.getTec(val)
     },
     taskTypeChange(val){
+      if(val){
+        this.task.designer = null;
+      }else{
+        this.task.designer = this.$parent.name;
+      }
       this.task.number = "";
       this.task.dep  = "";
       this.task.type = 1;
@@ -1925,7 +2218,12 @@ name: "UserScore",
         .post(this.$baseUrl + 'task/del',row)
         .then(res => {
           if (res.data.code === 0){
-            this.$message.success("删除成功")
+            this.currentParentRow.list.forEach((item,index) =>{
+              if (item.id === row.id){
+                this.$message.success("删除成功")
+                return this.currentParentRow.list.splice(index,1)
+              }
+            })
           }
         })
         .catch(res => (console.log(res)));
@@ -1942,13 +2240,90 @@ name: "UserScore",
         })
         .catch(res => {console.log(res)})
     },
+    openTecWorkdayLog(){
+      this.tecWorkdayLog = [];
+      this.$axios
+        .post(this.$baseUrl + 'projectWorkday/queryProjectTecWorkdayLog',{
+          id : this.workdayData.id,
+          tec : this.workdayData.tec
+        })
+        .then(res => {
+          if (res.data.code === 0){
+            this.tecWorkdayLog = res.data.data
+            this.tecWorkdayLogVisible = true;
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
+    declareMethod(){
+      this.declareUserList = [];
+      let map = new Map();
+      let roleList = ["designer", "checker", "principal", "headman"];
+      this.multipleSelection.forEach(item =>{
+        for (let i = 0; i < roleList.length; i++ ){
+          if (item[roleList[i]] !== undefined && item[roleList[i]] !== 0){
+            if (map.get(item[roleList[i] + 'Id']) !== undefined){
+              let m = map.get(item[roleList[i] + 'Id'])
+              m.workday =  Number(m.workday) + Number(item[roleList[i]])
+              map.set(item[roleList[i] + 'Id'], m )
+            }else {
+              let m = {"id" : item[roleList[i] + 'Id'],
+                      "name" : item[roleList[i] + 'Name'],
+                      "workday" : item[roleList[i]]};
+              map.set(item[roleList[i] + 'Id'],m)
+            }
+          }
+        }
+      })
+      map.forEach((value,key) => {
+        this.declareUserList.push(value)
+      })
+      this.declareConfirmVisible = true
+    },
+    openDeclareLog(id){
+      this.declareLog = {
+        tec : 0,
+        data : [
+          {list : []}
+        ]
+      };
+      this.$axios
+        .post(this.$baseUrl + 'project/declareLog',{
+          id : id,
+          date : this.showMonth,
+        })
+        .then(res => {
+          if (res.data.code === 0){
+            this.declareLog.tec = 0;
+            this.declareLog.id = id;
+            this.declareLog.data = res.data.data
+            this.declareLogVisible = true
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
+    setbackOff(row){
+      this.$axios
+        .post(this.$baseUrl + 'project/backOff',{
+          id : row.id,
+          date : row.submit_date,
+          task : row.task,
+          advance : row.advance,
+        })
+        .then(res => {
+          if (res.data.code === 0){
+            this.$message.success("操作成功")
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
     downExcel(){
       // 工时日志
       let that = this;
       this.$message.success("即将开始下载");
       let xhr = new XMLHttpRequest();
       let u =  this.$baseUrl + 'projectExcel/userByPrincipal?date='
-        + this.nowMonth+'&id=' + that.user.id;
+        + this.showMonth+'&id=' + that.user.id;
       xhr.open("get", u, true); // get、post都可
       xhr.responseType = "blob";  // 转换流
       xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
@@ -1986,6 +2361,35 @@ name: "UserScore",
         }
       }
       xhr.send();
+    },
+    arraySpanMethod({  columns, data }) {
+      const means = [] // 合计
+      columns.forEach((column, columnIndex) => {
+        if (columnIndex === 0) {
+          means.push('合计')
+        } else {
+          const values = data.map(item => Number(item[column.property]));
+          // 合计
+          if (!values.every(value => isNaN(value))) {
+            means[columnIndex] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+                return (prev * 100 + curr * 100)/100;
+              } else {
+                return prev;
+              }
+            }, 0);
+            // 改变了ele的合计方式，扩展了合计场景
+            // 你以为就只有上面这样玩吗？错啦，你还可以自定义样式哦
+            // means[columnIndex] = '<span style="color: red">' + means[columnIndex] + '元</span>'
+            means[columnIndex] = means[columnIndex].toFixed(2)
+          } else {
+            means[columnIndex] = '';
+          }
+        }
+      })
+      // 返回一个二维数组的表尾合计(不要平均值，你就不要在数组中添加)
+      return [means]
     },
     remoteMethod(query) {
       if (query !== '') {
