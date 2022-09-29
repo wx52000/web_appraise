@@ -5,7 +5,10 @@
       <span style="font-size: 18px;margin-left: 150px">初始工时分配</span>
         <span style="font-size: 12px;">-{{form.check | checkFilter}}</span>
       </span>
-      <el-button @click="openTecList" size="mini" style="margin-left: 50px">专业管理</el-button>
+    </el-row>
+    <el-row style="text-align: right">
+      <el-button @click="openTecList" size="mini" style="margin-left: 10px">专业管理</el-button>
+      <el-button @click="newTask" size="mini" style="margin-left: 10px">备用工时分配</el-button>
       <el-button @click="openNewForm" size="mini" style="margin-left: 10px">额外工时申请</el-button>
       <el-button @click="openDeduct" size="mini" style="margin-left: 10px">工时扣除</el-button>
     </el-row>
@@ -365,6 +368,119 @@
       <el-button  type="text" @click="addTecWorkday()">专业缺少，点此添加</el-button></el-divider>
       </el-form>
     </el-dialog>
+    <el-dialog
+      v-el-drag-dialog
+      :close-on-click-modal="false"
+      :visible.sync="taskVisible"
+      title="新增任务"
+      width="60%" style="text-align: center">
+      <el-form :model="task" size="mini" label-width="140px" label-position="right">
+        <el-row style="margin-left: -50px">
+          <el-col :span="12">
+            <el-form-item label="项目名称:">
+              <el-input disabled v-model="task.project" class="input" style="width: 100%;">
+              </el-input>
+            </el-form-item >
+          </el-col>
+          <el-col :span="12">
+            <el-form-item
+              label="任务类型:">
+              <el-radio-group v-model="task.type" @change="getUasble">
+                <el-radio :label=1>备用</el-radio>
+                <el-tooltip class="item" effect="dark" content="管理工时当前只可分给设总，且每月发放一次，以完成时间月份为准" placement="top">
+                <el-radio :label=0>管理</el-radio>
+                </el-tooltip>
+              </el-radio-group>
+            </el-form-item >
+          </el-col>
+        </el-row>
+        <el-row  style="margin-left: -50px" v-if="task.type===1">
+          <el-col :span="12">
+            <el-form-item label="部门:">
+              <el-select v-model="task.dep" placeholder="请选择" @change="selectDep" style="width: 100%;">
+                <el-option
+                  v-for="item in taskDep"
+                  :key="item.dep"
+                  :label="item.dep"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item >
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="专业:">
+              <el-select v-model="task.tec" placeholder="请选择" @change="getUasble" style="width: 100%;">
+                <el-option
+                  v-for="item in taskTec"
+                  :key="item.tec"
+                  :label="item.tec"
+                  :value="item.tec">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row style="margin-left: -50px">
+          <el-col :span="12">
+            <el-form-item label="任务编号:">
+              <el-input disabled v-model="task.number" class="input" style="width: 100%;">
+              </el-input>
+            </el-form-item >
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="任务名称:">
+              <el-input v-model="task.name" class="input" style="width: 100%;">
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row style="margin-left: -50px">
+          <el-col :span="12">
+            <el-form-item label="可用工时:">
+              <el-input v-model="task.usable" class="input" disabled style="width: 100%;">
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="任务工时:">
+              <el-input  v-model="task.workday" class="input" oninput="value=value.replace(/[^\d.]/g,'')" style="width: 100%;">
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row style="margin-left: -50px" v-if="task.type === 0">
+          <el-col :span="12">
+            <el-form-item
+              label="计划结束时间:"
+              prop="principal" >
+              <el-date-picker style="width: 100%;"
+                              v-model="task.planned_end"
+                              type="date"
+                              value-format="yyyy-MM-dd"
+                              placeholder="选择日期">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item
+              label="结束时间:"
+              prop="headman">
+              <el-date-picker style="width: 100%;"
+                              v-model="task.end"
+                              type="date"
+                              value-format="yyyy-MM-dd"
+                              placeholder="选择日期">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <span slot="footer">
+          <el-button @click="taskVisible = false">取消</el-button>
+          <el-button @click="taskSubmit" type ="primary">
+          <span>确认</span></el-button>`
+        </span>
+    </el-dialog>
 </div>
 </template>
 
@@ -411,6 +527,24 @@ export default {
       },
       checkerList : [],
       deductList : [],
+      taskVisible : false,
+      taskDep : [],
+      taskTec : [],
+      task : {
+        project  : "",
+        proNumber  : "",
+        pid : this.projectId,
+        number : "",
+        name : "",
+        type : 1,
+        workday : 0,
+        usable : 0,
+        dep : "",
+        tec : "",
+        planned_end : "",
+        end : "",
+        principal : ""
+      },
     }
   },
   filters:{
@@ -501,12 +635,12 @@ export default {
           {headers:{"id" : this.projectId}})
         .then(res => {
           if(this.name === this.$parent.project.general) {
-            if (res.data.data.list.length === 0 || res.data.data.exist) {
+            if (res.data.data.list.length === 0 || !res.data.data.exist) {
               let str = "";
               if (res.data.data.list.length === 0) {
                 str = "该项目主设人暂未设定，请指定主设人"
               }
-              if (res.data.data.exist) {
+              if (!res.data.data.exist) {
                 str = "该项目存在专业主设人暂未设定，是否前往指定"
               }
               this.$confirm(str, '提示', {
@@ -581,18 +715,18 @@ export default {
         .post(this.$baseUrl + 'project/queryTecById',{},{headers :{id : this.projectId}})
         .then(res => {
           if (res.data.code === 0){
-            console.log(res.data.data)
             res.data.data.forEach(item =>{
               let p = [];
-              item.list.forEach(i =>{
-              p.push(i.id);
-              })
+              if (item.list !== undefined) {
+                item.list.forEach(i => {
+                  p.push(i.id);
+                })
+              }
               this.tecList.push( {id : item.project_id, tec : item.tec,
                 principal : p, principalList : item.list, type : item.type} )
             })
             this.tecVisible = true;
           }
-
         })
         .catch( res => console.log(res))
     },
@@ -630,6 +764,13 @@ export default {
           return  0;
         }
       }
+      if (this.form.tec < 0 || this.form.manage<0 || this.form.backup<0){
+        this.$message({
+          message: '工时不能小于0',
+          type: 'error'
+        });
+        return  0;
+      }
       if (this.form.num !==  null && this.form.num !==  "") {
         this.$axios
           .post(this.$baseUrl + 'projectWorkday/setProWorkday', {
@@ -660,7 +801,6 @@ export default {
     newOnSubmit(val){
       if (this.form.num !==  null && this.form.num !==  "") {
         if (val === 0) {
-          console.log(this.usableNewAmount)
           if (Number(this.usableNewAmount) !== 0) {
             this.$message({
               message: '专业工时需一次发完',
@@ -720,27 +860,26 @@ export default {
       }
     },
     setPrincipal(item){
-      console.log(item)
-      if (item.tec !== undefined && item.tec !== "") {
-        this.$axios
-          .post(this.$baseUrl + 'projectWorkday/setPrincipal', {
-            id: this.projectId,
-            tec: item.tec,
-            principal: item.principal,
-            type: item.type,
-          })
-          .then(res => {
-            if (res.data.code === 0) {
-              this.$message.success("操作成功")
-            }
-          })
-          .catch(res => {
-            console.log(res)
-          })
-      }else {
-        item.principal = "";
-        this.$message.warning("请先选择专业")
-      }
+        if (item.tec !== undefined && item.tec !== "") {
+          this.$axios
+            .post(this.$baseUrl + 'projectWorkday/setPrincipal', {
+              id: this.projectId,
+              tec: item.tec,
+              principal: item.principal,
+              type: item.type,
+            })
+            .then(res => {
+              if (res.data.code === 0) {
+                this.$message.success("操作成功")
+              }
+            })
+            .catch(res => {
+              console.log(res)
+            })
+        } else {
+          item.principal = "";
+          this.$message.warning("请先选择专业")
+        }
     },
     addTecWorkday(){
       this.tecList.push({name:"",principal: "", type : 0,})
@@ -756,7 +895,7 @@ export default {
     },
     delTecWorkday(index,item){
         this.$axios
-          .post(this.$baseUrl + 'projectWorkday/delPrincipal', {
+          .post(this.$baseUrl + 'projectWorkday/delTec', {
             id: this.projectId,
             tec: item.tec
           })
@@ -907,6 +1046,84 @@ export default {
           }
         })
         .catch(res => console.log(res))
+    },
+    newTask(){
+      this.task = {
+        project  : this.$parent.project.name,
+        proNumber  : this.$parent.project.number,
+        pid : this.projectId,
+        number : "",
+        name : "",
+        type : 1,
+        workday : 0,
+        usable : 0,
+        dep : "",
+        tec : "",
+        planned_end : "",
+        end : "",
+        principal : this.$parent.name,
+      };
+      this.getTec()
+      this.getUasble()
+      this.taskVisible = true
+    },
+    getUasble(){
+      this.task.usable = 0;
+      this.$axios
+        .post(this.$baseUrl + 'projectWorkday/queryWorkdayByGeneral',{
+          id : this.task.pid,
+          proNumber : this.task.proNumber,
+          type : this.task.type
+        })
+        .then(res => {
+          if(res.data.code === 0){
+            this.task.check = res.data.data.check;
+            this.task.number = res.data.data.number
+            if (this.task.type === 1){
+              this.task.usable = this.$myMethod.nullTo0(res.data.data.backup) - this.$myMethod.nullTo0(res.data.data.backupUsed)
+            }else {
+              this.task.usable = this.$myMethod.nullTo0(res.data.data.manage) - this.$myMethod.nullTo0(res.data.data.manageUsed)
+            }
+            console.log(this.task.usable)
+            if(this.task.check !== 1){
+              this.$message.warning("工时分配暂未审核或分配被组长回退，新建任务工时暂不能发放")
+            }
+            this.$forceUpdate
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
+    taskSubmit(){
+      if (this.task.type === 0){
+        if (this.task.end === undefined || this.task.end === ''){
+          this.$message.warning("请选择结束时间，管理工时发放日期以结束时间月份为准")
+          return ;
+        }
+      }
+        this.$axios
+          .post(this.$baseUrl + 'projectWorkday/setWorkdayByGeneral',this.task,)
+          .then(res => {
+            if(res.data.code === 0 || res.data.code === 560){
+              this.taskVisible = false;
+              this.$message.success("新增任务成功")
+            }
+          })
+          .catch(res => (console.log(res)));
+    },
+    getTec(){
+      this.$axios
+        .post(this.$baseUrl + 'department/queryByProjectAll',{},{headers : {id : this.projectId}})
+        .then(res => {
+          res.data.data.forEach(item => {
+            this.taskDep.push2(item)
+          })
+        })
+        .catch(res => (console.log(res)));
+    },
+    selectDep(val){
+      this.task.dep = val.dep
+      this.taskTec = val.list
+      this.$forceUpdate
     },
   }
 }

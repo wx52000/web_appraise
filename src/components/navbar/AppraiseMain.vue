@@ -15,6 +15,9 @@
     <el-menu-item index="/appraiseMain/selfProject"
                   @click="toPage('/appraiseMain/selfProject')"
     >项目申请</el-menu-item>
+    <el-menu-item v-if="volumePlanRole" index="/appraiseMain/volumePlanDate"
+                  @click="toPage('/appraiseMain/volumePlanDate')"
+    >计划录入</el-menu-item>
     <el-submenu index="3" v-if="managerRole || departmentProgress">
       <template slot="title" >
         部门管理
@@ -30,10 +33,13 @@
       </el-menu-item>
     </el-submenu>
     <el-menu-item  style="float: right" >
+      <el-tooltip style="text-align: center;" effect="dark" content="更新日志" placement="top">
+        <i class="el-icon-document" style="margin-right: 10px" @click="getLog"></i>
+      </el-tooltip>
       <span style="color: #dd6161">欢迎使用:</span>
       <span style="color: #e6a23c">{{name}}</span>
       <el-dropdown >
-        <i class="el-icon-setting" style="margin-bottom: 5px"></i>
+          <i class="el-icon-setting"></i>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item
           command="1" v-if="showAdmin" @click.native="home">管理员管理</el-dropdown-item>
@@ -75,6 +81,26 @@
             <el-button type="primary" @click="updPaw " >确定</el-button>
       </el-form>
       </div>
+    </el-dialog>
+    <el-dialog
+      title="系统更新日志"
+      v-el-drag-dialog
+      :visible.sync="logVisible"
+      width="60%"
+    >
+      <el-table key="list"
+               :max-height=height
+               border :data="log"
+               size="mini"
+               :default-sort = "{prop: 'date', order: 'descending'}">
+        <el-table-column prop="date" label="更新时间"  width="120px" sortable align="center">
+        </el-table-column>
+        <el-table-column prop="log" label="更新内容" align="center">
+          <template slot-scope="scope">
+            <span style="white-space: pre-wrap;">{{scope.row.log}}</span>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-dialog>
     <el-dialog
       v-el-drag-dialog
@@ -194,6 +220,50 @@
       </u-table>
     </el-drawer>
       <news class="news"/>
+    <el-dialog
+      title="近10日计划完成卷册"
+      v-el-drag-dialog
+      :visible.sync="recentlyVisible"
+      width="80%">
+      <u-table use-virtual :row-height="28" border size="mini" :data="listData"
+               class="u-table"
+               :height="height"
+               showBodyOverflow="title"
+               showHeaderOverflow="title"
+               :data-changes-scroll-top="false"
+               :header-cell-style="{background:'#F5F5F5'}" :cell-style="this.CellStyleOne">
+        <u-table-column
+          type="index"
+          align="center"
+          width="50">
+        </u-table-column>
+        <u-table-column prop="pNumber" sortable min-width="100px" show-overflow-tooltip label="项目编号" align="center"  >
+        </u-table-column>
+        <u-table-column prop="pName" min-width="180px"
+                        :filters="filtersList"
+                        :filter-method="filterHandler"
+                        show-overflow-tooltip label="项目名" align="center">
+        </u-table-column>
+        <u-table-column prop="number" sortable min-width="100px" show-overflow-tooltip label="卷册号" align="center"  >
+        </u-table-column>
+        <u-table-column prop="name" sortable min-width="180px" show-overflow-tooltip label="卷册名" align="center">
+        </u-table-column>
+        <u-table-column prop="state" sortable min-width="180px" show-overflow-tooltip label="卷册状态" align="center">
+        </u-table-column>
+        <u-table-column prop="start_date" sortable width="100px" label="开始时间"  align="center">
+        </u-table-column>
+        <u-table-column prop="planned_publication_date" sortable width="100px" label="计划出版时间"  align="center">
+        </u-table-column>
+        <u-table-column prop="principal" sortable width="100px" label="主设"  align="center">
+        </u-table-column>
+        <u-table-column prop="headman" sortable width="100px" label="组长"  align="center">
+        </u-table-column>
+        <u-table-column prop="designer" sortable width="100px" label="设计"  align="center">
+        </u-table-column>
+        <u-table-column prop="checker" sortable width="100px" label="校核"  align="center">
+        </u-table-column>
+      </u-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -202,17 +272,14 @@
 import storage from "../../store";
 import {resetRouter} from "../../router/index"
 
-// const testPassword =
-//   "/^(?![a-zA-Z]+$)" +
-//   "(?![A-Z0-9]+$)(?![A-Z\W_!@#$%^&*`~()-+=]+$)(?![a-z0-9]+$)" +
-//   "(?![a-z\W_!@#$%^&*`~()-+=]+$)(?![0-9\W_!@#$%^&*`~()-+=]+$)" +
-//   "[a-zA-Z0-9\W_!@#$%^&*`~()-+=]{8,16}$/";
-const testPassword =/^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)(?=.*?[<>!#@*&$%^()/~`\\=_\?+-.])[a-zA-Z\d<>!#@*&$%^()\?/~`\\=_+-.]*$/;
+const testPassword =
+  /((?=.*\d)(?=.*\D)|(?=.*[a-zA-Z])(?=.*[^a-zA-Z]))(?!^.*[\u4E00-\u9FA5].*$)^\S{8,16}$/
+// const testPassword =/^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)(?=.*?[<>!#@*&$%^()/~`\\=_\?+-.])[a-zA-Z\d<>!#@*&$%^()\?/~`\\=_+-.]*$/;
 export default {
   name: "AppraiseMain",
   data() {
     const pawRule1 = async(rule, value, callback) => {
-      if (value.length < 6) {
+      if (value.length < 8) {
         this.paw1Check = 1
         return callback(new Error('密码不能少于8位！'));
       } else if (value.length > 16) {
@@ -220,7 +287,7 @@ export default {
         return callback(new Error('密码最长不能超过16位！'));
       } else if (!testPassword.test(value)){
         this.paw1Check = 1
-        return callback(new Error('请同时包含大小写，数字和特殊字符组合'));
+        return callback(new Error('请包含大小写，数字和特殊字符组合'));
       } else {
         this.paw1Check = 0
         callback()
@@ -254,12 +321,18 @@ export default {
         paw1 :"",
         paw2 :""
       },
+      log : [],
+      logVisible : false,
       list : [],
+      listData: [],
+      filtersList : [],
+      recentlyVisible : false,
       drawer: false,
       projectList : [],
       sameNameVisible : false,
       managerRole : false,
       departmentProgress : false,
+      volumePlanRole : false,
       paw1Check : 0,
       paw2Check : 1,
       ruleValidate: {
@@ -280,11 +353,20 @@ export default {
     this.departmentProgress = menus.find(item =>{
       return item.router === "manageProgress"
     });
+    this.volumePlanRole = menus.find(item =>{
+      return item.router === "volumePlanDate"
+    });
     this.showAdmin = menus.length > 0 && menus.find(item =>{
       return item.router === "workday"
     });
     this.getLogIn()
     this.getData()
+    this.getRecently10Day()
+    setInterval(()=>{
+      if (new Date().getHours() === 12){
+        this.getRecently10Day()
+      }
+    },3600000)
     this.activeIndex = this.$route.path
   },
   methods: {
@@ -311,6 +393,25 @@ export default {
           }
         })
         .catch(res => (console.log(res)));
+    },
+    getRecently10Day(){
+      this.$axios
+        .post(this.$baseUrl + 'volume/queryRecently10Day')
+        .then(res => {
+          if (res.data.data.length > 0) {
+            this.listData = res.data.data
+            this.recentlyVisible = true;
+          }
+        })
+        .catch(res => (console.log(res)));
+    },
+    getLog(){
+      this.$axios
+        .post(this.$baseUrl + 'systemLog',)
+        .then(res => {
+          this.log = res.data.data
+          this.logVisible = true
+        },);
     },
     getUser(row, t) {
       console.log(t+"List")
@@ -388,6 +489,10 @@ export default {
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
+    },
+    filterHandler(value, row, column) {
+      const property = column['property'];
+      return row[property] === value;
     },
     updPaw() {
       if (this.paw1Check === 0 && this.paw2Check === 0) {

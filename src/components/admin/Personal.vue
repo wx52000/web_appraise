@@ -31,6 +31,8 @@
             人员上传</el-button>
         </el-upload>
       </el-col>
+      <el-button style="text-align: center; margin-left: 30px"
+                 @click="downExcel" size="mini" v-permission="'user:add'">部门生产数据下载</el-button>
     </el-row>
     <el-row style="text-align: center">
     <ux-grid ref="userTable" key="userlist" use-virtual v-loading="loading"
@@ -210,7 +212,7 @@ export default {
       id: "",
       isShow : false,
       pageHeight : document.body.clientHeight,
-      month: new Date().getMonth() + 1,
+      date: "",
       search1: "",
       search2: "",
       loading: true,
@@ -226,6 +228,8 @@ export default {
     }
   },
   mounted() {
+    let c = new Date();
+    this.date = c.getFullYear() + "-" + (Number(c.getMonth()) + 1).toString().padStart(2,0)
     this.$axios
       .post(this.$baseUrl + 'department/query', {},)
       .then(res => {
@@ -424,6 +428,32 @@ export default {
           this.files.push(file)
         }
       }
+    },
+    downExcel(){
+      this.$axios
+        .post(this.$baseUrl + 'fdDataTransmit')
+        .then(res => {if (res.data.code === 0){this.$message.success('数据传输成功')}})
+        .catch(res => (console.log(res)));
+      // 部门生产数据
+      let that = this;
+      this.$message.success("即将开始下载");
+      let xhr = new XMLHttpRequest();
+      let u =  this.$baseUrl + 'downProduceExcel'
+      xhr.open("get", u, true); // get、post都可
+      xhr.responseType = "blob";  // 转换流
+      xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
+      xhr.onload = function() {
+        if (this.status === 200) {
+          let blob = this.response;
+          let a = document.createElement("a")
+          let url = window.URL.createObjectURL(blob)
+          a.href = url
+          a.download =  that.date + "工时.zip"  // 文件名
+          a.click()
+          window.URL.revokeObjectURL(url)
+        }
+      }
+      xhr.send();
     },
   }
 }

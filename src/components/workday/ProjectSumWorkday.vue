@@ -41,7 +41,7 @@
     </el-row>
     <el-row>
       <el-col :span="8">
-        <el-form-item label="卷册工时"  label-width="100px">
+        <el-form-item label="专业工时"  label-width="100px">
           <el-input disabled v-model="form.tec" size="mini"
                     type="text" placeholder="请输入工时数量">
           </el-input>

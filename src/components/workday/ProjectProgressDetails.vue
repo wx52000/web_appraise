@@ -98,6 +98,8 @@
       </u-table-column>
       <u-table-column prop="start_date" sortable width="100px" label="开始时间"  align="center">
       </u-table-column>
+      <u-table-column prop="planned_publication_date" sortable width="100px" label="计划出版时间"  align="center">
+      </u-table-column>
       <u-table-column prop="actual_publication_date" sortable width="100px" label="出版时间"  align="center">
       </u-table-column>
       <u-table-column prop="principal" sortable width="100px" label="主设"  align="center">

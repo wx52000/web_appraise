@@ -7,17 +7,12 @@
           <el-row>
             <el-row style="margin-left:-10px;text-align: center; align-content: center;">
               <el-col :span="24" style="line-height: 50px;font-size: 16px;font-weight: bold;color: #666;text-align: center ">
-                生产项目管理
+                项目管理
                 <i class="el-icon-document-copy" @click="openExcel()"></i>
               </el-col>
             </el-row>
             <el-row style="margin-left:-10px; align-content: center;">
-
-              <el-col align="right">
-                每月申报截止日期:<el-input size="mini" @change="setDeclareDay" style="width: 60px" v-permission="'declare:update'" v-model="declareDay"></el-input>
                       <el-button style="margin-right: 20px" size="mini" type="primary" v-permission="'project:add'" @click="openNewProject">新增项目</el-button>
-                      <el-button style="margin-right: 50px" size="mini" type="info" @click="getCompleteData">完成项目列表</el-button>
-              </el-col>
             </el-row>
             <div>
             <u-table use-virtual :row-height="28" border size="mini" :data="list.filter(data =>{
@@ -56,8 +51,6 @@
               </u-table-column>
               <u-table-column prop="general" sortable width="80px" label="设总" align="center" style="word-break: break-all;">
               </u-table-column>
-              <u-table-column prop="state" sortable width="70px" label="状态" align="center">
-              </u-table-column>
               <u-table-column  width="180px" align="center" fixed="right">
                 <template slot-scope="scope" slot="header">
                   <el-input  size="mini" v-model="search"
@@ -84,31 +77,6 @@
         </el-row>
       </el-row>
     </el-form>
-    <el-dialog
-        v-el-drag-dialog
-      title="Excel导出"
-      :visible.sync="excelDialog"
-      width="40%" style="text-align: center">
-      <el-row >
-        <el-col :span="24" align="center">
-        <el-date-picker
-          v-model="downMonth"
-          type="month"
-          value-format="yyyy-MM"
-          placeholder="选择月">
-        </el-date-picker>
-        </el-col>
-      </el-row>
-      <el-row align="center" style="margin-top: 20px">
-        <el-button @click="downExcel()" style="width: 250px">各项目专业工时分配与使用下载</el-button>
-      </el-row>
-      <el-row align="center"style="margin-top: 20px">
-        <el-button @click="downExcel1()" style="width: 250px">各项目个人完成卷册数量下载</el-button>
-      </el-row>
-      <el-row align="center" style="margin-top: 20px">
-        <el-button @click="downExcel2()" style="width: 250px">各项目完成卷册信息下载</el-button>
-      </el-row>
-    </el-dialog>
     <el-dialog
         v-el-drag-dialog
       title="项目管理"
@@ -299,56 +267,6 @@
         </el-row>
       </el-form>
     </el-dialog>
-    <el-dialog
-      v-el-drag-dialog
-      :visible.sync="childrenVisible"
-      width="66%" style="text-align: center"
-      title="子项目列表">
-      <u-table key="tecWorkdayLog" use-virtual :row-height="30"
-               :data="children" size="mini"
-               height="180">
-        <u-table-column
-          label="编号"
-          show-overflow-tooltip
-          prop="number">
-        </u-table-column>
-        <u-table-column
-          label="名称"
-          show-overflow-tooltip
-          prop="name">
-        </u-table-column>
-        <u-table-column
-          label="阶段"
-          show-overflow-tooltip
-          prop="stage">
-        </u-table-column>
-        <u-table-column
-          label="范围"
-          show-overflow-tooltip
-          prop="scope">
-        </u-table-column>
-        <u-table-column
-          label="产值"
-          show-overflow-tooltip
-          prop="money">
-        </u-table-column>
-        <u-table-column
-          label="比例"
-          show-overflow-tooltip
-          prop="ratio">
-        </u-table-column>
-        <u-table-column
-          label="专业"
-          show-overflow-tooltip
-          prop="tec">
-        </u-table-column>
-        <u-table-column
-          label="其他专业"
-          show-overflow-tooltip
-          prop="other_tec">
-        </u-table-column>
-      </u-table>
-    </el-dialog>
   </div>
 </template>
 
@@ -356,7 +274,7 @@
 import storage from "../../store";
 
 export default {
-  "name": "AdminProject",
+  "name": "AdminScientificProject",
   "data"() {
     return {
       getRowKeys(row) {
@@ -428,43 +346,6 @@ export default {
           this.list = res.data.data
         })
         .catch(res => (console.log(res)));
-      this.$axios
-        .post(this.$baseUrl + 'project/declareDay'
-        )
-        .then(res => {
-          this.declareDay = res.data.data
-        })
-        .catch(res => (console.log(res)));
-    },
-    getCompleteData() {
-      this.completeList = [];
-      this.$axios
-        .post(this.$baseUrl + 'project/queryCompleteByAdmin', {
-            "id": this.id
-          }
-        )
-        .then(res => {
-          this.completeList = res.data.data
-          this.projectVisible = true
-        })
-        .catch(res => (console.log(res)));
-    },
-    setDeclareDay(){
-      this.$axios
-        .post(this.$baseUrl + 'project/setDeclareDay',{},
-          {headers:{day : this.declareDay}})
-        .then(res => {
-          if (res.data.code === 0){
-            this.$message.success("操作成功")
-          }
-        })
-        .catch(res => (console.log(res)));
-    },
-    openExcel(){
-      const date = new Date();
-      const end = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
-      this.downMonth = date.getFullYear() + "-" + (date.getMonth()+1)
-      this.excelDialog = true;
     },
     clickRowHandle(row, column, event) {
       if (column.property !== undefined) {
@@ -478,18 +359,6 @@ export default {
     tableRowClassName({row, rowIndex}) {
       //把每一行的索引放进row
       row.index = rowIndex;
-    },
-    getChildren(row){
-      this.$axios.
-      post(this.$baseUrl + 'project/queryChildren',{
-        id : row.id,
-        type : row.type})
-        .then( res => {
-          if ( res.data.code === 0){
-            this.children = res.data.data;
-            this.childrenVisible = true }
-        })
-        .catch(res => console.log(res))
     },
     remoteMethod(query,data) {
       if (query !== '') {
@@ -516,30 +385,6 @@ export default {
     },
     handlePreview(file) {
       console.log(file);
-    },
-    getFile(file , fl) {
-      var excelName = file.name;
-      var idx = excelName.lastIndexOf(".");
-      if (idx !== -1){
-        var ext = excelName.substr(idx+1).toUpperCase();
-        ext = ext.toLowerCase( );
-        if (ext!== 'xlsx'){
-
-        }else {
-          this.files.push(file)
-        }
-      }
-    },
-    projectError({row, rowIndex}) {
-      let rowBackground = {};
-      if (row.error === 1) {
-        rowBackground.color = "#bd2626";
-      }else {
-        if (row.distributeState !== 1){
-          rowBackground.color = "#cba313";
-        }
-      }
-      return rowBackground
     },
     proHandler(){
       this.projectVisible = true;
@@ -623,13 +468,6 @@ export default {
       this.updateVisible = false;
       // this.getData()
     },
-    renewError(){
-      this.$axios
-        .post(this.$baseUrl + 'project/renewError',{},{headers : {id : this.project.id}})
-        .then(res =>{this.getData()
-        this.$message.success("操作成功")})
-        .catch(res => (console.log(res)));
-    },
     spiderHandler(r){
       console.log(r)
       this.$axios
@@ -639,70 +477,6 @@ export default {
         })
         .then(res =>{this.getData()})
         .catch(res => (console.log(res)));
-    },
-    downExcel() {
-      let that = this;
-      this.$message.success("即将开始下载");
-      let xhr = new XMLHttpRequest();
-      let u =  this.$baseUrl + 'projectExcel/statisticAll?date=' + this.downMonth;
-      xhr.open("get", u, true); // get、post都可
-      xhr.responseType = "blob";  // 转换流
-      xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
-      xhr.onload = function() {
-        if (this.status === 200) {
-          let blob = this.response;
-          let a = document.createElement("a")
-          let url = window.URL.createObjectURL(blob)
-          a.href = url
-          a.download =  that.downMonth + "专业工时分配与使用表.xlsx"  // 文件名
-          a.click()
-          window.URL.revokeObjectURL(url)
-        }
-      }
-    xhr.send();
-      // window.location.href = this.$baseUrl + 'projectExcel/statisticAll?minDay=' + this.downMonth[0]+'&maxDay='+this.downMonth[1];
-    },
-     downExcel1() {
-       let that = this;
-       this.$message.success("即将开始下载");
-       let xhr = new XMLHttpRequest();
-       let u =  this.$baseUrl + 'projectExcel/everyoneAll?date=' + this.downMonth;
-       xhr.open("get", u, true); // get、post都可
-       xhr.responseType = "blob";  // 转换流
-       xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
-       xhr.onload = function() {
-         if (this.status === 200) {
-           let blob = this.response;
-           let a = document.createElement("a")
-           let url = window.URL.createObjectURL(blob)
-           a.href = url
-           a.download =  that.downMonth + "个人完成卷册数量表.xlsx"  // 文件名
-           a.click()
-           window.URL.revokeObjectURL(url)
-         }
-       }
-       xhr.send();
-    },
-    downExcel2() {
-      let that = this;
-      this.$message.success("即将开始下载");
-      let xhr = new XMLHttpRequest();
-      let u =  this.$baseUrl + 'projectExcel/volumeAll?date=' + this.downMonth;
-      xhr.open("get", u, true); // get、post都可
-      xhr.responseType = "blob";  // 转换流
-      xhr.setRequestHeader("Authorization", this.$storage.get("Authorization")); // token键值对
-      xhr.onload = function() {
-        if (this.status === 200) {
-          let blob = this.response;
-          let a = document.createElement("a")
-          let url = window.URL.createObjectURL(blob)
-          a.href = url
-          a.download =  that.downMonth + "项目完成卷册表.xlsx"  // 文件名
-          a.click()
-          window.URL.revokeObjectURL(url)
-        }
-      }
-      xhr.send();
     },
     // openVolume(p){
     //   window.open('http://zmis.zepdi.com.cn/Portal/EPMS/List/RollInfo/RollEntityBill.aspx?' +

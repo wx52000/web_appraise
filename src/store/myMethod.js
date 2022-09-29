@@ -3,7 +3,7 @@ const myMethod = {
     if (value === undefined || value === null){
       return  0;
     }else {
-      return value;
+      return Number(value);
     }
   }
 }

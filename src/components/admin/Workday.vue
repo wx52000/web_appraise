@@ -9,7 +9,14 @@
 
       </el-row>
   </el-row>
-      <ux-grid ref="userTable" use-virtual border :data="workdayList" class="ux-table"
+  <el-row >
+    <el-col >姓名/工号
+      <el-input v-model="search"
+                size="mini" style="width: 50%" ></el-input></el-col>
+  </el-row>
+      <ux-grid ref="userTable" use-virtual border :data="workdayList.filter(data =>{
+            return  !search || (data.username.toLowerCase().includes(search.toLowerCase())
+            || data.name.toLowerCase().includes(search.toLowerCase()))})" class="ux-table"
             :max-height=pageHeight
                show-summary
                :summary-method="arraySpanMethod"
@@ -38,6 +45,8 @@
         <ux-table-column field="manage" min-width="10%" sortable title="设总管理工时" align="center">
         </ux-table-column>
         <ux-table-column field="advance_workday" min-width="10%" sortable title="预发工时" align="center">
+        </ux-table-column>
+        <ux-table-column field="scientific" min-width="10%" sortable title="科技工时" align="center">
         </ux-table-column>
         <ux-table-column field="deduct" min-width="10%" sortable title="奖惩工时" align="center">
         </ux-table-column>
@@ -128,7 +137,8 @@ const type = [{id :0, explain : "管理工时"},
   {id :2, explain : "卷册工时"},
   {id :3, explain : "提前发放"},
   {id :4, explain : "提前发完成"},
-  {id :5, explain : "奖惩工时"},]
+  {id :5, explain : "奖惩工时"},
+  {id :6, explain : "科技工时"},]
 const role = [{id :0, explain : "设计"},
   {id :1, explain : "校核"},
   {id :2, explain : "主设"},
@@ -139,6 +149,7 @@ name: "workday",
   data(){
   return{
     visible : false,
+    search : "",
     nowMonth : "",
     pageHeight : document.body.clientHeight-50,
     workdayList : [],

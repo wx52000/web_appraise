@@ -309,7 +309,8 @@ name: "ManageProgress",
         .catch(res => (console.log(res)));
     },
     backgroundStyle({ row, column, rowIndex, columnIndex }) {
-      if (column.label === Number(new Date().getMonth() + 1).toString()) {
+      if (column.label === Number(new Date().getMonth() + 1).toString() ||
+        column.label === Number(new Date().getMonth() + 1) + "月计划") {
         return 'background:#FFFFCD;'
       }
     },

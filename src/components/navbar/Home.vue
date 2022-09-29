@@ -13,10 +13,15 @@
         <!-- 导航 -->
         <el-row style="margin-top: 10px; ">
           <el-menu  default-active="1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
-            <el-menu-item index="home/workday" @click="toPage(toPage('/home/workday'))">
+            <el-menu-item index="home/workday" @click="toPage('/home/workday')">
               工时信息
             </el-menu-item>
-            <el-menu-item index="/home/adminProject" @click="toPage(toPage('/home/adminProject'))">项目管理
+            <el-menu-item index="home/revenueList" @click="toPage('/home/revenueList')">
+              营收信息
+            </el-menu-item>
+            <el-menu-item index="/home/adminProject" @click="toPage('/home/adminProject')">项目管理
+            </el-menu-item>
+            <el-menu-item index="/home/adminScientific" @click="toPage('/home/adminScientific')">科技项目
             </el-menu-item>
             <el-menu-item index="/home/projectRole"
                           @click="toPage(toPage('/home/projectRole'))">角色任务
@@ -27,16 +32,13 @@
               </template>
             <el-menu-item-group>
               <el-menu-item class="nav2" index="/home/projectProgress"
-                            @click="toPage(toPage('/home/projectProgress'))">项目列表
+                            @click="toPage('/home/projectProgress')">项目列表
               </el-menu-item>
               <el-menu-item class="nav2" index="/home/tecProgress"
-                            @click="toPage(toPage('/home/tecProgress'))">专业列表
+                            @click="toPage('/home/tecProgress')">专业列表
               </el-menu-item>
             </el-menu-item-group>
             </el-submenu>
-            <el-menu-item index="/home/plannedPublicTask"
-                          @click="toPage(toPage('/home/plannedPublicTask'))">计划任务
-            </el-menu-item>
             <el-submenu index="3">
               <template slot="title">
                 <el-row >个人评价</el-row>
@@ -73,7 +75,7 @@
                 </el-menu-item>
                 <el-menu-item class="nav2" index="4-4" @click="toPage('/home/roleManage')">权限管理
                 </el-menu-item>
-                <el-menu-item class="nav2" index="4-5" @click="toPage(toPage('/home/checkerManage'))">审核管理
+                <el-menu-item class="nav2" index="4-5" @click="toPage('/home/checkerManage')">审核管理
                 </el-menu-item>
               </el-menu-item-group>
             </el-submenu>

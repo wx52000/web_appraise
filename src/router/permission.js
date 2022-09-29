@@ -22,6 +22,11 @@ import SelfProject from "../components/workday/SelfProject";
 import ProjectProgressDetails from "../components/workday/ProjectProgressDetails";
 import ManageProgress from "../components/workday/ManageProgress";
 import ManageProjectRole from "../components/workday/ManageProjectRole";
+import VolumePlanDate from "../components/workday/VolumePlanDate";
+import WorkdayManage from "../components/project/WorkdayManage";
+import ScientificMain from "../components/navbar/ScientificMain";
+import ScientificTermManage from "../components/scientific/ScientificTermManage";
+import ScientificWorkdayManage from "../components/scientific/ScientificWorkdayManage";
 
 
 export function getRouter(routers) {
@@ -88,6 +93,11 @@ export function getRouter(routers) {
             name: 'selfProject',
             component: SelfProject
           },
+          {
+            path: 'volumePlanDate',
+            name: 'volumePlanDate',
+            component: VolumePlanDate
+          },
         ]
       },
       {
@@ -117,6 +127,11 @@ export function getRouter(routers) {
             component: ProjectWorkday
           },
           {
+            path: 'workdayManage',
+            name: 'workdayManage',
+            component: WorkdayManage
+          },
+          {
             path: 'workdayLog',
             name: 'workdayLog',
             component: WorkdayLog
@@ -137,6 +152,28 @@ export function getRouter(routers) {
             component: ProjectProgressDetails
           },
         ]
+      },
+      {
+        path: '/scientificMain',
+        name: 'scientificMain',
+        component: ScientificMain,
+        children: [
+          {
+            path: '',
+            name: 'main',
+            component: ScientificTermManage
+          },
+          {
+            path: 'scientificTermManage',
+            name: 'scientificTermManage',
+            component: ScientificTermManage
+          },
+          {
+            path: 'scientificWorkdayManage',
+            name: 'scientificWorkdayManage',
+            component: ScientificWorkdayManage
+          },
+          ]
       },
       {
         path: '*',

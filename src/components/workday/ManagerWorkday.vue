@@ -31,6 +31,8 @@
       </ux-table-column>
       <ux-table-column field="advance_workday" min-width="10%" sortable title="预发工时" align="center">
       </ux-table-column>
+      <ux-table-column field="scientific" min-width="10%" sortable title="科技工时" align="center">
+      </ux-table-column>
       <ux-table-column field="deduct" min-width="10%" sortable title="奖惩工时" align="center">
       </ux-table-column>
       <ux-table-column  width="200px" align="center"  fixed="right">
@@ -120,7 +122,8 @@ const type = [{id :0, explain : "管理工时"},
   {id :2, explain : "卷册工时"},
   {id :3, explain : "提前发放"},
   {id :4, explain : "提前发完成"},
-  {id :5, explain : "奖惩工时"},]
+  {id :5, explain : "奖惩工时"},
+  {id :6, explain : "科技工时"},]
 const role = [{id :0, explain : "设计"},
   {id :1, explain : "校核"},
   {id :2, explain : "主设"},

@@ -4,16 +4,20 @@
   <el-row style="font-size: x-large;font-family: 'Helvetica Neue';margin-top: 25px;margin-left: 25%"
           align="center">{{this.project.name}}</el-row>
     <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
-      <el-menu-item index="/projectMain/project"
+      <el-menu-item index="/projectMain/project" v-if="show"
                     @click="toPage('/projectMain/project')">项目主页</el-menu-item>
       <el-menu-item index="/projectMain/projectVolume"
                     @click="toPage('/projectMain/projectVolume')">任务列表</el-menu-item>
       <el-menu-item index="/projectMain/projectProgressDetails"
                     @click="toPage('/projectMain/projectProgressDetails')">生产任务</el-menu-item>
       <el-menu-item index="/projectMain/projectSumWorkday"  v-if="show"
-                    @click="toPage('/projectMain/projectSumWorkday')">总分配工时详情</el-menu-item>
+                    @click="toPage('/projectMain/projectSumWorkday')">项目工时详情</el-menu-item>
+      <el-menu-item index="/projectMain/workdayManage" v-if="user.principal"
+                    @click="toPage('/projectMain/workdayManage')">专业工时管理
+      </el-menu-item>
       <el-menu-item index="/projectMain/projectWorkday"  v-if="show"
-                      @click="toPage('/projectMain/projectWorkday')">工时分配与专业管理</el-menu-item>
+                      @click="toPage('/projectMain/projectWorkday')">工时分配与专业管理
+      </el-menu-item>
       <el-menu-item index="/projectMain/projectUserWorkday"  v-if="show"
                     @click="toPage('/projectMain/projectUserWorkday')">个人工时详情</el-menu-item>
       <el-submenu index="/log/" v-if="show">
@@ -68,12 +72,14 @@ export default {
 name: "ProjectMain",
   data(){
   return{
+    userId : "",
     name: "",
     pid: "",
     state : "",
     projectId : "",
-    activeIndex : "/projectMain/project",
+    activeIndex : "/projectMain/projectProgressDetails",
     project : {},
+    user : {},
     show : false,
     }
   },
@@ -85,11 +91,15 @@ name: "ProjectMain",
   methods:{
     getLogIn() {
       this.$axios
-        .post(this.$baseUrl + 'user/queryById'
+        .post(this.$baseUrl + 'project/queryUser',{},{headers : {id : this.projectId}}
         )
-        .then(res => {this.name = res.data.data.name;
-          this.pid = res.data.data.pid
-          this.state = res.data.data.state})
+        .then(res => {
+          this.user = res.data.data
+          if (this.user.admin || this.user.general){
+            this.show = true
+            this.activeIndex = "/projectMain/project"
+          }
+        })
         .catch(res => (console.log(res)));
     },
     getParams() {
@@ -98,7 +108,6 @@ name: "ProjectMain",
       this.$axios.post(this.$baseUrl + "project/queryById",
         {},{headers: {id : this.projectId}})
         .then(res => {this.project = res.data.data;
-        this.show = res.data.data.show
           this.$nextTick(() =>{
             console.log(this.project)
             document.title = this.project.name

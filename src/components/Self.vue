@@ -2,8 +2,8 @@
 <div>
   <el-descriptions class="margin-top" title="个人信息" style="margin-left: 4%" :column="5">
     <el-descriptions-item label="姓名"><span>{{information.name}}</span></el-descriptions-item>
-    <el-descriptions-item label="专业"><span>{{information.technology}}</span></el-descriptions-item>
-    <el-descriptions-item label="部门" :span="2"><span>{{information.department}}</span></el-descriptions-item>
+    <el-descriptions-item label="专业"><span>{{information.tec}}</span></el-descriptions-item>
+    <el-descriptions-item label="部门" :span="2"><span>{{information.dep}}</span></el-descriptions-item>
     <el-descriptions-item label="月份">          <el-date-picker
       v-model="nowMonth"
       field="month"
@@ -19,13 +19,16 @@
       <span>{{information.workday}}</span>
     </el-descriptions-item>
     <el-descriptions-item label="卷册工时">
-      <span>{{information.volume}}</span>
+      <span>{{information.volume_workday}}</span>
     </el-descriptions-item>
     <el-descriptions-item label="非卷册工时">
-      <span>{{information.task}}</span>
+      <span>{{information.task_workday}}</span>
     </el-descriptions-item>
     <el-descriptions-item label="设总管理">
       <span>{{information.manage}}</span>
+    </el-descriptions-item>
+    <el-descriptions-item label="科技工时">
+      <span>{{information.scientific}}</span>
     </el-descriptions-item>
   </el-descriptions>
   <el-row>
@@ -69,7 +72,8 @@ const type = [{id :0, explain : "管理工时"},
   {id :1, explain : "备用工时"},
   {id :2, explain : "卷册工时"},
   {id :3, explain : "提前发放"},
-  {id :4, explain : "提前发完成"},]
+  {id :4, explain : "提前发完成"},
+  {id :6, explain : "科技工时"},]
 const role = [{id :0, explain : "设计"},
   {id :1, explain : "校核"},
   {id :2, explain : "主设"},
@@ -119,18 +123,7 @@ name: "Self",
       this.$axios
         .post(this.$baseUrl + 'user/information',{},{headers :{queryDate: this.nowMonth}})
         .then(res =>{
-          let data = res.data.data;
-          this.information.name = data.user.name;
-          this.information.technology = data.user.technology;
-          this.information.department = data.user.department;
-          data.backup = this.$myMethod.nullTo0(data.backup)
-          this.information.volume = (Number(data.volume.designer) + Number(data.backup) +
-            Number(data.volume.checker) + Number(data.volume.principal) + Number(data.volume.headman)).toFixed(2);
-          data.task = this.$myMethod.nullTo0(data.task) + this.$myMethod.nullTo0(data.advance);
-          data.manage = this.$myMethod.nullTo0(data.manage);
-          this.information.workday = (Number(this.information.volume) + Number(data.task) + Number(data.manage)).toFixed(2)
-          this.information.task = data.task
-          this.information.manage = data.manage
+          this.information = res.data.data
           this.$forceUpdate();
         })
         .catch(res => (console.log(res)));

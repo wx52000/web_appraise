@@ -197,7 +197,7 @@ name: "RoleManage",
     },
     newRole(){
       this.$axios
-        .post(this.$baseUrl + 'position/newRole',this.roleName,
+        .post(this.$baseUrl + 'position/newRole',{},{headers : {"roleName" : this.name}}
         )
         .then(res => {
           this.$message.success('操作成功');

@@ -27,238 +27,237 @@
         <el-button size="mini" @click="getNewsLog">确认</el-button>
         <el-button size="mini" @click="getNews">重置</el-button>
       </el-row>
-      <u-table
-        key="list" use-virtual :row-height="30"
+      <el-table
+        key="list"
         :data="list"
         height="400px"
         :row-style="tableRowClassName"
         @selection-change="handleSelectionChange"
         :close-on-click-model="false">
-        <u-table-column
-          type="expand" width="30">
+        <el-table-column type="expand">
           <template slot-scope="scope" style="margin-left: 60px">
             <div>
-            <div v-if="scope.row.type === 0 || scope.row.type === 1">
-              <el-form label-position="left" size="mini">
-                <u-table key="list1" use-virtual :row-height="30"
-                         :data="scope.row.list" size="mini"
-                         height="180">
-                  <u-table-column
-                    label="专业"
-                    width="180px"
-                    fixed
-                    show-overflow-tooltip
-                    prop="tec">
-                  </u-table-column>
-                  <u-table-column
-                    label="工时数量"
-                    width="200px"
-                    show-overflow-tooltip
-                    prop="workday">
-                  </u-table-column>
-                </u-table>
-              </el-form>
-            </div>
-            <div v-if="scope.row.type === 2">
-              <el-form label-position="left" size="mini">
-                <el-row>
-                  <el-col :span="10">
-                <el-form-item label="任务:">
-                  <span>{{ scope.row.tnumber  }} - {{ scope.row.tname }}</span>
-                </el-form-item>
-                  </el-col>
-                <el-form-item label="专业:" size="mini">
-                  <span>{{ scope.row.tec }}</span>
-                </el-form-item>
-                </el-row>
-                <el-row>
-                  <el-col :span="10">
-                <el-form-item label="申请工时:" size="mini">
-                  <span>{{ scope.row.apply }}</span>
-                </el-form-item>
-                  </el-col>
-                  <el-col :span="10">
-                <el-form-item label="确认工时:" size="mini">
-                  <input v-model="scope.row.workday" size="mini" style="width: 100px"></input>
-                </el-form-item>
-                  </el-col>
-                </el-row>
-              </el-form>
-            </div>
-            <div v-if="scope.row.type === 3">
-              <el-form label-position="left" size="mini">
-                <el-row>
-                  <el-col :span="10">
-                <el-form-item label="专业名称">
-                  <span>{{ scope.row.tec }}</span>
-                </el-form-item>
-                  </el-col>
-                  <el-col :span="10">
-                <el-form-item label="总工时">
-                  <span>{{ scope.row.workday }}</span>
-                </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="8">
-                    <el-form-item label="管理工时">
-                      <span>{{ scope.row.manage }}</span>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                <el-form-item label="备用工时">
-                  <span>{{ scope.row.backup }}</span>
-                </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                <el-form-item label="卷册工时">
-                  <span>{{ scope.row.volume }}</span>
-                </el-form-item>
-                  </el-col>
-                </el-row>
-                    <el-row>
-                      <el-col :span="10">
-                <el-form-item label="设计比例">
-                  <span>{{ scope.row.designer }}</span>
-                </el-form-item>
-                      </el-col>
-                      <el-col :span="10">
-                <el-form-item label="校核比例">
-                  <span>{{ scope.row.checker }}</span>
-                </el-form-item>
-                      </el-col>
-                    </el-row>
-                        <el-row>
-                          <el-col :span="10">
-                <el-form-item label="主设比例">
-                  <span>{{ scope.row.principal }}</span>
-                </el-form-item>
-                          </el-col>
-                          <el-col :span="10">
-                <el-form-item label="组长比例">
-                  <span>{{ scope.row.headman }}</span>
-                </el-form-item>
-                          </el-col>
-                        </el-row>
-              </el-form>
-            </div>
-            <div v-if="scope.row.type === 4">
-              <el-form label-position="left" size="mini">
-                  <u-table key="list4" use-virtual :row-height="30"
+              <div v-if="scope.row.type === 0 || scope.row.type === 1">
+                <el-form label-position="left" size="mini">
+                  <u-table key="list1" use-virtual :row-height="30"
                            :data="scope.row.list" size="mini"
                            height="180">
                     <u-table-column
-                      label="编号"
+                      label="专业"
                       width="180px"
                       fixed
                       show-overflow-tooltip
-                      prop="number">
+                      prop="tec">
                     </u-table-column>
                     <u-table-column
-                      label="名称"
+                      label="工时数量"
                       width="200px"
                       show-overflow-tooltip
-                      prop="name">
-                    </u-table-column>
-                    <u-table-column
-                      label="总工时"
                       prop="workday">
                     </u-table-column>
-                    <u-table-column
-                      label="设计"
-                      prop="designer">
-                    </u-table-column>
-                    <u-table-column
-                      label="校核"
-                      prop="checker">
-                    </u-table-column>
-                    <u-table-column
-                      label="主设"
-                      prop="principal">
-                    </u-table-column>
-                    <u-table-column
-                      label="组长"
-                      prop="headman">
-                    </u-table-column>
                   </u-table>
-              </el-form>
-            </div>
-            <div v-if="scope.row.type === 5 || scope.row.type === 6 ">
-              <span>申报工时月份: </span><span style="font-weight: bold">{{scope.row.submit_date}}</span>
-              <u-table key="list5" use-virtual :row-height="30"
-                       show-summary
-                       :summary-method="arraySpanMethod"
-                      :data="scope.row.list" size="mini"
-                       height="180">
-                <u-table-column
-                  fixed
-                  v-if="scope.row.type === 5"
-                width="96px">
-                  <template slot-scope="scope">
-                    <el-button size="mini" @click="openDeduct(scope.row)">工时奖惩</el-button>
-                  </template>
-                </u-table-column>
-                <u-table-column
-                  label="编号"
-                  width="180px"
-                  fixed
-                  show-overflow-tooltip
-                  prop="number">
-                </u-table-column>
-                <u-table-column
-                  label="名称"
-                  width="200px"
-                  show-overflow-tooltip
-                  prop="name">
-                </u-table-column>
-                <u-table-column
-                  label="总工时"
-                  prop="workday">
-                </u-table-column>
-                <u-table-column
-                  label="设计"
-                  prop="designer">
-                </u-table-column>
-                <u-table-column
-                  label="设计工时"
-                  prop="designerWorkday">
-                </u-table-column>
-                <u-table-column
-                  label="校核"
-                  prop="checker">
-                </u-table-column>
-                <u-table-column
-                  label="校核工时"
-                  prop="checkerWorkday">
-                </u-table-column>
-                <u-table-column
-                  label="主设"
-                  prop="principal">
-                </u-table-column>
-                <u-table-column
-                  label="主设工时"
-                  prop="principalWorkday">
-                </u-table-column>
-                <u-table-column
-                  label="组长"
-                  prop="headman">
-                </u-table-column>
-                <u-table-column
-                  label="组长工时"
-                  prop="headmanWorkday">
-                </u-table-column>
-                <u-table-column prop="type" sortable width="120px" label="工时类型" align="center">
-                  <template slot-scope="scope">
-                    <span>{{scope.row|workdayTypeFilter}}</span>
-                  </template>
-                </u-table-column>
-                <u-table-column prop="advance" sortable width="120px" label="是否预发" align="center">
-                  <template slot-scope="scope">
-                    <span>{{scope.row.advance|advanceFilter}}</span>
-                  </template>
-                </u-table-column>
-              </u-table>
-            </div>
+                </el-form>
+              </div>
+              <div v-if="scope.row.type === 2">
+                <el-form label-position="left" size="mini">
+                  <el-row>
+                    <el-col :span="10">
+                  <el-form-item label="任务:">
+                    <span>{{ scope.row.tnumber  }} - {{ scope.row.tname }}</span>
+                  </el-form-item>
+                    </el-col>
+                  <el-form-item label="专业:" size="mini">
+                    <span>{{ scope.row.tec }}</span>
+                  </el-form-item>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="10">
+                  <el-form-item label="申请工时:" size="mini">
+                    <span>{{ scope.row.apply }}</span>
+                  </el-form-item>
+                    </el-col>
+                    <el-col :span="10">
+                  <el-form-item label="确认工时:" size="mini">
+                    <el-input v-model="scope.row.workday" size="mini" style="width: 100px"></el-input>
+                  </el-form-item>
+                    </el-col>
+                  </el-row>
+                </el-form>
+              </div>
+              <div v-if="scope.row.type === 3">
+                <el-form label-position="left" size="mini">
+                  <el-row>
+                    <el-col :span="10">
+                  <el-form-item label="专业名称">
+                    <span>{{ scope.row.tec }}</span>
+                  </el-form-item>
+                    </el-col>
+                    <el-col :span="10">
+                  <el-form-item label="总工时">
+                    <span>{{ scope.row.workday }}</span>
+                  </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="8">
+                      <el-form-item label="管理工时">
+                        <span>{{ scope.row.manage }}</span>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                  <el-form-item label="备用工时">
+                    <span>{{ scope.row.backup }}</span>
+                  </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                  <el-form-item label="卷册工时">
+                    <span>{{ scope.row.volume }}</span>
+                  </el-form-item>
+                    </el-col>
+                  </el-row>
+                      <el-row>
+                        <el-col :span="10">
+                  <el-form-item label="设计比例">
+                    <span>{{ scope.row.designer }}</span>
+                  </el-form-item>
+                        </el-col>
+                        <el-col :span="10">
+                  <el-form-item label="校核比例">
+                    <span>{{ scope.row.checker }}</span>
+                  </el-form-item>
+                        </el-col>
+                      </el-row>
+                          <el-row>
+                            <el-col :span="10">
+                  <el-form-item label="主设比例">
+                    <span>{{ scope.row.principal }}</span>
+                  </el-form-item>
+                            </el-col>
+                            <el-col :span="10">
+                  <el-form-item label="组长比例">
+                    <span>{{ scope.row.headman }}</span>
+                  </el-form-item>
+                            </el-col>
+                          </el-row>
+                </el-form>
+              </div>
+              <div v-if="scope.row.type === 4">
+                <el-form label-position="left" size="mini">
+                    <u-table key="list4" use-virtual :row-height="30"
+                             :data="scope.row.list" size="mini"
+                             height="180">
+                      <u-table-column
+                        label="编号"
+                        width="180px"
+                        fixed
+                        show-overflow-tooltip
+                        prop="number">
+                      </u-table-column>
+                      <u-table-column
+                        label="名称"
+                        width="200px"
+                        show-overflow-tooltip
+                        prop="name">
+                      </u-table-column>
+                      <u-table-column
+                        label="总工时"
+                        prop="workday">
+                      </u-table-column>
+                      <u-table-column
+                        label="设计"
+                        prop="designer">
+                      </u-table-column>
+                      <u-table-column
+                        label="校核"
+                        prop="checker">
+                      </u-table-column>
+                      <u-table-column
+                        label="主设"
+                        prop="principal">
+                      </u-table-column>
+                      <u-table-column
+                        label="组长"
+                        prop="headman">
+                      </u-table-column>
+                    </u-table>
+                </el-form>
+              </div>
+              <div v-if="scope.row.type === 5 || scope.row.type === 6 ">
+                <span>申报工时月份: </span><span style="font-weight: bold">{{scope.row.submit_date}}</span>
+                <u-table key="list5" use-virtual :row-height="30"
+                         show-summary
+                         :summary-method="arraySpanMethod"
+                        :data="scope.row.list" size="mini"
+                         height="180">
+                  <u-table-column
+                    fixed
+                    v-if="scope.row.type === 5"
+                  width="96px">
+                    <template slot-scope="scope">
+                      <el-button size="mini" @click="openDeduct(scope.row)">工时奖惩</el-button>
+                    </template>
+                  </u-table-column>
+                  <u-table-column
+                    label="编号"
+                    width="180px"
+                    fixed
+                    show-overflow-tooltip
+                    prop="number">
+                  </u-table-column>
+                  <u-table-column
+                    label="名称"
+                    width="200px"
+                    show-overflow-tooltip
+                    prop="name">
+                  </u-table-column>
+                  <u-table-column
+                    label="总工时"
+                    prop="workday">
+                  </u-table-column>
+                  <u-table-column
+                    label="设计"
+                    prop="designer">
+                  </u-table-column>
+                  <u-table-column
+                    label="设计工时"
+                    prop="designerWorkday">
+                  </u-table-column>
+                  <u-table-column
+                    label="校核"
+                    prop="checker">
+                  </u-table-column>
+                  <u-table-column
+                    label="校核工时"
+                    prop="checkerWorkday">
+                  </u-table-column>
+                  <u-table-column
+                    label="主设"
+                    prop="principal">
+                  </u-table-column>
+                  <u-table-column
+                    label="主设工时"
+                    prop="principalWorkday">
+                  </u-table-column>
+                  <u-table-column
+                    label="组长"
+                    prop="headman">
+                  </u-table-column>
+                  <u-table-column
+                    label="组长工时"
+                    prop="headmanWorkday">
+                  </u-table-column>
+                  <u-table-column prop="type" sortable width="120px" label="工时类型" align="center">
+                    <template slot-scope="scope">
+                      <span>{{scope.row|workdayTypeFilter}}</span>
+                    </template>
+                  </u-table-column>
+                  <u-table-column prop="advance" sortable width="120px" label="是否预发" align="center">
+                    <template slot-scope="scope">
+                      <span>{{scope.row.advance|advanceFilter}}</span>
+                    </template>
+                  </u-table-column>
+                </u-table>
+              </div>
               <div v-if="scope.row.type === 7">
                 <el-descriptions title="项目信息" :column="2">
                   <el-descriptions-item label="项目编号">{{scope.row.number}}</el-descriptions-item>
@@ -282,8 +281,9 @@
                     {{scope.row.netRatio}}</el-descriptions-item>
                   <el-descriptions-item label="备注">{{scope.row.note}}</el-descriptions-item>
                   <el-descriptions-item :span="2" v-if="scope.row.typeNote ===0 || scope.row.typeNote ===3" label="工时">
-                    <input type="text" v-model="scope.row.workday"></input></el-descriptions-item>
-                </el-descriptions>
+                    <el-input type="text" size="mini" v-model="scope.row.workday"></el-input>
+                  </el-descriptions-item>
+                  </el-descriptions>
               </div>
               <div v-if="scope.row.type === 8" >
                 <el-descriptions :title="'项目信息'+ index" :column="2" :key="index" v-for="(item,index) in scope.row.list">
@@ -303,11 +303,63 @@
                   <el-descriptions-item label="工时数"><input type="text" v-model="item.workday"></input></el-descriptions-item>
                 </el-descriptions>
               </div>
-              <div v-else></div>
+              <div v-if="scope.row.type === 9" >
+                <el-descriptions title="项目信息" :column="2">
+                  <el-descriptions-item label="申请工时数">{{scope.row.plan_workday}}</el-descriptions-item>
+                  <el-descriptions-item label="工时数"><input type="text" v-model="scope.row.workday"></input></el-descriptions-item>
+                </el-descriptions>
+                <ux-grid use-virtual
+                         max-height="200px"
+                         border :data="scope.row.list"
+                         size="mini"
+                         v-if="scope.row.list.length > 0"
+                         :default-sort = "{prop: 'date', order: 'descending'}">
+                  <ux-table-column
+                    type="index"
+                    align="center"
+                    width="50px">
+                  </ux-table-column>
+                  <ux-table-column field="name" title="项名称"  min-width="150px" sortable align="center">
+                  </ux-table-column>
+                  <ux-table-column field="upload_user" title="上传人"  min-width="80px" sortable align="center">
+                  </ux-table-column>
+                  <ux-table-column field="upload_date" title="上传时间"  min-width="80px" sortable align="center">
+                  </ux-table-column>
+                  <ux-table-column title="操作"  min-width="180px" align="center">
+                    <template slot-scope="scope">
+                      <el-row>
+                        <el-button size="mini" @click="downloadFile(scope.row)">下载附件</el-button>
+                      </el-row>
+                    </template>
+                  </ux-table-column>
+                </ux-grid>
+              </div>
+              <div v-if="scope.row.type === 10" >
+                <ux-grid use-virtual
+                         max-height="200px"
+                         border :data="scope.row.list"
+                         size="mini"
+                         v-if="scope.row.list.length > 0"
+                         :default-sort = "{prop: 'date', order: 'descending'}">
+                  <ux-table-column
+                    type="index"
+                    align="center"
+                    width="50px">
+                  </ux-table-column>
+                  <ux-table-column field="number" title="任务编号"  min-width="150px" sortable align="center">
+                  </ux-table-column>
+                  <ux-table-column field="name" title="任务名称"  min-width="80px" sortable align="center">
+                  </ux-table-column>
+                  <ux-table-column field="user" title="获得者"  min-width="80px" sortable align="center">
+                  </ux-table-column>
+                  <ux-table-column field="workday" title="工时"  min-width="80px" sortable align="center">
+                  </ux-table-column>
+                </ux-grid>
+              </div>
             </div>
           </template>
-        </u-table-column>
-        <u-table-column
+        </el-table-column>
+        <el-table-column
           label="审核类型"
           width="100px"
           prop="type">
@@ -316,33 +368,33 @@
             {{scope.row | typeFilter}}
             </span>
           </template>
-        </u-table-column>
-        <u-table-column
+        </el-table-column>
+        <el-table-column
           label="发起人"
           width="100px"
           prop="handler">
-        </u-table-column>
-        <u-table-column
+        </el-table-column>
+        <el-table-column
           label="专业"
           width="100px"
           prop="tec">
-        </u-table-column>
-        <u-table-column
+        </el-table-column>
+        <el-table-column
           label="项目编号"
           width="100"
           prop="number" show-overflow-tooltip>
-        </u-table-column>
-          <u-table-column
+        </el-table-column>
+          <el-table-column
           label="项目名称"
           prop="name" show-overflow-tooltip>
-        </u-table-column>
+        </el-table-column>
         <el-table-column
           fixed="right"
           type="selection"
           :selectable="selectable"
           width="30"
           v-if="logSelection"/>
-      </u-table>
+      </el-table>
     </template>
         <span slot="footer" v-if="logSelection">
           <el-button @click="CheckerCancel">回退</el-button>
@@ -408,14 +460,16 @@
 
 <script>
 const typeList = [{id : 0, name : "项目工时"},
-{id : 1, name : "工时申请"},
+{id : 1, name : "额外工时"},
 {id : 2, name : "设总备用"},
 {id : 3, name : "专业工时"},
   {id : 4, name : "卷册工时"},
   {id : 5, name : "工时审核"},
   {id : 6, name : "回退审核"},
   {id : 7, name : "无产值项目"},
-  {id : 8, name : "有产值项目"}]
+  {id : 8, name : "有产值项目"},
+  {id : 9, name : "科技项审核"},
+  {id : 10, name : "科技工时"}]
 
 export default {
 name: "news",
@@ -683,6 +737,24 @@ name: "news",
       // 返回一个二维数组的表尾合计(不要平均值，你就不要在数组中添加)
       return [means]
     },
+    downloadFile(row){
+      this.$message.success("即将开始下载");
+      this.$axios.post(this.$baseUrl + 'scientificLeader/downFiles',{
+        id : row.id},{responseType: 'blob'}).then(res => {
+        let {data, headers} = res
+        const fileName = headers['content-disposition'].replace(/\w+;filename=(.*)/, '$1')
+        let blob = new Blob([data], {type: headers['content-type']})
+        let a = document.createElement("a")
+        let url = window.URL.createObjectURL(blob)
+        a.href = url
+        a.download = decodeURI(fileName)  // 文件名
+        a.click()
+        window.URL.revokeObjectURL(url)
+      })
+        .catch(res => {
+          console.log(res);
+        });// token键值对
+    }
   }
 }
 </script>

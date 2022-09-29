@@ -198,7 +198,7 @@
                   :key="item.id"
                   :label="item.name"
                   :value="item"
-                  :disabled="item.disabled === 1 ">
+                  :disabled="item.disabled !== 1 ">
                 </el-option>
               </el-select>
             </el-form-item>
