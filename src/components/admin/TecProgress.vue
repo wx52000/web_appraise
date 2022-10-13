@@ -203,16 +203,16 @@
         align="center"
         width="50">
       </u-table-column>
-      <u-table-column prop="pNumber" sortable min-width="100px" show-overflow-tooltip label="项目编号" align="center"  >
+      <u-table-column prop="pNumber" sortable min-width="120px" label="项目编号" align="center"  >
       </u-table-column>
       <u-table-column prop="pName" min-width="180px"
                       :filters="filtersList"
                       :filter-method="filterHandler"
-                      show-overflow-tooltip label="项目名" align="center">
+                      label="项目名" align="center">
       </u-table-column>
-      <u-table-column prop="number" sortable min-width="100px" show-overflow-tooltip label="卷册号" align="center"  >
+      <u-table-column prop="number" sortable min-width="140px" label="卷册号" align="center"  >
       </u-table-column>
-      <u-table-column prop="name" sortable min-width="180px" show-overflow-tooltip label="卷册名" align="center">
+      <u-table-column prop="name" sortable min-width="180px"  label="卷册名" align="center">
       </u-table-column>
       <u-table-column prop="workday" sortable width="100px" label="工时"  align="center">
       </u-table-column>

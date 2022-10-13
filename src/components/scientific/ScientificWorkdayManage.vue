@@ -51,7 +51,7 @@
         </ux-table-column>
         <ux-table-column  title="工时状态"  min-width="100px" sortable align="center">
           <template slot-scope="scope">
-            <el-button v-if="scope.row.submit === 0" size="mini" @click="submitTask(scope.row)">发送审核</el-button>
+            <el-button v-if="scope.row.submit === 0 && scope.row.checkRole" size="mini" @click="submitTask(scope.row)">发送审核</el-button>
             <span v-else>{{scope.row |submitFilter}}</span>
           </template>
         </ux-table-column>
@@ -228,6 +228,7 @@ export default {
         )
         .then(res => {
           row.submit = 1
+
           this.$message.success("操作成功")
         });
     },
@@ -253,6 +254,7 @@ export default {
         .post(this.$baseUrl + 'scientificTask/addTask',
         this.task)
         .then(res => {
+          this.taskVisible = false
           this.$message.success("操作成功")
         });
     },

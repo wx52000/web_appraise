@@ -236,7 +236,7 @@ name: "workday",
       columns.forEach((column, columnIndex) => {
         if (columnIndex === 0) {
           means.push('合计')
-        } else {
+        } else if (columnIndex > 4){
           const values = data.map(item => Number(item[column.property]));
           // 合计
           if (!values.every(value => isNaN(value))) {
@@ -255,6 +255,8 @@ name: "workday",
           } else {
             means[columnIndex] = '';
           }
+        }else {
+          means[columnIndex] = '';
         }
       })
       // 返回一个二维数组的表尾合计(不要平均值，你就不要在数组中添加)

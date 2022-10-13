@@ -6,6 +6,7 @@
               size="mini" style="width: 50%;" placeholder="项名\负责人"></el-input>
     </el-col>
     <el-col :span="12">
+      <span v-if="$parent.scientific.generalRole">项目工时总数:{{$parent.scientific.workday}}</span>
       <el-button size="mini" @click="getLeader" v-if="$parent.scientific.generalRole">负责人管理</el-button>
       <el-button size="mini" @click="openTerm" v-if="$parent.scientific.generalRole">工时发放</el-button>
       <el-button size="mini" @click="openApply" v-if="$parent.scientific.principalRole">工时申请</el-button>

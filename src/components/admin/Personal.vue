@@ -382,7 +382,7 @@ export default {
     },
     getTecSelect(){
       this.$axios
-        .post(this.$baseUrl + 'technology/query', {},{headers:{"id" : this.add.did}})
+        .post(this.$baseUrl + 'technology/query', {},{headers:{"id" : 0}})
         .then(res => (this.technology = res.data.data))
         .catch(res => (console.log(res)));
     },

@@ -635,7 +635,8 @@ export default {
           {headers:{"id" : this.projectId}})
         .then(res => {
           if(this.name === this.$parent.project.general) {
-            if (res.data.data.list.length === 0 || !res.data.data.exist) {
+          // || !res.data.data.exist
+            if (res.data.data.list.length === 0 ) {
               let str = "";
               if (res.data.data.list.length === 0) {
                 str = "该项目主设人暂未设定，请指定主设人"
@@ -863,7 +864,7 @@ export default {
         if (item.tec !== undefined && item.tec !== "") {
           this.$axios
             .post(this.$baseUrl + 'projectWorkday/setPrincipal', {
-              id: this.projectId,
+              projectId : this.projectId,
               tec: item.tec,
               principal: item.principal,
               type: item.type,

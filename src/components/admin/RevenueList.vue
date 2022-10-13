@@ -16,6 +16,7 @@
             return  !search || (data.code != null && data.code.toLowerCase().includes(search.toLowerCase()))
             || (data.name != null && data.name.toLowerCase().includes(search.toLowerCase()))})" class="ux-table"
            :max-height=pageHeight
+           :row-style="incomeCompareToToValue"
            size = "mini" :cell-style="this.CellStyleOne">
     <ux-table-column
       type="index"
@@ -49,7 +50,7 @@
         <el-row>
           <el-button
             size="mini"
-            @click="">营收主页</el-button>
+            @click="openIncome(scope.row)">营收主页</el-button>
         </el-row>
       </template>
     </ux-table-column>
@@ -77,6 +78,23 @@ name: "RevenueList",
         .then(res => {this.list = res.data.data;})
         .catch(res => (console.log(res)));
     },
+    incomeCompareToToValue({row, rowIndex}) {
+      // console.log("rowStyle")
+      // console.log(row)
+      if (row.depMoney !== row.depValue ) {
+        let rowBackground = {};
+        rowBackground.color = "#FF0000";
+        return rowBackground
+      }
+    },
+    openIncome(row){
+      let href =
+        "http://zmis.zepdi.com.cn/Portal/Sys/Workflow/FormDetail.aspx?actionType=1&formId=229&actInstId=" +
+        row.activity_instance_id +
+        "&wfInstId=" +
+        row.process_instance_id
+      window.open( href,row.id)
+    }
   }
 }
 </script>

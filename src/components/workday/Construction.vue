@@ -697,7 +697,7 @@ name: "UserScore",
           date : this.showMonth,
         })
         .then(res => {
-          if (res.data.code === 0){
+          if (res.data.code === 0 && res.data.data.length > 0){
             this.declareLog.tec = 0;
             this.declareLog.id = id;
             this.declareLog.data = res.data.data

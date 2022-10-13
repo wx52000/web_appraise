@@ -90,9 +90,9 @@
         align="center"
         width="50">
       </u-table-column>
-      <u-table-column prop="number" sortable min-width="100px" show-overflow-tooltip label="卷册号" align="center"  >
+      <u-table-column prop="number" sortable min-width="140px" label="卷册号" align="center"  >
       </u-table-column>
-      <u-table-column prop="name" sortable min-width="180px" show-overflow-tooltip label="卷册名" align="center">
+      <u-table-column prop="name" sortable min-width="180px" label="卷册名" align="center">
       </u-table-column>
       <u-table-column prop="workday" sortable width="100px" label="工时"  align="center">
       </u-table-column>

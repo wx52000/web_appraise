@@ -3,7 +3,7 @@
     <el-row style="margin: 10px 0 10px 0">
       <el-col :span="8">
       <span style="font-size: 14px">条件模糊查询</span><el-input v-model="search"
-                size="mini" style="width: 50%;" placeholder="卷册号\卷册名\设计\校核"></el-input>
+                size="mini" style="width: 50%;" placeholder="卷册号\卷册名\设计\校核\工时发放月份"></el-input>
       </el-col>
       <el-col :span="16">
         <el-button size="mini" v-if="$parent.user.principal" @click="newTask">新增任务</el-button>
@@ -17,6 +17,7 @@
               || (data.name !== undefined && data.name.toLowerCase().includes(search.toLowerCase()))
               || (data.designer !== undefined && data.designer.toLowerCase().includes(search.toLowerCase()))
               || (data.checker !== undefined && data.checker.toLowerCase().includes(search.toLowerCase()))
+              || (data.submit_date !== undefined && data.submit_date.toLowerCase().includes(search.toLowerCase()))
             })"
             class="u-table"  :height="pageHeight" size="mini"
             :header-cell-style="{background:'#F5F5F5' } "
@@ -190,6 +191,9 @@
             <el-button size="mini" @click="openVolumeWorkday(scope.row)"
                        v-if="scope.row.spider === 1 && updateRole(scope.row)">比例调整</el-button>
             </el-tooltip>
+          </el-form-item>
+          <el-form-item label="工时发放月份：" v-if="!updateRole(scope.row)">
+            <span>{{scope.row.submit_date}}</span>
           </el-form-item>
         </el-form>
       </template>
